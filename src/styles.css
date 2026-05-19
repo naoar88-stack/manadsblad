@@ -36,11 +36,18 @@ button, input, select, textarea { font: inherit; }
 .main {
   padding: 24px;
 }
+/* Status-raden ovanför preview */
 .status-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 12px;
+}
+/* SyncStatus inre container */
+.sync-status {
+  display: flex;
+  gap: 8px;
+  align-items: center;
 }
 .footer-note {
   margin-top: 20px;
@@ -63,6 +70,7 @@ button, input, select, textarea { font: inherit; }
 .section { margin-bottom: 20px; }
 .section h2 { margin: 0 0 10px; font-size: 0.95rem; }
 .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+.age-field { margin-bottom: 0; }
 .field input, .field select, .field textarea {
   border: 1px solid var(--border);
   background: white;
@@ -70,6 +78,8 @@ button, input, select, textarea { font: inherit; }
   padding: 10px 12px;
 }
 .row { display: flex; gap: 10px; flex-wrap: wrap; }
+.period-month { flex: 1; }
+.period-year { width: 110px; }
 .btn {
   border: 0;
   border-radius: 12px;
@@ -87,10 +97,13 @@ button, input, select, textarea { font: inherit; }
   margin-bottom: 20px;
   gap: 16px;
 }
+.preview-title { margin: 0 0 6px; }
+.preview-subtitle { margin: 0; color: var(--muted); }
 .calendar-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 16px;
+  margin-bottom: 24px;
 }
 .day-card {
   padding: 16px;
@@ -113,6 +126,7 @@ button, input, select, textarea { font: inherit; }
   border-radius: 12px;
   padding: 10px;
 }
+.day-actions { margin-top: auto; align-items: stretch; }
 .badge {
   display: inline-flex;
   align-items: center;
@@ -122,6 +136,20 @@ button, input, select, textarea { font: inherit; }
   color: var(--primary);
   font-size: 0.8rem;
   font-weight: 700;
+}
+.status-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--panel-muted);
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+.status-chip-active {
+  background: var(--primary-soft);
+  color: var(--primary);
 }
 .top-actions { display: flex; gap: 10px; flex-wrap: wrap; }
 .empty {
@@ -149,6 +177,7 @@ button, input, select, textarea { font: inherit; }
   justify-content: center;
   align-items: center;
   padding: 24px;
+  z-index: 100;
 }
 .asset-panel {
   width: min(920px, 100%);
@@ -203,10 +232,6 @@ button, input, select, textarea { font: inherit; }
 .day-actions .btn {
   flex: 1 1 140px;
 }
-.day-actions {
-  align-items: stretch;
-}
-
 .ai-success-banner {
   margin-top: 12px;
   display: flex;
@@ -217,5 +242,17 @@ button, input, select, textarea { font: inherit; }
   background: rgba(46, 125, 50, 0.12);
   border: 1px solid rgba(46, 125, 50, 0.22);
   color: #1f5f2d;
+  font-weight: 600;
+}
+.ai-error-banner {
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: rgba(199, 58, 50, 0.10);
+  border: 1px solid rgba(199, 58, 50, 0.22);
+  color: #7f1d1d;
   font-weight: 600;
 }

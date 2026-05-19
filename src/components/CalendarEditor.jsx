@@ -14,7 +14,13 @@ export default function CalendarEditor({ days, updateActivity, openLibrary, ai }
 
         return (
           <article key={day.dateKey} className="panel day-card">
-            {day.image && <img className="day-image" src={day.image} alt={`Illustration för ${day.weekdayLabel} ${day.dayNum}`} />}
+            {day.image && (
+              <img
+                className="day-image"
+                src={day.image}
+                alt={`Illustration för ${day.weekdayLabel} ${day.dayNum}`}
+              />
+            )}
 
             <header>
               <div>
@@ -28,11 +34,13 @@ export default function CalendarEditor({ days, updateActivity, openLibrary, ai }
               value={day.text}
               placeholder="Skriv aktivitet, t.ex. Turnering, matlagning eller filmkväll"
               onChange={(e) => updateActivity(day.dateKey, { text: e.target.value })}
+              aria-label={`Aktivitetstext för ${day.weekdayLabel} ${day.dayNum}`}
             />
 
-            <div className="field" style={{ marginBottom: 0 }}>
-              <label>Åldersgrupp</label>
+            <div className="field age-field">
+              <label htmlFor={`age-${day.dateKey}`}>Åldersgrupp</label>
               <select
+                id={`age-${day.dateKey}`}
                 value={day.ageGroup}
                 onChange={(e) => updateActivity(day.dateKey, { ageGroup: e.target.value })}
               >
@@ -42,18 +50,40 @@ export default function CalendarEditor({ days, updateActivity, openLibrary, ai }
               </select>
             </div>
 
-            <div className="row day-actions" style={{ marginTop: 'auto' }}>
-              <button type="button" className="btn btn-secondary" onClick={() => openLibrary(day.dateKey)}>
+            <div className="row day-actions">
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={() => openLibrary(day.dateKey)}
+                aria-label={`Välj bild för ${day.weekdayLabel} ${day.dayNum}`}
+              >
                 <ImagePlus size={16} /> Bild
               </button>
-              <button type="button" className="btn btn-secondary" onClick={() => ai.improveTextForDay(day)} disabled={isImproving}>
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={() => ai.improveTextForDay(day)}
+                disabled={isImproving}
+                aria-label={`Förbättra text för ${day.weekdayLabel} ${day.dayNum}`}
+              >
                 <Sparkles size={16} /> {isImproving ? 'Förbättrar...' : 'Förbättra'}
               </button>
-              <button type="button" className="btn btn-primary" onClick={() => ai.generateImageForDay(day)} disabled={isGenerating}>
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={() => ai.generateImageForDay(day)}
+                disabled={isGenerating}
+                aria-label={`Generera AI-bild för ${day.weekdayLabel} ${day.dayNum}`}
+              >
                 <Wand2 size={16} /> {isGenerating ? 'Skapar...' : 'AI-bild'}
               </button>
               {day.image && (
-                <button type="button" className="btn btn-danger" onClick={() => updateActivity(day.dateKey, { image: null })}>
+                <button
+                  type="button"
+                  className="btn btn-danger"
+                  onClick={() => updateActivity(day.dateKey, { image: null })}
+                  aria-label={`Ta bort bild för ${day.weekdayLabel} ${day.dayNum}`}
+                >
                   Ta bort bild
                 </button>
               )}

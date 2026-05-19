@@ -10,7 +10,7 @@ export default function SyncStatus({ sync, hasAiKey }) {
           : 'Redo';
 
   return (
-    <div className="status-row">
+    <div className="sync-status">
       <div className="status-chip">{saveText}</div>
       <div className={`status-chip ${hasAiKey ? 'status-chip-active' : ''}`}>
         {hasAiKey ? 'AI aktiv' : 'AI fallback'}
