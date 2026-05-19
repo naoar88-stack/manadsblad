@@ -3,8 +3,6 @@ import { AlertTriangle, ImagePlus, Trash2, X } from 'lucide-react';
 export default function AssetLibraryPanel({ library }) {
   if (!library.selectedDateKey) return null;
 
-  const isFull = library.assetLibrary.length >= library.maxImages;
-
   return (
     <div className="asset-overlay" role="dialog" aria-modal="true" aria-label="Bildbibliotek">
       <div className="asset-panel panel">
@@ -15,9 +13,6 @@ export default function AssetLibraryPanel({ library }) {
               {library.selectedDay
                 ? `Välj bild för ${library.selectedDay.weekdayLabel} ${library.selectedDay.dayNum}`
                 : 'Välj en bild'}
-            </p>
-            <p className="asset-count">
-              {library.assetLibrary.length} / {library.maxImages} bilder använda
             </p>
           </div>
           <button
@@ -36,46 +31,47 @@ export default function AssetLibraryPanel({ library }) {
           </div>
         )}
 
-        {!isFull && (
-          <label className="upload-dropzone">
-            <input
-              type="file"
-              accept="image/*"
-              hidden
-              onChange={(event) => {
-                const file = event.target.files?.[0];
-                if (file) library.addImage(file);
-                event.target.value = '';
-              }}
-            />
-            <ImagePlus size={18} />
-            <span>{library.isUploading ? 'Laddar upp bild...' : 'Lägg till bild från datorn'}</span>
-          </label>
-        )}
-
-        {isFull && (
-          <p className="asset-full-notice">
-            Biblioteket är fullt ({library.maxImages} bilder). Ta bort en bild för att ladda upp ny.
-          </p>
-        )}
+        <label className="upload-dropzone">
+          <input
+            type="file"
+            accept="image/*"
+            hidden
+            onChange={(event) => {
+              const file = event.target.files?.[0];
+              if (file) library.addImage(file);
+              event.target.value = '';
+            }}
+          />
+          <ImagePlus size={18} />
+          <span>
+            {library.isUploading ? 'Laddar upp till Cloudinary...' : 'Lägg till bild från datorn'}
+          </span>
+        </label>
 
         <div className="asset-grid">
           {library.assetLibrary.map((item) => (
             <article key={item.id} className="asset-card">
-              <img src={item.url} alt={item.name || 'Uppladdad bild'} loading="lazy" />
+              <img
+                src={item.url}
+                alt={item.name || 'Uppladdad bild'}
+                loading="lazy"
+                className={item.url.startsWith('data:') ? 'asset-img-preview' : ''}
+              />
               <div className="asset-actions">
                 <button
                   type="button"
                   className="btn btn-primary"
                   onClick={() => library.assignImageToDay(library.selectedDateKey, item.url)}
+                  disabled={item.url.startsWith('data:')}
                 >
-                  Använd
+                  {item.url.startsWith('data:') ? 'Laddar...' : 'Använd'}
                 </button>
                 <button
                   type="button"
                   className="btn btn-danger"
                   onClick={() => library.removeImage(item.id)}
                   aria-label={`Ta bort ${item.name || 'bild'}`}
+                  disabled={item.url.startsWith('data:')}
                 >
                   <Trash2 size={16} />
                 </button>

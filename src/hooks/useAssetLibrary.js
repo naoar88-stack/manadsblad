@@ -1,15 +1,15 @@
 import { useEffect, useMemo, useState } from 'react';
 import { db, appId, doc, setDoc, onSnapshot } from '../lib/firebase';
-import { compressImage } from '../lib/imageUtils';
-
-const MAX_IMAGES = 15;
+import { compressImageToBlob } from '../lib/imageUtils';
+import { uploadToCloudinary } from '../lib/cloudinary';
 
 export function useAssetLibrary(sync, state) {
   const [assetLibrary, setAssetLibrary] = useState([]);
   const [isUploading, setIsUploading] = useState(false);
-  const [selectedDateKey, setSelectedDateKey] = useState(null);
   const [uploadError, setUploadError] = useState('');
+  const [selectedDateKey, setSelectedDateKey] = useState(null);
 
+  // Lyssna på Firestore – sparar nu bara metadata (url + publicId), INTE base64
   useEffect(() => {
     if (!db || !sync.user) return undefined;
     const libraryRef = doc(db, 'artifacts', appId, 'users', sync.user.uid, 'assets', 'library');
@@ -26,31 +26,53 @@ export function useAssetLibrary(sync, state) {
       setAssetLibrary(items);
       return;
     }
+    // Spara bara metadata – aldrig base64
+    const safe = items.map(({ id, url, publicId, createdAt, type, name }) => ({
+      id,
+      url,
+      ...(publicId ? { publicId } : {}),
+      createdAt,
+      type,
+      name,
+    }));
     const libraryRef = doc(db, 'artifacts', appId, 'users', sync.user.uid, 'assets', 'library');
-    await setDoc(libraryRef, { items }, { merge: true });
+    await setDoc(libraryRef, { items: safe }, { merge: true });
   };
 
   const addImage = async (file) => {
     setUploadError('');
-    if (assetLibrary.length >= MAX_IMAGES) {
-      setUploadError(`Max ${MAX_IMAGES} bilder. Ta bort en bild först.`);
-      return;
-    }
     setIsUploading(true);
     try {
-      const compressed = await compressImage(file);
-      const item = {
-        id: crypto.randomUUID(),
-        url: compressed,
+      const { blob, dataUrl } = await compressImageToBlob(file);
+      const id = crypto.randomUUID();
+
+      // Optimistisk preview med lokal DataURL
+      const optimistic = {
+        id,
+        url: dataUrl,
         createdAt: new Date().toISOString(),
         type: 'upload',
         name: file.name,
       };
-      const next = [item, ...assetLibrary].slice(0, MAX_IMAGES);
-      setAssetLibrary(next);
-      await persistLibrary(next);
+      setAssetLibrary((prev) => [optimistic, ...prev]);
+
+      // Ladda upp till Cloudinary
+      const { url, publicId } = await uploadToCloudinary(blob, file.name);
+
+      // Ersätt preview med riktig Cloudinary-URL
+      setAssetLibrary((prev) => {
+        const next = prev.map((item) =>
+          item.id === id ? { ...item, url, publicId } : item
+        );
+        persistLibrary(next);
+        return next;
+      });
     } catch (err) {
-      setUploadError('Kunde inte ladda upp bilden. Försök igen.');
+      // Ta bort den optimistiska posten vid fel
+      setAssetLibrary((prev) => prev.filter((item) => item.url.startsWith('data:')
+        ? false : true
+      ));
+      setUploadError(err.message || 'Kunde inte ladda upp bilden. Försök igen.');
       console.error(err);
     } finally {
       setIsUploading(false);
@@ -61,6 +83,8 @@ export function useAssetLibrary(sync, state) {
     const next = assetLibrary.filter((item) => item.id !== id);
     setAssetLibrary(next);
     await persistLibrary(next);
+    // Cloudinary-borttagning kräver server-side signering – bilden
+    // lever kvar på Cloudinary men syns inte i appen.
   };
 
   const assignImageToDay = (dateKey, imageUrl) => {
@@ -83,6 +107,5 @@ export function useAssetLibrary(sync, state) {
     addImage,
     removeImage,
     assignImageToDay,
-    maxImages: MAX_IMAGES,
   };
 }
