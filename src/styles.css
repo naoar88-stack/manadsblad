@@ -36,6 +36,16 @@ button, input, select, textarea { font: inherit; }
 .main {
   padding: 24px;
 }
+.status-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.footer-note {
+  margin-top: 20px;
+  color: var(--muted);
+}
 .panel {
   background: var(--panel);
   border: 1px solid var(--border);
@@ -196,7 +206,6 @@ button, input, select, textarea { font: inherit; }
 .day-actions {
   align-items: stretch;
 }
-
 
 .ai-success-banner {
   margin-top: 12px;

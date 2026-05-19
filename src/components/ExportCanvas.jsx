@@ -1,17 +1,25 @@
+function getISOWeekKey(dateKey) {
+  const date = new Date(`${dateKey}T12:00:00`);
+  const normalized = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+  const isoDay = normalized.getUTCDay() || 7;
+  normalized.setUTCDate(normalized.getUTCDate() + 4 - isoDay);
+  const yearStart = new Date(Date.UTC(normalized.getUTCFullYear(), 0, 1));
+  const weekNumber = Math.ceil((((normalized - yearStart) / 86400000) + 1) / 7);
+  return `${normalized.getUTCFullYear()}-${String(weekNumber).padStart(2, '0')}`;
+}
+
 function groupDaysIntoWeeks(days) {
-  const weeks = [];
-  let currentWeek = [];
+  const weeksByKey = new Map();
 
   days.forEach((day) => {
-    currentWeek.push(day);
-    if (currentWeek.length === 3) {
-      weeks.push(currentWeek);
-      currentWeek = [];
+    const key = getISOWeekKey(day.dateKey);
+    if (!weeksByKey.has(key)) {
+      weeksByKey.set(key, []);
     }
+    weeksByKey.get(key).push(day);
   });
 
-  if (currentWeek.length) weeks.push(currentWeek);
-  return weeks;
+  return Array.from(weeksByKey.values());
 }
 
 const FORMAT_CONFIG = {

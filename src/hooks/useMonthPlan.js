@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { getDaysForMonth } from '../lib/dateUtils';
 
 export function useMonthPlan() {
@@ -10,7 +10,7 @@ export function useMonthPlan() {
   const [footerText, setFooterText] = useState('Följ oss på Instagram');
   const [selectedTemplate, setSelectedTemplate] = useState('classic');
   const [selectedFormat, setSelectedFormat] = useState('a4-landscape');
-  const [geminiApiKey, setGeminiApiKey] = useState('AIzaSyAY-6W4eHZPRqBlinIuivVJMVUkHyULHxo');
+  const [geminiApiKey, setGeminiApiKey] = useState('');
   const [activities, setActivities] = useState({});
 
   const days = useMemo(
@@ -23,7 +23,7 @@ export function useMonthPlan() {
     [selectedYear, selectedMonth, activeWeekdays, activities]
   );
 
-  const updateActivity = (dateKey, patch) => {
+  const updateActivity = useCallback((dateKey, patch) => {
     setActivities((prev) => ({
       ...prev,
       [dateKey]: {
@@ -31,7 +31,7 @@ export function useMonthPlan() {
         ...patch,
       },
     }));
-  };
+  }, []);
 
   return {
     selectedYear,

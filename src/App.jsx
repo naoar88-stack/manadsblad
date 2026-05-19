@@ -21,7 +21,7 @@ export default function App() {
     <div className="app-shell">
       <Sidebar state={state} />
       <main className="main">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+        <div className="status-row">
           <SyncStatus sync={sync} hasAiKey={Boolean(state.geminiApiKey)} />
         </div>
         <PreviewHeader state={state} ai={ai} exportActions={exportActions} />
@@ -32,7 +32,7 @@ export default function App() {
           ai={ai}
         />
         <ExportCanvas state={state} exportRef={exportActions.exportRef} />
-        <div style={{ marginTop: 20, color: 'var(--muted)' }}>{state.footerText}</div>
+        <div className="footer-note">{state.footerText}</div>
       </main>
       <AssetLibraryPanel library={library} />
     </div>
