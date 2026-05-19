@@ -1,0 +1,354 @@
+.export-stage {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 22px;
+  background: linear-gradient(180deg, #f8fbff 0%, #f3f7fb 100%);
+}
+
+.export-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.export-toolbar h3 {
+  margin: 4px 0 0;
+  font-size: 1.2rem;
+  color: #17324d;
+}
+
+.export-meta {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.export-meta span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: #e7eef6;
+  color: #36506b;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.municipal-sheet {
+  background: #ffffff;
+  color: #17324d;
+  border: 1px solid #d9e3ee;
+  border-radius: 24px;
+  padding: 28px;
+  box-shadow: 0 20px 60px rgba(23, 50, 77, 0.08);
+}
+
+.sheet-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #dbe6f0;
+}
+
+.sheet-brand {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.sheet-mark {
+  width: 64px;
+  height: 64px;
+  border-radius: 20px;
+  display: grid;
+  place-items: center;
+  background: #edf4fb;
+  color: #24517d;
+}
+
+.sheet-brand p,
+.sheet-period span {
+  margin: 0 0 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.74rem;
+  color: #5f7891;
+  font-weight: 700;
+}
+
+.sheet-brand h1 {
+  margin: 0;
+  font-size: 2rem;
+  line-height: 1.02;
+  letter-spacing: -0.03em;
+  text-wrap: balance;
+}
+
+.sheet-period {
+  text-align: right;
+  position: relative;
+  padding-left: 18px;
+}
+
+.sheet-period::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 2px;
+  bottom: 2px;
+  width: 3px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #7ea4c8 0%, #31577d 100%);
+}
+
+.sheet-period strong {
+  font-size: 1.05rem;
+  letter-spacing: -0.02em;
+}
+
+.sheet-intro {
+  margin: 20px 0 24px;
+  padding: 16px 18px;
+  border-radius: 18px;
+  background: #f5f9fd;
+  border: 1px solid #e1ebf4;
+}
+
+.sheet-intro p {
+  margin: 0;
+  max-width: 70ch;
+  color: #36506b;
+  line-height: 1.65;
+  text-wrap: pretty;
+}
+
+.sheet-weeks {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.sheet-week {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sheet-week.sheet-week-highlight {
+  padding: 14px;
+  border-radius: 20px;
+  background: linear-gradient(180deg, rgba(237, 244, 251, 0.85) 0%, rgba(248, 251, 255, 0.55) 100%);
+  border: 1px solid #d9e5f0;
+}
+
+.sheet-week-header span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: #17324d;
+  color: white;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.sheet-week-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.sheet-card {
+  overflow: hidden;
+  border-radius: 18px;
+  border: 1px solid #dbe6f0;
+  background: #fcfdff;
+  min-height: 100%;
+}
+
+.sheet-card.card-feature {
+  background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+  border-color: #cdddeb;
+}
+
+.sheet-card.card-visual .sheet-card-image {
+  height: 190px;
+}
+
+.sheet-card.card-text-heavy .sheet-card-content {
+  padding: 16px;
+}
+
+.sheet-card.card-text-heavy p {
+  font-size: 0.96rem;
+}
+
+.sheet-card.card-compact .sheet-card-image,
+.sheet-card.card-compact .sheet-card-placeholder {
+  height: 120px;
+}
+
+.sheet-card-image,
+.sheet-card-placeholder {
+  width: 100%;
+  height: 170px;
+}
+
+.sheet-card-image {
+  object-fit: cover;
+  background: #eef4fa;
+}
+
+.sheet-card-placeholder {
+  display: grid;
+  place-items: center;
+  background: repeating-linear-gradient(
+    -45deg,
+    #eef4fa,
+    #eef4fa 12px,
+    #e4edf6 12px,
+    #e4edf6 24px
+  );
+  color: #69829b;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.sheet-card-content {
+  padding: 14px;
+}
+
+.sheet-card-topline {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.sheet-card-topline strong {
+  font-size: 0.96rem;
+}
+
+.sheet-card-topline span {
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: #edf4fb;
+  color: #35526f;
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
+.sheet-card-content p {
+  margin: 0;
+  color: #46627c;
+  line-height: 1.55;
+  white-space: pre-line;
+}
+
+.sheet-footer {
+  margin-top: 26px;
+  padding-top: 18px;
+  border-top: 1px solid #dbe6f0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.sheet-footer strong {
+  display: block;
+  margin-bottom: 6px;
+  letter-spacing: -0.015em;
+}
+
+.sheet-footer p {
+  margin: 0;
+  color: #4a647d;
+  line-height: 1.6;
+  text-wrap: pretty;
+}
+
+.format-a4-landscape {
+  aspect-ratio: 1.414 / 1;
+}
+
+.format-a4-portrait {
+  aspect-ratio: 1 / 1.414;
+}
+
+.format-instagram-post {
+  aspect-ratio: 1 / 1;
+}
+
+.format-instagram-story {
+  aspect-ratio: 9 / 16;
+}
+
+.format-a4-landscape .sheet-card-image {
+  height: 180px;
+}
+
+.format-a4-landscape .sheet-card.card-feature {
+  grid-column: span 2;
+}
+
+.format-a4-landscape .sheet-card.card-feature .sheet-card-image {
+  height: 220px;
+}
+
+.format-a4-landscape .sheet-card.card-feature .sheet-card-content {
+  padding: 18px;
+}
+
+.format-a4-landscape .sheet-card.card-text-heavy {
+  background: #f9fbfd;
+}
+
+.format-a4-landscape .sheet-week-grid {
+  align-items: start;
+}
+
+.format-a4-landscape .sheet-week-highlight .sheet-week-grid {
+  grid-template-columns: 1.15fr 0.85fr 0.85fr;
+}
+
+.format-a4-landscape .sheet-week-highlight .sheet-card.card-feature {
+  order: 1;
+}
+
+.format-a4-landscape .sheet-week-highlight .sheet-card.card-visual,
+.format-a4-landscape .sheet-week-highlight .sheet-card.card-text-heavy,
+.format-a4-landscape .sheet-week-highlight .sheet-card.card-compact {
+  order: 2;
+}
+
+.format-a4-portrait .sheet-week-grid,
+.format-instagram-post .sheet-week-grid,
+.format-instagram-story .sheet-week-grid {
+  grid-template-columns: 1fr;
+}
+
+.format-a4-portrait .sheet-card.card-feature,
+.format-instagram-post .sheet-card.card-feature,
+.format-instagram-story .sheet-card.card-feature {
+  grid-column: span 1;
+}
+
+.format-a4-portrait .sheet-card-image {
+  height: 150px;
+}
+
+.format-instagram-post .sheet-header,
+.format-instagram-story .sheet-header {
+  gap: 14px;
+}
+
+.format-instagram-post .sheet-brand h1,
+.format-instagram-story
