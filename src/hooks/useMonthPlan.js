@@ -10,7 +10,6 @@ export function useMonthPlan() {
   const [footerText, setFooterText] = useState('Följ oss på Instagram');
   const [selectedTemplate, setSelectedTemplate] = useState('classic');
   const [selectedFormat, setSelectedFormat] = useState('a4-landscape');
-  const [geminiApiKey, setGeminiApiKey] = useState('');
   const [activities, setActivities] = useState({});
 
   const days = useMemo(
@@ -48,8 +47,6 @@ export function useMonthPlan() {
     setSelectedTemplate,
     selectedFormat,
     setSelectedFormat,
-    geminiApiKey,
-    setGeminiApiKey,
     activities,
     setActivities,
     updateActivity,
