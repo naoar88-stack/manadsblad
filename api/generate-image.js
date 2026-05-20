@@ -27,10 +27,10 @@ function buildPrompt(text) {
   if (is(['basket', 'basketball', 'dribbla', 'skjut', 'korg', 'hoops'])) {
     scene = 'teenagers actively playing basketball in a Swedish youth center gym. Show a basketball court with markings, a ball mid-flight, players in sports clothing jumping and shooting, motion blur, indoor sports hall lighting.';
   } else if (is(['fotboll', 'soccer', 'football', 'sparkar', 'mål', 'keeper'])) {
-    scene = 'teenagers playing indoor football (futsal) in a Swedish youth center sports hall. Show a small goals, ball in motion, players in jerseys, running and kicking, natural indoor light.';
+    scene = 'teenagers playing indoor football (futsal) in a Swedish youth center sports hall. Show small goals, ball in motion, players in jerseys, running and kicking, natural indoor light.';
   } else if (is(['baka', 'bakning', 'kaka', 'muffins', 'bröd', 'cookie', 'deg', 'ugn'])) {
     scene = 'teenagers baking together in a modern youth center kitchen. Show mixing bowls, baking trays, flour, ingredients on counter, real kitchen appliances, teens actively mixing and shaping dough, warm kitchen light.';
-  } else if (is(['laga mat', 'matlagning', 'kock', 'lagar mat', 'laga', 'gryta', 'recept', 'kök'])) {
+  } else if (is(['laga mat', 'matlagning', 'kock', 'lagar mat', 'gryta', 'recept', 'kök'])) {
     scene = 'teenagers cooking a meal together in a Swedish youth center kitchen. Show pots on stove, fresh vegetables, teens chopping and stirring, real kitchen environment, warm domestic light.';
   } else if (is(['gaming', 'spela spel', 'playstation', 'xbox', 'nintendo', 'datorspel', 'videospel', 'kontroll'])) {
     scene = 'teenagers playing video games together in a cozy Swedish youth center lounge. Show a big screen TV, gaming controllers, sofas, teenagers reacting with excitement, authentic indoor lighting.';
@@ -54,7 +54,7 @@ function buildPrompt(text) {
     'Create a photorealistic documentary-style photograph.',
     'Scene:', scene,
     'Style: candid, natural indoor lighting, realistic Swedish youth center setting.',
-    'Do NOT show: empty rooms, generic group portraits, stock-photo poses, outdoor landscapes, unrelated activities, adult supervision as main focus.',
+    'Do NOT show: empty rooms, generic group portraits, stock-photo poses, outdoor landscapes, unrelated activities.',
     'The teenagers must be visibly active and engaged in the specific activity.',
   ].join(' ');
 }
@@ -85,7 +85,7 @@ export default async function handler(req, res) {
   let mimeType = 'image/png';
   try {
     const geminiRes = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-preview-image-generation:generateContent?key=${geminiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp-image-generation:generateContent?key=${geminiKey}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
