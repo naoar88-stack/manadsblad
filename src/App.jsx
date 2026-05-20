@@ -1,63 +1,99 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
-import { useSchedule } from './hooks/useSchedule';
-import { useHistory } from './hooks/useHistory';
-import { Header } from './components/Header';
-import { SchemaView } from './components/SchemaView';
-import { StudioView } from './components/StudioView';
-import { SettingsView } from './components/SettingsView';
+
+import { useAuth }          from './hooks/useAuth';
+import { useSchedule }      from './hooks/useSchedule';
+import { useHistory }       from './hooks/useHistory';
+import { useFirebaseSync }  from './hooks/useFirebaseSync';
+
+import { LoginScreen }      from './components/LoginScreen';
+import { Header }           from './components/Header';
+import { SchemaView }       from './components/SchemaView';
+import { StudioView }       from './components/StudioView';
+import { SettingsView }     from './components/SettingsView';
 import { AssetManagerModal } from './components/AssetManagerModal';
-import { CropModal } from './components/CropModal';
+import { CropModal }        from './components/CropModal';
+import { SyncStatus }       from './components/SyncStatus';
 
 const toMonthKey = (y, m) => `${y}-${String(m + 1).padStart(2, '0')}`;
 
 export default function App() {
   const today = new Date();
-  const [year, setYear]   = useState(today.getFullYear());
+  const [year,  setYear]  = useState(today.getFullYear());
   const [month, setMonth] = useState(today.getMonth());
-  const [activeTab, setActiveTab] = useState('Schema');
-  const [openDays, setOpenDays]   = useState([3, 4, 5]);
+  const [activeTab,  setActiveTab]  = useState('Schema');
+  const [openDays,   setOpenDays]   = useState([3, 4, 5]);
   const [assetModalFor, setAssetModalFor] = useState(null);
   const [cropModalFor,  setCropModalFor]  = useState(null);
-  const [studioZoom, setStudioZoom]       = useState(0.82);
+  const [studioZoom,    setStudioZoom]    = useState(0.82);
+  const [syncStatus,    setSyncStatus]    = useState('saved');
+
   const [design, setDesign] = useState({
     layout: 'lively', format: 'A4', colorScheme: 'Per vecka',
     font: 'Inter', background: 'Rutnät', backgroundOpacity: 28,
     backgroundImage: '',
     colors: { week1: '#4f46e5', week2: '#0ea5e9', week3: '#22c55e', week4: '#f97316' },
   });
+
   const [settings, setSettings] = useState({
-    yardName: 'Fritidsgården Solsidan',
-    footerText: 'Välkommen till en trygg och kreativ mötesplats.',
-    qrLink: 'https://fritidsgard.se',
-    cloudExport: true, localMode: false,
-    closeOnHolidays: true, fillCalendar: true,
-    showStockholmLogo: true, groupWeeks: false,
+    yardName:          'Fritidsgården Solsidan',
+    footerText:        'Välkommen till en trygg och kreativ mötesplats.',
+    qrLink:            'https://fritidsgard.se',
+    cloudExport:       true,
+    localMode:         false,
+    closeOnHolidays:   true,
+    fillCalendar:      true,
+    showStockholmLogo: true,
+    groupWeeks:        false,
   });
 
-  const currentMonthKey = toMonthKey(year, month);
-  const { schedule, activities, setActivities, templates, isLoading, addTemplate }
-    = useSchedule(currentMonthKey, openDays);
+  // --- Auth ---
+  const { user, loading: authLoading, error: authError, loginAnon, loginEmail, registerEmail, logout } = useAuth();
 
+  // --- Schema-state ---
+  const currentMonthKey = toMonthKey(year, month);
+  const { activities, setActivities, templates, addTemplate, isLoading: scheduleLoading } =
+    useSchedule(currentMonthKey, openDays);
+
+  // --- Historik ---
   const { pushHistory, undo, redo, canUndo, canRedo } = useHistory(activities, setActivities);
 
+  // --- Firestore sync ---
+  useFirebaseSync({
+    uid:           user?.uid,
+    monthKey:      currentMonthKey,
+    activities,
+    settings,
+    setActivities,
+    setSettings,
+    localMode:     settings.localMode || !user,
+  });
+
+  // --- Sync-status feedback ---
+  useEffect(() => {
+    if (!user || settings.localMode) { setSyncStatus('local'); return; }
+    setSyncStatus('saving');
+    const t = setTimeout(() => setSyncStatus('saved'), 1400);
+    return () => clearTimeout(t);
+  }, [activities, settings]);
+
+  // --- Aktivitetshantering ---
   const updateActivity = useCallback((id, patch) => {
-    const next = activities.map(a => a.id === id ? { ...a, ...patch } : a);
+    pushHistory(activities.map(a => a.id === id ? { ...a, ...patch } : a));
+  }, [activities, pushHistory]);
+
+  const moveActivity = useCallback((index, dir) => {
+    const next = [...activities];
+    const t = index + dir;
+    if (t < 0 || t >= next.length) return;
+    [next[index], next[t]] = [next[t], next[index]];
     pushHistory(next);
   }, [activities, pushHistory]);
 
-  const moveActivity = useCallback((index, direction) => {
+  const reorderActivities = useCallback((from, to) => {
     const next = [...activities];
-    const target = index + direction;
-    if (target < 0 || target >= next.length) return;
-    [next[index], next[target]] = [next[target], next[index]];
-    pushHistory(next);
-  }, [activities, pushHistory]);
-
-  const reorderActivities = useCallback((dragIndex, hoverIndex) => {
-    const next = [...activities];
-    const [dragged] = next.splice(dragIndex, 1);
-    next.splice(hoverIndex, 0, dragged);
+    const [item] = next.splice(from, 1);
+    next.splice(to, 0, item);
     pushHistory(next);
   }, [activities, pushHistory]);
 
@@ -70,24 +106,40 @@ export default function App() {
     else setMonth(m => m + 1);
   };
 
-  if (isLoading) return (
-    <div className="min-h-screen bg-slate-100 flex items-center justify-center">
+  // --- Loading-skärm ---
+  if (authLoading) return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-100 via-indigo-50 to-slate-100 flex items-center justify-center">
       <div className="flex flex-col items-center gap-4 text-slate-500">
         <Loader2 className="w-10 h-10 animate-spin text-indigo-500" />
-        <p className="text-sm font-medium">Ansluter till databasen...</p>
+        <p className="text-sm font-medium">Ansluter…</p>
       </div>
     </div>
   );
 
+  // --- Login-skärm ---
+  if (!user) return (
+    <LoginScreen
+      onLoginEmail={loginEmail}
+      onLoginAnon={loginAnon}
+      onRegister={registerEmail}
+      error={authError}
+      loading={authLoading}
+    />
+  );
+
+  // --- Huvud-app ---
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-100 via-indigo-50 to-slate-100 font-sans">
       <Header
-        activeTab={activeTab} setActiveTab={setActiveTab}
-        canUndo={canUndo} canRedo={canRedo}
-        onUndo={undo} onRedo={redo}
-        studioZoom={studioZoom} setStudioZoom={setStudioZoom}
+        activeTab={activeTab}    setActiveTab={setActiveTab}
+        canUndo={canUndo}        canRedo={canRedo}
+        onUndo={undo}            onRedo={redo}
+        onLogout={logout}
+        syncStatus={syncStatus}
+        user={user}
       />
-      <main className="pt-[80px] p-4 lg:p-6 min-h-screen">
+
+      <main className="pt-[88px] p-4 lg:p-6">
         {activeTab === 'Schema' && (
           <SchemaView
             year={year} month={month}
@@ -121,14 +173,14 @@ export default function App() {
         <AssetManagerModal
           activityId={assetModalFor}
           activity={activities.find(a => a.id === assetModalFor)}
-          onSelect={(image) => { updateActivity(assetModalFor, { image }); setAssetModalFor(null); }}
+          onSelect={img => { updateActivity(assetModalFor, { image: img }); setAssetModalFor(null); }}
           onClose={() => setAssetModalFor(null)}
         />
       )}
       {cropModalFor && (
         <CropModal
           activity={activities.find(a => a.id === cropModalFor)}
-          onSave={(crop) => { updateActivity(cropModalFor, { crop }); setCropModalFor(null); }}
+          onSave={crop => { updateActivity(cropModalFor, { crop }); setCropModalFor(null); }}
           onClose={() => setCropModalFor(null)}
         />
       )}

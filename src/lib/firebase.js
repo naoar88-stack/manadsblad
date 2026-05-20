@@ -1,14 +1,24 @@
 import { initializeApp } from 'firebase/app';
-import { getAuth, signInAnonymously, onAuthStateChanged } from 'firebase/auth';
-import { getFirestore, doc, setDoc, onSnapshot } from 'firebase/firestore';
+import {
+  getAuth,
+  signInAnonymously,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged,
+} from 'firebase/auth';
+import {
+  getFirestore,
+  doc, getDoc, setDoc, onSnapshot,
+  collection, getDocs, addDoc, deleteDoc,
+  serverTimestamp,
+} from 'firebase/firestore';
+import { getStorage } from 'firebase/storage';
 
-let app;
-let auth;
-let db;
-const appId = 'manadsblad';
+let app, auth, db, storage;
 
 try {
-  const firebaseConfig = {
+  const cfg = {
     apiKey:            import.meta.env.VITE_FIREBASE_API_KEY,
     authDomain:        import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
     projectId:         import.meta.env.VITE_FIREBASE_PROJECT_ID,
@@ -16,14 +26,23 @@ try {
     messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
     appId:             import.meta.env.VITE_FIREBASE_APP_ID,
   };
-
-  if (firebaseConfig.projectId) {
-    app  = initializeApp(firebaseConfig);
-    auth = getAuth(app);
-    db   = getFirestore(app);
-  }
-} catch (error) {
-  console.warn('Firebase kunde inte initieras, kör lokalt läge.', error);
+  if (!cfg.projectId) throw new Error('VITE_FIREBASE_PROJECT_ID saknas i .env');
+  app     = initializeApp(cfg);
+  auth    = getAuth(app);
+  db      = getFirestore(app);
+  storage = getStorage(app);
+} catch (e) {
+  console.warn('[Firebase] Kör utan Firebase — lokalt läge aktiverat.', e.message);
 }
 
-export { auth, db, appId, signInAnonymously, onAuthStateChanged, doc, setDoc, onSnapshot };
+export {
+  auth, db, storage,
+  signInAnonymously,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged,
+  doc, getDoc, setDoc, onSnapshot,
+  collection, getDocs, addDoc, deleteDoc,
+  serverTimestamp,
+};
