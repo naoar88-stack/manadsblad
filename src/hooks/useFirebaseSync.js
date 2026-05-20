@@ -47,7 +47,6 @@ export function useFirebaseSync(state) {
       if (Array.isArray(data.activeWeekdays)) state.setActiveWeekdays(data.activeWeekdays);
       if (typeof data.selectedTemplate === 'string') state.setSelectedTemplate(data.selectedTemplate);
       if (typeof data.selectedFormat === 'string') state.setSelectedFormat(data.selectedFormat);
-      if (typeof data.geminiApiKey === 'string') state.setGeminiApiKey(data.geminiApiKey);
     });
 
     const unsubActivities = onSnapshot(activitiesRef, (snapshot) => {
@@ -63,12 +62,6 @@ export function useFirebaseSync(state) {
   }, [user, state.selectedYear, state.selectedMonth]);
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      window.__GEMINI_API_KEY = state.geminiApiKey || '';
-    }
-  }, [state.geminiApiKey]);
-
-  useEffect(() => {
     if (!db || !user || !isReady) return;
 
     const timeout = setTimeout(async () => {
@@ -81,7 +74,6 @@ export function useFirebaseSync(state) {
           activeWeekdays: state.activeWeekdays,
           selectedTemplate: state.selectedTemplate,
           selectedFormat: state.selectedFormat,
-          geminiApiKey: state.geminiApiKey,
         }, { merge: true });
 
         const activitiesRef = doc(
@@ -110,7 +102,6 @@ export function useFirebaseSync(state) {
     state.activeWeekdays,
     state.selectedTemplate,
     state.selectedFormat,
-    state.geminiApiKey,
     state.activities,
     state.selectedYear,
     state.selectedMonth,
