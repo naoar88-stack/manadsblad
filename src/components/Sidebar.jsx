@@ -1,7 +1,7 @@
 import React from 'react';
 import { Wand2, GripVertical, Plus } from 'lucide-react';
 
-export const Sidebar = ({ templates }) => {
+export const Sidebar = ({ templates, onCreateTemplate }) => {
   const handleDragStart = (e, template) => {
     e.dataTransfer.setData('application/json', JSON.stringify(template));
     e.dataTransfer.effectAllowed = 'copy';
@@ -30,8 +30,11 @@ export const Sidebar = ({ templates }) => {
             <span className="font-semibold text-sm">{template.title}</span>
           </div>
         ))}
-        
-        <button className="mt-4 p-4 rounded-2xl border-2 border-dashed border-slate-300 text-slate-500 flex items-center justify-center gap-2 hover:bg-slate-100 transition-colors">
+
+        <button
+          onClick={onCreateTemplate}
+          className="mt-4 p-4 rounded-2xl border-2 border-dashed border-slate-300 text-slate-500 flex items-center justify-center gap-2 hover:bg-slate-100 hover:border-indigo-300 hover:text-indigo-500 transition-all"
+        >
           <Plus className="w-4 h-4" />
           <span className="text-sm font-medium">Skapa ny mall</span>
         </button>
