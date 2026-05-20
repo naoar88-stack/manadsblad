@@ -21,9 +21,12 @@ try {
     app  = initializeApp(firebaseConfig);
     auth = getAuth(app);
     db   = getFirestore(app);
+  } else {
+    throw new Error('Firebase-konfigurationsfel: projectId saknas.');
   }
 } catch (error) {
-  console.warn('Firebase kunde inte initieras, kör lokalt läge.', error);
+  console.error('Fel vid Firebase-initialisering! Kontrollera miljövariabler.', error);
+  console.warn('Kör nu i lokalt läge utan Firebase.');
 }
 
 export { auth, db, appId, signInAnonymously, onAuthStateChanged, doc, setDoc, onSnapshot };
