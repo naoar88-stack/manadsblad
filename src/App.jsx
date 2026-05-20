@@ -22,7 +22,7 @@ export default function App() {
       <Sidebar state={state} />
       <main className="main">
         <div className="status-row">
-          <SyncStatus sync={sync} hasAiKey={Boolean(state.geminiApiKey)} />
+                  <SyncStatus sync={sync} hasAiKey={true} />
         </div>
         <PreviewHeader state={state} ai={ai} exportActions={exportActions} />
         <CalendarEditor
