@@ -19,7 +19,11 @@ function groupDaysIntoWeeks(days) {
     weeksByKey.get(key).push(day);
   });
 
-  return Array.from(weeksByKey.values());
+  return Array.from(weeksByKey.entries()).map(([key, weekDays]) => ({
+    key,
+    weekNumber: key.split('-')[1],
+    days: weekDays,
+  }));
 }
 
 const FORMAT_CONFIG = {
@@ -144,13 +148,13 @@ export default function ExportCanvas({ state, exportRef }) {
         </div>
 
         <div className="sheet-weeks">
-          {weeks.map((week, index) => {
-            const orderedWeek = orderWeekCards(week);
+          {weeks.map((week) => {
+            const orderedWeek = orderWeekCards(week.days);
             const hasFeature = orderedWeek.some((day) => day.tone === 'card-feature');
             return (
-              <section key={index} className={`sheet-week ${hasFeature ? 'sheet-week-highlight' : ''}`}>
+              <section key={week.key} className={`sheet-week ${hasFeature ? 'sheet-week-highlight' : ''}`}>
                 <div className="sheet-week-header">
-                  <span>Vecka {index + 1}</span>
+                  <span>Vecka {week.weekNumber}</span>
                 </div>
                 <div className="sheet-week-grid">
                   {orderedWeek.map((day) => {
