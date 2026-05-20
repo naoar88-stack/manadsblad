@@ -1,123 +1,41 @@
-import { CalendarDays, LayoutTemplate, Settings2 } from 'lucide-react';
-import { WEEKDAYS, TEMPLATES } from '../data/constants';
-import { getMonthName } from '../lib/dateUtils';
+import React from 'react';
+import { Wand2, GripVertical, Plus } from 'lucide-react';
 
-export default function Sidebar({ state }) {
-  const toggleWeekday = (id) => {
-    state.setActiveWeekdays((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id].sort()
-    );
+export const Sidebar = ({ templates }) => {
+  const handleDragStart = (e, template) => {
+    e.dataTransfer.setData('application/json', JSON.stringify(template));
+    e.dataTransfer.effectAllowed = 'copy';
   };
 
   return (
-    <aside className="sidebar">
-      <div className="brand municipal-brand">
-        <div className="brand-mark" aria-hidden="true">
-          <svg viewBox="0 0 48 48" fill="none">
-            <rect x="6" y="6" width="36" height="36" rx="12" stroke="currentColor" strokeWidth="2.5" />
-            <path d="M16 28L24 16L32 28" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-            <path d="M19 30H29" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
-          </svg>
-        </div>
-        <div>
-          <span className="eyebrow">Kommunal planering</span>
-          <h1>Månadsblad</h1>
-          <p>En lugn, tydlig studio för att planera aktiviteter, bilder och export för fritidsgården.</p>
-        </div>
+    <div className="w-full md:w-72 bg-slate-50 p-6 border-r border-slate-200 flex flex-col h-full">
+      <div className="mb-8">
+        <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
+          <Wand2 className="w-5 h-5 text-indigo-500" />
+          Aktiviteter
+        </h2>
+        <p className="text-sm text-slate-500 mt-1">Dra och släpp i kalendern</p>
       </div>
 
-      <div className="section panel sidebar-panel">
-        <div className="section-title"><CalendarDays size={16} /> Innehåll</div>
-        <div className="field">
-          <label htmlFor="header-title">Rubrik</label>
-          <input
-            id="header-title"
-            value={state.headerTitle}
-            onChange={(e) => state.setHeaderTitle(e.target.value)}
-          />
-        </div>
-        <div className="field">
-          <label htmlFor="footer-text">Sidfot</label>
-          <input
-            id="footer-text"
-            value={state.footerText}
-            onChange={(e) => state.setFooterText(e.target.value)}
-          />
-        </div>
-      </div>
-
-      <div className="section panel sidebar-panel">
-        <div className="section-title"><Settings2 size={16} /> Period</div>
-        <div className="row">
-          <div className="field period-month">
-            <label htmlFor="select-month">Månad</label>
-            <select
-              id="select-month"
-              value={state.selectedMonth}
-              onChange={(e) => state.setSelectedMonth(Number(e.target.value))}
-            >
-              {Array.from({ length: 12 }).map((_, i) => (
-                <option key={i} value={i}>{getMonthName(i)}</option>
-              ))}
-            </select>
-          </div>
-          <div className="field period-year">
-            <label htmlFor="select-year">År</label>
-            <input
-              id="select-year"
-              type="number"
-              value={state.selectedYear}
-              onChange={(e) => state.setSelectedYear(Number(e.target.value))}
-            />
-          </div>
-        </div>
-        <div className="weekday-wrap row">
-          {WEEKDAYS.map((day) => (
-            <button
-              key={day.id}
-              type="button"
-              className={`btn chip ${state.activeWeekdays.includes(day.id) ? 'btn-primary' : 'btn-secondary'}`}
-              onClick={() => toggleWeekday(day.id)}
-              aria-pressed={state.activeWeekdays.includes(day.id)}
-            >
-              {day.name}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div className="section panel sidebar-panel">
-        <div className="section-title"><LayoutTemplate size={16} /> Stil</div>
-        <div className="field">
-          <label htmlFor="select-template">Mall</label>
-          <select
-            id="select-template"
-            value={state.selectedTemplate}
-            onChange={(e) => state.setSelectedTemplate(e.target.value)}
+      <div className="flex flex-col gap-3 overflow-y-auto pb-20">
+        {templates.map(template => (
+          <div
+            key={template.id}
+            draggable
+            onDragStart={(e) => handleDragStart(e, template)}
+            className={`p-4 rounded-2xl flex items-center gap-3 cursor-grab active:cursor-grabbing shadow-[0_4px_12px_rgb(0,0,0,0.03)] hover:shadow-[0_8px_20px_rgb(0,0,0,0.06)] transition-all border border-white hover:border-slate-100 ${template.color} bg-opacity-50 backdrop-blur-sm`}
           >
-            {TEMPLATES.map((template) => (
-              <option key={template.id} value={template.id}>{template.name}</option>
-            ))}
-          </select>
-        </div>
+            <GripVertical className="w-4 h-4 opacity-50" />
+            <span className="text-xl">{template.icon}</span>
+            <span className="font-semibold text-sm">{template.title}</span>
+          </div>
+        ))}
+        
+        <button className="mt-4 p-4 rounded-2xl border-2 border-dashed border-slate-300 text-slate-500 flex items-center justify-center gap-2 hover:bg-slate-100 transition-colors">
+          <Plus className="w-4 h-4" />
+          <span className="text-sm font-medium">Skapa ny mall</span>
+        </button>
       </div>
-
-      <div className="section panel sidebar-panel">
-        <div className="section-title"><LayoutTemplate size={16} /> Exportformat</div>
-        <div className="field">
-          <label htmlFor="select-format">Format</label>
-          <select
-            id="select-format"
-            value={state.selectedFormat}
-            onChange={(e) => state.setSelectedFormat(e.target.value)}
-          >
-            <option value="a4-landscape">A4 liggande</option>
-            <option value="a4-portrait">A4 stående</option>
-            <option value="instagram-post">Instagram post</option>
-            <option value="instagram-story">Instagram story</option>
-          </select>
-        </div>
-      </div>
-    </aside>
+    </div>
   );
-}
+};
