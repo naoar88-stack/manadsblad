@@ -24,9 +24,9 @@ export function useAiActions(state) {
     setGeneratingMap((prev) => ({ ...prev, [day.dateKey]: true }));
     setLastError('');
     try {
-      const imageUrl = await generateActivityImage(day.text || day.weekdayLabel);
-      if (imageUrl) {
-        state.updateActivity(day.dateKey, { image: imageUrl });
+      const imageResult = await generateActivityImage(day.text || day.weekdayLabel);
+      if (imageResult?.url) {
+        state.updateActivity(day.dateKey, { image: imageResult.url });
       }
     } catch (error) {
       console.error(error);
