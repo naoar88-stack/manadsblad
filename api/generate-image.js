@@ -33,12 +33,24 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'Miljovariabler saknas' });
   }
 
-  const prompt = `Photorealistic youth center activity in Sweden: ${text.trim()}, friendly, vibrant, safe environment, documentary photography`;
+  const cleanText = text.trim();
+
+  const prompt = [
+    "Create a photorealistic documentary-style image based strictly on this activity description:",
+    cleanText,
+    "The image must clearly show the specific activity described in the text.",
+    "If the text mentions basketball, show teenagers actively playing basketball indoors with a ball, court markings, sports clothing, and movement.",
+    "If the text mentions baking, show teenagers baking in a youth center kitchen with trays, bowls, ingredients, and a real kitchen setting.",
+    "If the text mentions gaming, show teenagers playing video games together in a youth center lounge with controllers, screen, sofa, and authentic lighting.",
+    "Always set the image in a real Swedish youth center or community center.",
+    "Show teenagers actively doing the activity, not standing and posing.",
+    "Use realistic props, correct environment, candid composition, natural indoor light, and strong relevance to the activity text.",
+    "Avoid generic group portraits, unrelated scenes, empty rooms, random sports, and stock-photo style."
+  ].join(" ");
 
   // 1. Generera bild via Gemini Flash Image
   let base64;
   let mimeType = 'image/png';
-
   try {
     const geminiRes = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-preview-image-generation:generateContent?key=${geminiKey}`,
