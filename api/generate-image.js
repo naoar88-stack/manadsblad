@@ -14,6 +14,51 @@ function cloudinarySignature(params, secret) {
   return crypto.createHash('sha256').update(sorted + secret).digest('hex');
 }
 
+/**
+ * Klassificerar aktivitetstext och returnerar en skraddarsydd bildprompt.
+ */
+function buildPrompt(text) {
+  const t = text.toLowerCase();
+
+  const is = (keywords) => keywords.some((kw) => t.includes(kw));
+
+  let scene = '';
+
+  if (is(['basket', 'basketball', 'dribbla', 'skjut', 'korg', 'hoops'])) {
+    scene = 'teenagers actively playing basketball in a Swedish youth center gym. Show a basketball court with markings, a ball mid-flight, players in sports clothing jumping and shooting, motion blur, indoor sports hall lighting.';
+  } else if (is(['fotboll', 'soccer', 'football', 'sparkar', 'mål', 'keeper'])) {
+    scene = 'teenagers playing indoor football (futsal) in a Swedish youth center sports hall. Show a small goals, ball in motion, players in jerseys, running and kicking, natural indoor light.';
+  } else if (is(['baka', 'bakning', 'kaka', 'muffins', 'bröd', 'cookie', 'deg', 'ugn'])) {
+    scene = 'teenagers baking together in a modern youth center kitchen. Show mixing bowls, baking trays, flour, ingredients on counter, real kitchen appliances, teens actively mixing and shaping dough, warm kitchen light.';
+  } else if (is(['laga mat', 'matlagning', 'kock', 'lagar mat', 'laga', 'gryta', 'recept', 'kök'])) {
+    scene = 'teenagers cooking a meal together in a Swedish youth center kitchen. Show pots on stove, fresh vegetables, teens chopping and stirring, real kitchen environment, warm domestic light.';
+  } else if (is(['gaming', 'spela spel', 'playstation', 'xbox', 'nintendo', 'datorspel', 'videospel', 'kontroll'])) {
+    scene = 'teenagers playing video games together in a cozy Swedish youth center lounge. Show a big screen TV, gaming controllers, sofas, teenagers reacting with excitement, authentic indoor lighting.';
+  } else if (is(['musik', 'sjunga', 'gitarr', 'trummor', 'piano', 'band', 'rep', 'konsert', 'spela musik'])) {
+    scene = 'teenagers making music together in a youth center rehearsal room. Show instruments like guitars, drums and keyboard, teens playing and singing, microphone stands, music posters on wall, natural indoor light.';
+  } else if (is(['dans', 'dansa', 'hiphop', 'streetdance', 'koreografi', 'breakdance'])) {
+    scene = 'teenagers dancing in a Swedish youth center dance studio. Show a mirrored wall, wooden floor, teens mid-movement in dance poses, streetwear clothing, natural indoor light, motion and energy.';
+  } else if (is(['pyssel', 'hantverk', 'måla', 'rita', 'konst', 'kreativ', 'craft', 'design'])) {
+    scene = 'teenagers doing arts and crafts at a table in a Swedish youth center. Show art supplies, paint, brushes, scissors, teens focused on creating, colorful materials spread on table, warm soft light.';
+  } else if (is(['film', 'bio', 'titta', 'kolla film', 'popcorn', 'movie'])) {
+    scene = 'teenagers watching a movie together in a youth center screening room. Show teens on sofas with popcorn, dim cinema-style lighting, a projected screen, relaxed and happy expressions.';
+  } else if (is(['utflykt', 'natur', 'skog', 'promenad', 'vandring', 'park', 'utomhus'])) {
+    scene = 'teenagers on a group outdoor excursion in Swedish nature. Show teens walking on a trail through forest or park, backpacks, casual clothing, sunlight through trees, natural candid photography.';
+  } else if (is(['yoga', 'meditation', 'stretching', 'mindfulness', 'avslappning'])) {
+    scene = 'teenagers doing yoga or stretching in a calm Swedish youth center room. Show yoga mats, teens in stretch poses, soft natural light, peaceful and focused atmosphere.';
+  } else {
+    scene = `teenagers actively doing this specific activity: "${text.trim()}". Set in a real Swedish youth center or community center interior. Show teens engaged, realistic props and correct environment, candid documentary style, natural indoor light.`;
+  }
+
+  return [
+    'Create a photorealistic documentary-style photograph.',
+    'Scene:', scene,
+    'Style: candid, natural indoor lighting, realistic Swedish youth center setting.',
+    'Do NOT show: empty rooms, generic group portraits, stock-photo poses, outdoor landscapes, unrelated activities, adult supervision as main focus.',
+    'The teenagers must be visibly active and engaged in the specific activity.',
+  ].join(' ');
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
@@ -33,20 +78,7 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'Miljovariabler saknas' });
   }
 
-  const cleanText = text.trim();
-
-  const prompt = [
-    "Create a photorealistic documentary-style image based strictly on this activity description:",
-    cleanText,
-    "The image must clearly show the specific activity described in the text.",
-    "If the text mentions basketball, show teenagers actively playing basketball indoors with a ball, court markings, sports clothing, and movement.",
-    "If the text mentions baking, show teenagers baking in a youth center kitchen with trays, bowls, ingredients, and a real kitchen setting.",
-    "If the text mentions gaming, show teenagers playing video games together in a youth center lounge with controllers, screen, sofa, and authentic lighting.",
-    "Always set the image in a real Swedish youth center or community center.",
-    "Show teenagers actively doing the activity, not standing and posing.",
-    "Use realistic props, correct environment, candid composition, natural indoor light, and strong relevance to the activity text.",
-    "Avoid generic group portraits, unrelated scenes, empty rooms, random sports, and stock-photo style."
-  ].join(" ");
+  const prompt = buildPrompt(text);
 
   // 1. Generera bild via Gemini Flash Image
   let base64;
