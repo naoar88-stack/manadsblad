@@ -24,5 +24,13 @@ export function useSchedule() {
     }));
   };
 
-  return { schedule, templates, addActivityToDay, removeActivityFromDay };
+  const addTemplate = (template) => {
+    const newTemplate = {
+      ...template,
+      id: crypto.randomUUID(),
+    };
+    setTemplates(prev => [...prev, newTemplate]);
+  };
+
+  return { schedule, templates, addActivityToDay, removeActivityFromDay, addTemplate };
 }
