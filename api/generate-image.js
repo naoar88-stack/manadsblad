@@ -1,8 +1,8 @@
 /**
  * POST /api/generate-image
  * Body: { text: string }
- * Genererar bild via Gemini Imagen, laddar upp till Cloudinary,
- * returnerar { url } – ingen base64 når klienten.
+ * Genererar bild via Gemini Flash Image (gratis tier),
+ * laddar upp till Cloudinary och returnerar { url, publicId }.
  */
 import crypto from 'crypto';
 
@@ -30,32 +30,43 @@ export default async function handler(req, res) {
   const cloudSecret = process.env.CLOUDINARY_API_SECRET;
 
   if (!geminiKey || !cloudName || !cloudKey || !cloudSecret) {
-    return res.status(500).json({ error: 'Miljövariabler saknas' });
+    return res.status(500).json({ error: 'Miljovariabler saknas' });
   }
 
-  const prompt = `Photorealistic youth center activity in Sweden: ${text}, friendly, vibrant, safe environment, documentary photography`;
+  const prompt = `Photorealistic youth center activity in Sweden: ${text.trim()}, friendly, vibrant, safe environment, documentary photography`;
 
-  // 1. Generera bild via Imagen
+  // 1. Generera bild via Gemini Flash Image
   let base64;
+  let mimeType = 'image/png';
+
   try {
     const geminiRes = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict?key=${geminiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-preview-image-generation:generateContent?key=${geminiKey}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          instances: [{ prompt }],
-          parameters: { sampleCount: 1 },
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: { responseModalities: ['IMAGE', 'TEXT'] },
         }),
       }
     );
+
     if (!geminiRes.ok) {
       const body = await geminiRes.text().catch(() => '');
-      return res.status(geminiRes.status).json({ error: `Imagen-fel: ${body}` });
+      return res.status(geminiRes.status).json({ error: `Gemini-fel: ${body}` });
     }
+
     const geminiData = await geminiRes.json();
-    base64 = geminiData.predictions?.[0]?.bytesBase64Encoded;
-    if (!base64) return res.status(502).json({ error: 'Ingen bild från Imagen' });
+    const parts = geminiData?.candidates?.[0]?.content?.parts || [];
+    const imagePart = parts.find((p) => p.inlineData?.mimeType?.startsWith('image/'));
+
+    if (!imagePart) {
+      return res.status(502).json({ error: 'Ingen bild returnerades fran Gemini Flash' });
+    }
+
+    base64 = imagePart.inlineData.data;
+    mimeType = imagePart.inlineData.mimeType;
   } catch (err) {
     return res.status(500).json({ error: `Gemini: ${err.message}` });
   }
@@ -67,29 +78,29 @@ export default async function handler(req, res) {
     const sigParams = { folder, timestamp };
     const signature = cloudinarySignature(sigParams, cloudSecret);
 
-    const form = new FormData();
-    form.append('file', `data:image/png;base64,${base64}`);
-    form.append('folder', folder);
-    form.append('timestamp', timestamp);
-    form.append('api_key', cloudKey);
-    form.append('signature', signature);
+    const formData = new FormData();
+    formData.append('file', `data:${mimeType};base64,${base64}`);
+    formData.append('api_key', cloudKey);
+    formData.append('timestamp', timestamp);
+    formData.append('folder', folder);
+    formData.append('signature', signature);
 
     const uploadRes = await fetch(
       `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
-      { method: 'POST', body: form }
+      { method: 'POST', body: formData }
     );
 
-    if (!uploadRes.ok) {
-      const body = await uploadRes.text().catch(() => '');
-      return res.status(uploadRes.status).json({ error: `Cloudinary upload-fel: ${body}` });
+    const uploadData = await uploadRes.json();
+
+    if (!uploadRes.ok || !uploadData.secure_url) {
+      return res.status(500).json({ error: `Cloudinary: ${uploadData?.error?.message || 'okant fel'}` });
     }
 
-    const uploadData = await uploadRes.json();
     return res.status(200).json({
       url: uploadData.secure_url,
       publicId: uploadData.public_id,
     });
   } catch (err) {
-    return res.status(500).json({ error: `Cloudinary: ${err.message}` });
+    return res.status(500).json({ error: err.message });
   }
 }
