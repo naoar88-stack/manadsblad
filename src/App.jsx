@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Image as ImageIcon } from 'lucide-react';
+import { Image as ImageIcon, Loader2 } from 'lucide-react';
 
 import { useSchedule } from './hooks/useSchedule';
 import { Sidebar } from './components/Sidebar';
@@ -8,11 +8,31 @@ import { ExportModal } from './components/ExportModal';
 import { CreateTemplateModal } from './components/CreateTemplateModal';
 
 export default function App() {
-  const { schedule, templates, addActivityToDay, removeActivityFromDay, addTemplate } = useSchedule();
+  const {
+    schedule,
+    templates,
+    addActivityToDay,
+    removeActivityFromDay,
+    addTemplate,
+    isLoading,
+  } = useSchedule();
+
   const [isExportOpen, setIsExportOpen] = useState(false);
   const [isCreateTemplateOpen, setIsCreateTemplateOpen] = useState(false);
 
   const daysInMonth = Array.from({ length: 28 }, (_, i) => i + 1);
+
+  // Laddningsskärm medan Firebase ansluter
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-slate-100 flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4 text-slate-500">
+          <Loader2 className="w-10 h-10 animate-spin text-indigo-500" />
+          <p className="text-sm font-medium">Ansluter till databasen...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-100 font-sans text-slate-800 flex flex-col md:flex-row">
@@ -30,7 +50,6 @@ export default function App() {
             <h1 className="text-2xl font-black text-slate-800 tracking-tight">Månadsblad <span className="text-indigo-600">Pro</span></h1>
             <p className="text-sm font-medium text-slate-500">Februari 2026</p>
           </div>
-
           <div className="flex items-center gap-4">
             <button
               onClick={() => setIsExportOpen(true)}
