@@ -1,4 +1,4 @@
-import { CalendarDays, KeyRound, LayoutTemplate, Settings2 } from 'lucide-react';
+import { CalendarDays, LayoutTemplate, Settings2 } from 'lucide-react';
 import { WEEKDAYS, TEMPLATES } from '../data/constants';
 import { getMonthName } from '../lib/dateUtils';
 
@@ -116,21 +116,6 @@ export default function Sidebar({ state }) {
             <option value="instagram-post">Instagram post</option>
             <option value="instagram-story">Instagram story</option>
           </select>
-        </div>
-      </div>
-
-      <div className="section panel sidebar-panel">
-        <div className="section-title"><KeyRound size={16} /> AI</div>
-        <div className="field">
-          <label htmlFor="api-key">Gemini API-nyckel</label>
-          <input
-            id="api-key"
-            type="password"
-            value={state.geminiApiKey}
-            onChange={(e) => state.setGeminiApiKey(e.target.value)}
-            placeholder="AIza..."
-            autoComplete="off"
-          />
         </div>
       </div>
     </aside>
