@@ -18,7 +18,8 @@ const DEFAULT_TEMPLATES = [
   { id: 't5', title: 'Filmvisning', color: 'bg-yellow-100 text-yellow-700', icon: '🍿' },
 ];
 
-export function useSchedule() {
+// month = 'YYYY-MM', t.ex. '2026-02'
+export function useSchedule(month) {
   const [userId, setUserId] = useState(null);
   const [schedule, setSchedule] = useState({});
   const [templates, setTemplates] = useState(DEFAULT_TEMPLATES);
@@ -40,40 +41,43 @@ export function useSchedule() {
     return () => unsubscribe();
   }, []);
 
-  // 2. Lyssna på Firestore när userId är känt
+  // 2. Lyssna på Firestore när userId och month är kända
   useEffect(() => {
-    if (!userId || !db) return;
+    if (!userId || !db || !month) return;
+
+    // Nollställ state vid månadsbyte
+    setSchedule({});
+    setIsLoading(true);
 
     const docRef = doc(
       db,
-      `artifacts/${appId}/public/data/manadsblad`,
-      userId
+      `artifacts/${appId}/public/data/manadsblad/${userId}/months`,
+      month
     );
 
     const unsubscribe = onSnapshot(docRef, (snapshot) => {
       if (snapshot.exists()) {
         const data = snapshot.data();
         setSchedule(data.schedule || {});
-        setTemplates(
-          data.templates?.length ? data.templates : DEFAULT_TEMPLATES
-        );
+        setTemplates(data.templates?.length ? data.templates : DEFAULT_TEMPLATES);
       } else {
-        // Första gången: skriv startvärden
         setDoc(docRef, { schedule: {}, templates: DEFAULT_TEMPLATES });
+        setSchedule({});
+        setTemplates(DEFAULT_TEMPLATES);
       }
       setIsLoading(false);
     });
 
     return () => unsubscribe();
-  }, [userId]);
+  }, [userId, month]);
 
   // 3. Skriv till Firestore
   const persist = (newSchedule, newTemplates) => {
-    if (!userId || !db) return;
+    if (!userId || !db || !month) return;
     const docRef = doc(
       db,
-      `artifacts/${appId}/public/data/manadsblad`,
-      userId
+      `artifacts/${appId}/public/data/manadsblad/${userId}/months`,
+      month
     );
     setDoc(docRef, { schedule: newSchedule, templates: newTemplates });
   };
