@@ -1,7 +1,7 @@
 /**
  * POST /api/generate-image
  * Body: { text: string }
- * Genererar bild via Gemini Flash Image (gratis tier),
+ * Genererar bild via Pollinations.ai (gratis, ingen API-nyckel krävs),
  * laddar upp till Cloudinary och returnerar { url, publicId }.
  */
 import crypto from 'crypto';
@@ -19,44 +19,37 @@ function cloudinarySignature(params, secret) {
  */
 function buildPrompt(text) {
   const t = text.toLowerCase();
-
   const is = (keywords) => keywords.some((kw) => t.includes(kw));
 
   let scene = '';
 
   if (is(['basket', 'basketball', 'dribbla', 'skjut', 'korg', 'hoops'])) {
-    scene = 'teenagers actively playing basketball in a Swedish youth center gym. Show a basketball court with markings, a ball mid-flight, players in sports clothing jumping and shooting, motion blur, indoor sports hall lighting.';
+    scene = 'teenagers playing basketball in a Swedish youth center gym, ball mid-flight, indoor court markings, motion blur, sports clothing, photorealistic';
   } else if (is(['fotboll', 'soccer', 'football', 'sparkar', 'mål', 'keeper'])) {
-    scene = 'teenagers playing indoor football (futsal) in a Swedish youth center sports hall. Show small goals, ball in motion, players in jerseys, running and kicking, natural indoor light.';
+    scene = 'teenagers playing indoor football futsal in Swedish youth center sports hall, ball in motion, running, photorealistic';
   } else if (is(['baka', 'bakning', 'kaka', 'muffins', 'bröd', 'cookie', 'deg', 'ugn'])) {
-    scene = 'teenagers baking together in a modern youth center kitchen. Show mixing bowls, baking trays, flour, ingredients on counter, real kitchen appliances, teens actively mixing and shaping dough, warm kitchen light.';
-  } else if (is(['laga mat', 'matlagning', 'kock', 'lagar mat', 'gryta', 'recept', 'kök'])) {
-    scene = 'teenagers cooking a meal together in a Swedish youth center kitchen. Show pots on stove, fresh vegetables, teens chopping and stirring, real kitchen environment, warm domestic light.';
+    scene = 'teenagers baking together in youth center kitchen, mixing bowls, flour, baking trays, warm light, photorealistic';
+  } else if (is(['laga mat', 'matlagning', 'kock', 'gryta', 'recept', 'kök'])) {
+    scene = 'teenagers cooking together in Swedish youth center kitchen, pots on stove, vegetables, warm light, photorealistic';
   } else if (is(['gaming', 'spela spel', 'playstation', 'xbox', 'nintendo', 'datorspel', 'videospel', 'kontroll'])) {
-    scene = 'teenagers playing video games together in a cozy Swedish youth center lounge. Show a big screen TV, gaming controllers, sofas, teenagers reacting with excitement, authentic indoor lighting.';
-  } else if (is(['musik', 'sjunga', 'gitarr', 'trummor', 'piano', 'band', 'rep', 'konsert', 'spela musik'])) {
-    scene = 'teenagers making music together in a youth center rehearsal room. Show instruments like guitars, drums and keyboard, teens playing and singing, microphone stands, music posters on wall, natural indoor light.';
+    scene = 'teenagers playing video games together in youth center lounge, controllers, big screen TV, excited expressions, photorealistic';
+  } else if (is(['musik', 'sjunga', 'gitarr', 'trummor', 'piano', 'band', 'rep', 'konsert'])) {
+    scene = 'teenagers playing music together in youth center rehearsal room, guitars drums keyboard, microphone, photorealistic';
   } else if (is(['dans', 'dansa', 'hiphop', 'streetdance', 'koreografi', 'breakdance'])) {
-    scene = 'teenagers dancing in a Swedish youth center dance studio. Show a mirrored wall, wooden floor, teens mid-movement in dance poses, streetwear clothing, natural indoor light, motion and energy.';
-  } else if (is(['pyssel', 'hantverk', 'måla', 'rita', 'konst', 'kreativ', 'craft', 'design'])) {
-    scene = 'teenagers doing arts and crafts at a table in a Swedish youth center. Show art supplies, paint, brushes, scissors, teens focused on creating, colorful materials spread on table, warm soft light.';
-  } else if (is(['film', 'bio', 'titta', 'kolla film', 'popcorn', 'movie'])) {
-    scene = 'teenagers watching a movie together in a youth center screening room. Show teens on sofas with popcorn, dim cinema-style lighting, a projected screen, relaxed and happy expressions.';
+    scene = 'teenagers dancing in youth center dance studio, mirrored wall, wooden floor, mid-movement, streetwear, photorealistic';
+  } else if (is(['pyssel', 'hantverk', 'måla', 'rita', 'konst', 'kreativ', 'craft'])) {
+    scene = 'teenagers doing arts and crafts at table in youth center, paint brushes art supplies, focused, colorful, photorealistic';
+  } else if (is(['film', 'bio', 'titta', 'popcorn', 'movie'])) {
+    scene = 'teenagers watching movie together in youth center screening room, popcorn, dim lighting, projected screen, photorealistic';
   } else if (is(['utflykt', 'natur', 'skog', 'promenad', 'vandring', 'park', 'utomhus'])) {
-    scene = 'teenagers on a group outdoor excursion in Swedish nature. Show teens walking on a trail through forest or park, backpacks, casual clothing, sunlight through trees, natural candid photography.';
+    scene = 'teenagers on outdoor excursion in Swedish nature, forest trail, backpacks, sunlight through trees, photorealistic';
   } else if (is(['yoga', 'meditation', 'stretching', 'mindfulness', 'avslappning'])) {
-    scene = 'teenagers doing yoga or stretching in a calm Swedish youth center room. Show yoga mats, teens in stretch poses, soft natural light, peaceful and focused atmosphere.';
+    scene = 'teenagers doing yoga stretching in calm youth center room, yoga mats, soft natural light, photorealistic';
   } else {
-    scene = `teenagers actively doing this specific activity: "${text.trim()}". Set in a real Swedish youth center or community center interior. Show teens engaged, realistic props and correct environment, candid documentary style, natural indoor light.`;
+    scene = `teenagers at Swedish youth center doing: ${text.trim()}, candid documentary style, natural indoor light, photorealistic`;
   }
 
-  return [
-    'Create a photorealistic documentary-style photograph.',
-    'Scene:', scene,
-    'Style: candid, natural indoor lighting, realistic Swedish youth center setting.',
-    'Do NOT show: empty rooms, generic group portraits, stock-photo poses, outdoor landscapes, unrelated activities.',
-    'The teenagers must be visibly active and engaged in the specific activity.',
-  ].join(' ');
+  return scene;
 }
 
 export default async function handler(req, res) {
@@ -69,54 +62,38 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'text saknas i body' });
   }
 
-  const geminiKey = process.env.GEMINI_API_KEY;
   const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
   const cloudKey = process.env.CLOUDINARY_API_KEY;
   const cloudSecret = process.env.CLOUDINARY_API_SECRET;
 
-  if (!geminiKey || !cloudName || !cloudKey || !cloudSecret) {
-    return res.status(500).json({ error: 'Miljovariabler saknas' });
+  if (!cloudName || !cloudKey || !cloudSecret) {
+    return res.status(500).json({ error: 'Cloudinary-variabler saknas' });
   }
 
   const prompt = buildPrompt(text);
+  const encodedPrompt = encodeURIComponent(prompt);
 
-  // 1. Generera bild via Gemini Flash Image
-  let base64;
-  let mimeType = 'image/png';
+  // 1. Generera bild via Pollinations.ai (gratis, ingen nyckel)
+  let imageBuffer;
+  let mimeType = 'image/jpeg';
   try {
-    const geminiRes = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp-image-generation:generateContent?key=${geminiKey}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: { responseModalities: ['IMAGE', 'TEXT'] },
-        }),
-      }
-    );
+    const pollinationsUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=900&height=600&nologo=true&model=flux`;
+    const imgRes = await fetch(pollinationsUrl, { signal: AbortSignal.timeout(25000) });
 
-    if (!geminiRes.ok) {
-      const body = await geminiRes.text().catch(() => '');
-      return res.status(geminiRes.status).json({ error: `Gemini-fel: ${body}` });
+    if (!imgRes.ok) {
+      return res.status(imgRes.status).json({ error: `Pollinations-fel: ${imgRes.status}` });
     }
 
-    const geminiData = await geminiRes.json();
-    const parts = geminiData?.candidates?.[0]?.content?.parts || [];
-    const imagePart = parts.find((p) => p.inlineData?.mimeType?.startsWith('image/'));
-
-    if (!imagePart) {
-      return res.status(502).json({ error: 'Ingen bild returnerades fran Gemini Flash' });
-    }
-
-    base64 = imagePart.inlineData.data;
-    mimeType = imagePart.inlineData.mimeType;
+    const arrayBuffer = await imgRes.arrayBuffer();
+    imageBuffer = Buffer.from(arrayBuffer);
+    mimeType = imgRes.headers.get('content-type') || 'image/jpeg';
   } catch (err) {
-    return res.status(500).json({ error: `Gemini: ${err.message}` });
+    return res.status(500).json({ error: `Pollinations: ${err.message}` });
   }
 
   // 2. Ladda upp till Cloudinary med signerat anrop
   try {
+    const base64 = imageBuffer.toString('base64');
     const timestamp = Math.floor(Date.now() / 1000);
     const folder = 'manadsblad/ai';
     const sigParams = { folder, timestamp };
