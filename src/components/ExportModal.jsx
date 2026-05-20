@@ -2,15 +2,17 @@ import React, { useRef } from 'react';
 import { Share2, Download } from 'lucide-react';
 import { exportAsImage } from '../lib/exportAsImage';
 
-export const ExportModal = ({ isOpen, onClose, schedule }) => {
+export const ExportModal = ({ isOpen, onClose, schedule, monthLabel }) => {
   const previewRef = useRef(null);
 
   if (!isOpen) return null;
 
   const hasContent = Object.keys(schedule).length > 0;
+  const safeLabel = monthLabel || 'Månadsblad';
+  const fileName = `manadsblad-${safeLabel.toLowerCase().replace(/\s+/g, '-')}.png`;
 
   const handleDownload = async () => {
-    await exportAsImage(previewRef.current, 'manadsblad-februari-2026.png');
+    await exportAsImage(previewRef.current, fileName);
   };
 
   return (
@@ -35,7 +37,7 @@ export const ExportModal = ({ isOpen, onClose, schedule }) => {
             className="w-[400px] h-[400px] bg-gradient-to-br from-indigo-500 to-purple-600 rounded-none shadow-xl flex flex-col p-6 text-white relative"
           >
             <h3 className="text-3xl font-black mb-6 uppercase tracking-wider">
-              Februari på Gården
+              {safeLabel}
             </h3>
 
             <div className="flex flex-col gap-3 overflow-hidden">
@@ -79,11 +81,12 @@ export const ExportModal = ({ isOpen, onClose, schedule }) => {
             <p className="text-sm text-slate-600">
               Klicka på knappen nedan för att ladda ner förhandsgranskningen som en PNG-bild.
             </p>
+            <p className="text-xs text-slate-400 font-mono">{fileName}</p>
 
             <button
               onClick={handleDownload}
               disabled={!hasContent}
-              className="mt-4 bg-indigo-600 text-white font-bold py-3 px-6 rounded-2xl flex items-center justify-center gap-2 hover:bg-indigo-700 transition-colors shadow-[0_4px_14px_rgba(79,70,229,0.39)] disabled:opacity-50 disabled:cursor-not-allowed"
+              className="mt-2 bg-indigo-600 text-white font-bold py-3 px-6 rounded-2xl flex items-center justify-center gap-2 hover:bg-indigo-700 transition-colors shadow-[0_4px_14px_rgba(79,70,229,0.39)] disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Download className="w-5 h-5" />
               Ladda ner bild
