@@ -35,6 +35,7 @@ export function useSchedule(month) {
           await signInAnonymously(auth);
         } catch (err) {
           console.error('Anonym inloggning misslyckades:', err);
+          setIsLoading(false); // Säkra att appen inte fastnar i "laddar"-läge
         }
       }
     });
@@ -43,7 +44,10 @@ export function useSchedule(month) {
 
   // 2. Lyssna på Firestore när userId och month är kända
   useEffect(() => {
-    if (!userId || !db || !month) return;
+    if (!userId || !db || !month) {
+      setIsLoading(false); // Om nödvändiga parametrar saknas, sluta ladda
+      return;
+    }
 
     // Nollställ state vid månadsbyte
     setSchedule({});
@@ -55,18 +59,30 @@ export function useSchedule(month) {
       month
     );
 
-    const unsubscribe = onSnapshot(docRef, (snapshot) => {
-      if (snapshot.exists()) {
-        const data = snapshot.data();
-        setSchedule(data.schedule || {});
-        setTemplates(data.templates?.length ? data.templates : DEFAULT_TEMPLATES);
-      } else {
-        setDoc(docRef, { schedule: {}, templates: DEFAULT_TEMPLATES });
-        setSchedule({});
-        setTemplates(DEFAULT_TEMPLATES);
+    const unsubscribe = onSnapshot(
+      docRef,
+      (snapshot) => {
+        try {
+          if (snapshot.exists()) {
+            const data = snapshot.data();
+            setSchedule(data.schedule || {});
+            setTemplates(data.templates?.length ? data.templates : DEFAULT_TEMPLATES);
+          } else {
+            setDoc(docRef, { schedule: {}, templates: DEFAULT_TEMPLATES });
+            setSchedule({});
+            setTemplates(DEFAULT_TEMPLATES);
+          }
+        } catch (error) {
+          console.error('Fel vid Firestore-synk:', error);
+        } finally {
+          setIsLoading(false);
+        }
+      },
+      (error) => {
+        console.error('Snapshot-lyssning misslyckades:', error);
+        setIsLoading(false);
       }
-      setIsLoading(false);
-    });
+    );
 
     return () => unsubscribe();
   }, [userId, month]);
