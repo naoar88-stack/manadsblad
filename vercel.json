@@ -1,10 +1,11 @@
 {
+  "rewrites": [
+    { "source": "/((?!api/).*)", "destination": "/index.html" }
+  ],
   "functions": {
-    "api/generate-image.js": {
+    "api/export.js": {
+      "memory": 1024,
       "maxDuration": 30
-    },
-    "api/improve-text.js": {
-      "maxDuration": 15
     }
   }
 }

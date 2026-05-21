@@ -1,100 +1,65 @@
-const FORMAT_PRESETS = {
-  'a4-landscape': {
-    pdf: { orientation: 'landscape', format: 'a4' },
-    suffix: 'a4-liggande',
-  },
-  'a4-portrait': {
-    pdf: { orientation: 'portrait', format: 'a4' },
-    suffix: 'a4-staende',
-  },
-  'instagram-post': {
-    pdf: { orientation: 'portrait', format: [1080, 1080] },
-    suffix: 'instagram-post',
-  },
-  'instagram-story': {
-    pdf: { orientation: 'portrait', format: [1080, 1920] },
-    suffix: 'instagram-story',
-  },
-};
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 
-export function getExportFormatPreset(format) {
-  return FORMAT_PRESETS[format] || FORMAT_PRESETS['a4-landscape'];
-}
+// Pekar nu på Vercel serverless function istället för Render
+const CLOUD_URL = '/api/export';
 
-export async function ensureExportLibraries() {
-  const loadScript = (src, id) => new Promise((resolve, reject) => {
-    const existing = document.getElementById(id);
-    if (existing) return resolve();
-    const script = document.createElement('script');
-    script.src = src;
-    script.id = id;
-    script.async = true;
-    script.onload = resolve;
-    script.onerror = () => reject(new Error(`Kunde inte ladda biblioteket: ${src}`));
-    document.body.appendChild(script);
+async function captureElement(elementId) {
+  const el = document.getElementById(elementId);
+  if (!el) throw new Error(`Element med id "${elementId}" hittades inte.`);
+  const prev = el.style.transform;
+  el.style.transform = 'scale(1)';
+  el.style.transformOrigin = 'top center';
+  await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+  const canvas = await html2canvas(el, {
+    scale: 2, useCORS: true, allowTaint: false,
+    backgroundColor: null, width: el.offsetWidth, height: el.offsetHeight, logging: false,
   });
-
-  await loadScript('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js', 'html2canvas-lib');
-  await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js', 'jspdf-lib');
+  el.style.transform = prev;
+  return canvas;
 }
 
-async function renderCanvas(element) {
-  if (!element) throw new Error('Ingen exportyta hittades.');
-  await ensureExportLibraries();
-  try {
-    return await window.html2canvas(element, {
-      backgroundColor: '#ffffff',
-      scale: Math.max(2, window.devicePixelRatio || 1.5),
-      useCORS: true,
-      logging: false,
-      imageTimeout: 15000,
-      removeContainer: true,
-    });
-  } catch {
-    throw new Error('Kunde inte rendera exportytan. Kontrollera bilder och försök igen.');
-  }
-}
-
-function downloadDataUrl(dataUrl, filename) {
+export async function exportAsPNG(elementId, filename = 'manadsblad.png') {
+  const canvas = await captureElement(elementId);
   const link = document.createElement('a');
   link.download = filename;
-  link.href = dataUrl;
+  link.href = canvas.toDataURL('image/png');
   link.click();
 }
 
-export async function exportAsPng(element, filename = 'manadsblad.png') {
-  const canvas = await renderCanvas(element);
-  try {
-    downloadDataUrl(canvas.toDataURL('image/png', 1), filename);
-  } catch {
-    throw new Error('Kunde inte skapa PNG-filen.');
+export async function exportAsPDF(elementId, format = 'A4', filename = 'manadsblad.pdf') {
+  const canvas = await captureElement(elementId);
+  const pdf = new jsPDF({ orientation: format === 'A4 Liggande' ? 'landscape' : 'portrait', unit: 'mm', format: 'a4' });
+  const pageW = pdf.internal.pageSize.getWidth();
+  const pageH = pdf.internal.pageSize.getHeight();
+  const imgData = canvas.toDataURL('image/jpeg', 0.95);
+  const imgH = pageW * (canvas.height / canvas.width);
+  let yPos = 0;
+  while (yPos < imgH) {
+    if (yPos > 0) pdf.addPage();
+    pdf.addImage(imgData, 'JPEG', 0, -yPos, pageW, imgH);
+    yPos += pageH;
   }
+  pdf.save(filename);
 }
 
-export async function exportAsPdf(element, format, filename = 'manadsblad.pdf') {
-  const canvas = await renderCanvas(element);
-  try {
-    const imgData = canvas.toDataURL('image/png', 1);
-    const { jsPDF } = window.jspdf;
-    const preset = getExportFormatPreset(format);
-    const pdf = new jsPDF({
-      orientation: preset.pdf.orientation,
-      unit: 'px',
-      format: preset.pdf.format,
-      compress: true,
-    });
+export async function exportViaCloud(htmlContent, format = 'A4', filename = 'manadsblad.pdf') {
+  const res = await fetch(CLOUD_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ html: htmlContent, format }),
+  });
+  if (!res.ok) throw new Error(`Moln-export misslyckades: ${res.status}`);
+  const blob = await res.blob();
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url; link.download = filename; link.click();
+  URL.revokeObjectURL(url);
+}
 
-    const pageWidth = pdf.internal.pageSize.getWidth();
-    const pageHeight = pdf.internal.pageSize.getHeight();
-    const ratio = Math.min(pageWidth / canvas.width, pageHeight / canvas.height);
-    const renderWidth = canvas.width * ratio;
-    const renderHeight = canvas.height * ratio;
-    const offsetX = (pageWidth - renderWidth) / 2;
-    const offsetY = (pageHeight - renderHeight) / 2;
-
-    pdf.addImage(imgData, 'PNG', offsetX, offsetY, renderWidth, renderHeight, undefined, 'FAST');
-    pdf.save(filename);
-  } catch {
-    throw new Error('Kunde inte skapa PDF-filen.');
-  }
+export async function shareViaWebShare(elementId, title = 'Månadsblad Pro') {
+  if (!navigator.share) throw new Error('Web Share API stöds inte i den här webbläsaren.');
+  const canvas = await captureElement(elementId);
+  const blob = await new Promise(res => canvas.toBlob(res, 'image/png'));
+  await navigator.share({ title, files: [new File([blob], 'manadsblad.png', { type: 'image/png' })] });
 }

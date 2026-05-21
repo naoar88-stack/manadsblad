@@ -1,111 +1,84 @@
-import { useEffect, useState } from 'react';
-import { auth, db, appId, signInAnonymously, onAuthStateChanged, doc, setDoc, onSnapshot } from '../lib/firebase';
+import { useEffect, useRef, useCallback } from 'react';
+import {
+  db,
+  doc, getDoc, setDoc, onSnapshot,
+  serverTimestamp,
+} from '../lib/firebase';
 
-export function useFirebaseSync(state) {
-  const [user, setUser] = useState(null);
-  const [syncStatus, setSyncStatus] = useState('idle');
-  const [isReady, setIsReady] = useState(false);
+const DEBOUNCE_MS = 1200;
 
+/**
+ * Synkar aktiviteter och inställningar mot Firestore (per användare + månadsnyckel).
+ * Fallback: gör ingenting om db är undefined (lokalt läge).
+ */
+export function useFirebaseSync({ uid, monthKey, activities, settings, setActivities, setSettings, localMode }) {
+  const debounceTimer  = useRef(null);
+  const isRemoteUpdate = useRef(false);
+
+  // --- Läs in från Firestore när uid eller månadsnyckel ändras ---
   useEffect(() => {
-    if (!auth) {
-      setIsReady(true);
-      return;
-    }
+    if (!db || !uid || localMode) return;
 
-    signInAnonymously(auth).catch((error) => {
-      console.warn('Kunde inte logga in anonymt.', error);
-      setIsReady(true);
-    });
+    const planRef     = doc(db, 'users', uid, 'plans', monthKey);
+    const settingsRef = doc(db, 'users', uid, 'meta', 'settings');
 
-    const unsubscribe = onAuthStateChanged(auth, (nextUser) => {
-      setUser(nextUser || null);
-      setIsReady(true);
-    });
-
-    return () => unsubscribe();
-  }, []);
-
-  useEffect(() => {
-    if (!db || !user) return undefined;
-
-    const settingsRef = doc(db, 'artifacts', appId, 'users', user.uid, 'settings', 'default');
-    const activitiesRef = doc(
-      db,
-      'artifacts',
-      appId,
-      'users',
-      user.uid,
-      'plans',
-      `${state.selectedYear}-${state.selectedMonth}`
-    );
-
-    const unsubSettings = onSnapshot(settingsRef, (snapshot) => {
-      if (!snapshot.exists()) return;
-      const data = snapshot.data();
-      if (typeof data.headerTitle === 'string') state.setHeaderTitle(data.headerTitle);
-      if (typeof data.footerText === 'string') state.setFooterText(data.footerText);
-      if (Array.isArray(data.activeWeekdays)) state.setActiveWeekdays(data.activeWeekdays);
-      if (typeof data.selectedTemplate === 'string') state.setSelectedTemplate(data.selectedTemplate);
-      if (typeof data.selectedFormat === 'string') state.setSelectedFormat(data.selectedFormat);
-    });
-
-    const unsubActivities = onSnapshot(activitiesRef, (snapshot) => {
-      if (!snapshot.exists()) return;
-      const data = snapshot.data();
-      if (data.activities) state.setActivities(data.activities);
-    });
-
-    return () => {
-      unsubSettings();
-      unsubActivities();
-    };
-  }, [user, state.selectedYear, state.selectedMonth]);
-
-  useEffect(() => {
-    if (!db || !user || !isReady) return;
-
-    const timeout = setTimeout(async () => {
-      setSyncStatus('saving');
-      try {
-        const settingsRef = doc(db, 'artifacts', appId, 'users', user.uid, 'settings', 'default');
-        await setDoc(settingsRef, {
-          headerTitle: state.headerTitle,
-          footerText: state.footerText,
-          activeWeekdays: state.activeWeekdays,
-          selectedTemplate: state.selectedTemplate,
-          selectedFormat: state.selectedFormat,
-        }, { merge: true });
-
-        const activitiesRef = doc(
-          db,
-          'artifacts',
-          appId,
-          'users',
-          user.uid,
-          'plans',
-          `${state.selectedYear}-${state.selectedMonth}`
-        );
-        await setDoc(activitiesRef, { activities: state.activities }, { merge: true });
-        setSyncStatus('saved');
-      } catch (error) {
-        console.error('Kunde inte spara till Firestore.', error);
-        setSyncStatus('error');
+    // Hämta sparade inställningar en gång
+    getDoc(settingsRef).then(snap => {
+      if (snap.exists()) {
+        isRemoteUpdate.current = true;
+        setSettings(prev => ({ ...prev, ...snap.data() }));
+        isRemoteUpdate.current = false;
       }
-    }, 500);
+    });
 
-    return () => clearTimeout(timeout);
-  }, [
-    user,
-    isReady,
-    state.headerTitle,
-    state.footerText,
-    state.activeWeekdays,
-    state.selectedTemplate,
-    state.selectedFormat,
-    state.activities,
-    state.selectedYear,
-    state.selectedMonth,
-  ]);
+    // Realtidslyssning på aktiv månadsplan
+    const unsub = onSnapshot(planRef, snap => {
+      if (snap.exists()) {
+        const data = snap.data();
+        if (data.activities) {
+          isRemoteUpdate.current = true;
+          setActivities(
+            data.activities.map(a => ({ ...a, date: new Date(a.date) }))
+          );
+          isRemoteUpdate.current = false;
+        }
+      }
+    });
 
-  return { user, syncStatus, isReady, hasCloud: Boolean(db && auth) };
+    return () => unsub();
+  }, [uid, monthKey, localMode]);
+
+  // --- Debounced sparning när aktiviteter ändras ---
+  const saveActivities = useCallback(() => {
+    if (!db || !uid || localMode || isRemoteUpdate.current) return;
+    clearTimeout(debounceTimer.current);
+    debounceTimer.current = setTimeout(async () => {
+      try {
+        const planRef = doc(db, 'users', uid, 'plans', monthKey);
+        await setDoc(planRef, {
+          activities: activities.map(a => ({ ...a, date: a.date.toISOString() })),
+          updatedAt: serverTimestamp(),
+        }, { merge: true });
+      } catch (e) {
+        console.error('[Firestore] Sparfel aktiviteter:', e);
+      }
+    }, DEBOUNCE_MS);
+  }, [uid, monthKey, activities, localMode]);
+
+  // --- Debounced sparning när inställningar ändras ---
+  const saveSettings = useCallback(() => {
+    if (!db || !uid || localMode || isRemoteUpdate.current) return;
+    clearTimeout(debounceTimer.current);
+    debounceTimer.current = setTimeout(async () => {
+      try {
+        const settingsRef = doc(db, 'users', uid, 'meta', 'settings');
+        await setDoc(settingsRef, { ...settings, updatedAt: serverTimestamp() }, { merge: true });
+      } catch (e) {
+        console.error('[Firestore] Sparfel inställningar:', e);
+      }
+    }, DEBOUNCE_MS);
+  }, [uid, settings, localMode]);
+
+  useEffect(() => { saveActivities(); }, [activities]);
+  useEffect(() => { saveSettings();   }, [settings]);
 }
