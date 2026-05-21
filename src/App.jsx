@@ -19,22 +19,22 @@ export default function App() {
   const today = new Date();
   const [year,   setYear]   = useState(today.getFullYear());
   const [month,  setMonth]  = useState(today.getMonth());
-  const [activeTab,    setActiveTab]    = useState('Schema');
-  const [openDays,     setOpenDays]     = useState([3, 4, 5]);
-  const [syncStatus,   setSyncStatus]   = useState('saved');
-  const [studioZoom,   setStudioZoom]   = useState(0.82);
-  const [assetModalFor, setAssetModalFor] = useState(null); // aktivitets-id
+  const [activeTab,     setActiveTab]     = useState('Schema');
+  const [openDays,      setOpenDays]      = useState([3, 4, 5]);
+  const [syncStatus,    setSyncStatus]    = useState('saved');
+  const [studioZoom,    setStudioZoom]    = useState(0.82);
+  const [assetModalFor, setAssetModalFor] = useState(null);
 
   const [design, setDesign] = useState({
     layout: 'lively', format: 'A4', colorScheme: 'Per vecka',
-    font: 'Inter', background: 'Rutnät', backgroundOpacity: 28,
+    font: 'Inter', background: 'Rutn\u00e4t', backgroundOpacity: 28,
     backgroundImage: '',
     colors: { week1: '#4f46e5', week2: '#0ea5e9', week3: '#22c55e', week4: '#f97316' },
   });
 
   const [settings, setSettings] = useState({
-    yardName:        'Fritidsgården Solsidan',
-    footerText:      'Välkommen till en trygg och kreativ mötesplats.',
+    yardName:        'Fritidsg\u00e5rden Solsidan',
+    footerText:      'V\u00e4lkommen till en trygg och kreativ m\u00f6tesplats.',
     qrLink:          'https://fritidsgard.se',
     cloudExport:     true,
     localMode:       false,
@@ -88,7 +88,7 @@ export default function App() {
     <div className="min-h-screen bg-gradient-to-br from-slate-100 via-indigo-50 to-slate-100 flex items-center justify-center">
       <div className="flex flex-col items-center gap-4">
         <Loader2 className="w-10 h-10 animate-spin text-indigo-500" />
-        <p className="text-sm text-slate-500 font-medium">Ansluter…</p>
+        <p className="text-sm text-slate-500 font-medium">Ansluter\u2026</p>
       </div>
     </div>
   );
@@ -109,8 +109,8 @@ export default function App() {
         onLogout={logout}      syncStatus={syncStatus}
         user={user}
       />
-      {/* pt-20 säkerställer att header aldrig täcker innehåll */}
-      <main className="pt-20 p-4 lg:p-6">
+      {/* pt-28 = 112px — säkert avstånd under fixed header på alla skärmstorlekar */}
+      <main className="pt-28 px-4 pb-8 lg:px-6">
         {activeTab === 'Schema' && (
           <SchemaView
             year={year} month={month}
@@ -134,7 +134,7 @@ export default function App() {
             templates={templates} addTemplate={addTemplate}
           />
         )}
-        {activeTab === 'Inställningar' && (
+        {activeTab === 'Inst\u00e4llningar' && (
           <SettingsView settings={settings} setSettings={setSettings} />
         )}
       </main>
