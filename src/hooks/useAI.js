@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import { magicPaste, vasssa, generateImagePrompt } from '../lib/aiUtils';
 
+// Groq API-nyckel — lägg till VITE_GROQ_API_KEY i Vercel Environment Variables
 const API_KEY = import.meta.env.VITE_GROQ_API_KEY;
 
 export function useAI() {
