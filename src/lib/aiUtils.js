@@ -1,9 +1,9 @@
-// Groq API — gratis, inget kreditkort, extremt snabb (Llama 3.3 70B)
+// Groq API — gratis, inget kreditkort, extremt snabb
 const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
-const MODEL    = 'llama-3.3-70b-versatile';
+const MODEL    = 'llama3-8b-8192'; // stabil gratis modell
 
 async function callGroq(prompt, apiKey) {
-  if (!apiKey) throw new Error('VITE_GROQ_API_KEY saknas — lägg till den i Vercel Environment Variables');
+  if (!apiKey) throw new Error('VITE_GROQ_API_KEY saknas — lagg till den i Vercel Environment Variables');
   const res = await fetch(GROQ_URL, {
     method: 'POST',
     headers: {
@@ -26,56 +26,36 @@ async function callGroq(prompt, apiKey) {
 }
 
 export async function magicPaste(rawText, apiKey) {
-  const prompt = `Du är en assistent för svenska fritidsgårdar.
-Analysera följande text och extrahera alla aktiviteter du hittar.
-Returnera ENBART ett JSON-array (ingen förklarande text, inga markdown-kodblock) med objekt som har dessa fält:
+  const prompt = `Du ar en assistent for svenska fritidsgardar.
+Analysera foljande text och extrahera alla aktiviteter du hittar.
+Returnera ENBART ett JSON-array (ingen forklarande text, inga markdown-kodblock) med objekt som har dessa falt:
 - title (string): aktivitetens namn
-- description (string, max 120 tecken): kort beskrivning på svenska
-- dateHint (string): datum eller dag som nämns (t.ex. "15 juni", "fredagar", tom sträng om okänt)
-- ageGroup (string): åldersgrupp, t.ex. "13–16 år", "Alla åldrar" om okänt
-- badges (object): { signup: bool, cost: bool, trip: bool } baserat på texten
+- description (string, max 120 tecken): kort beskrivning pa svenska
+- dateHint (string): datum eller dag som namns (t.ex. "15 juni", "fredagar", tom strang om okant)
+- ageGroup (string): aldersgrupp, t.ex. "13-16 ar", "Alla aldrar" om okant
+- badges (object): { signup: bool, cost: bool, trip: bool } baserat pa texten
 
-Text:
-${rawText}
-
-Svara ENBART med JSON-arrayen.`;
-
+Text att analysera:
+${rawText}`;
   const raw = await callGroq(prompt, apiKey);
-  const cleaned = raw.replace(/```json?/gi, '').replace(/```/g, '').trim();
   try {
+    const cleaned = raw.replace(/```json|```/g, '').trim();
     return JSON.parse(cleaned);
   } catch {
-    throw new Error('AI returnerade ogiltig JSON. Försök igen.');
+    const match = raw.match(/\[.*\]/s);
+    if (match) return JSON.parse(match[0]);
+    throw new Error('Kunde inte tolka AI-svaret som JSON');
   }
 }
 
 export async function vasssa(activity, apiKey) {
-  const prompt = `Du är en copywriter för svenska fritidsgårdar. Gör aktivitetstexter mer engagerande och inbjudande för ungdomar.
-
-Aktivitet:
-Titel: ${activity.title}
-Beskrivning: ${activity.description}
-Åldersgrupp: ${activity.ageGroup || 'okänd'}
-
-Returnera ENBART ett JSON-objekt (inga kodblock) med:
-- title (string): slagkraftig titel (max 6 ord)
-- description (string): engagerande beskrivning på svenska (max 120 tecken)
-
-Svara ENBART med JSON-objektet.`;
-
-  const raw = await callGroq(prompt, apiKey);
-  const cleaned = raw.replace(/```json?/gi, '').replace(/```/g, '').trim();
-  try {
-    return JSON.parse(cleaned);
-  } catch {
-    throw new Error('AI returnerade ogiltig JSON. Försök igen.');
-  }
+  const prompt = `Forbattra denna aktivitetsbeskrivning for en fritidsgard. Max 100 tecken. Bara texten, inget annat:
+${activity.description || activity.title}`;
+  return await callGroq(prompt, apiKey);
 }
 
 export async function generateImagePrompt(activity, apiKey) {
-  const prompt = `Skapa en kort engelsk söksträng (5–8 ord) för Unsplash som passar denna fritidsgårdsaktivitet:
-Titel: ${activity.title}
-Beskrivning: ${activity.description}
-Returnera ENBART söktexten, ingen annan text.`;
-  return callGroq(prompt, apiKey);
+  const prompt = `Skapa ett kort bildprompt pa engelska for en aktivitetsbild. Max 20 ord. Bara prompten:
+${activity.title}: ${activity.description}`;
+  return await callGroq(prompt, apiKey);
 }
