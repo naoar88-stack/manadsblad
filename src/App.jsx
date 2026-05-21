@@ -11,9 +11,6 @@ import { Header }           from './components/Header';
 import { SchemaView }       from './components/SchemaView';
 import { StudioView }       from './components/StudioView';
 import { SettingsView }     from './components/SettingsView';
-import { AssetManagerModal } from './components/AssetManagerModal';
-import { CropModal }        from './components/CropModal';
-import { SyncStatus }       from './components/SyncStatus';
 
 const toMonthKey = (y, m) => `${y}-${String(m + 1).padStart(2, '0')}`;
 
@@ -23,10 +20,8 @@ export default function App() {
   const [month, setMonth] = useState(today.getMonth());
   const [activeTab,  setActiveTab]  = useState('Schema');
   const [openDays,   setOpenDays]   = useState([3, 4, 5]);
-  const [assetModalFor, setAssetModalFor] = useState(null);
-  const [cropModalFor,  setCropModalFor]  = useState(null);
-  const [studioZoom,    setStudioZoom]    = useState(0.82);
-  const [syncStatus,    setSyncStatus]    = useState('saved');
+  const [syncStatus, setSyncStatus] = useState('saved');
+  const [studioZoom, setStudioZoom] = useState(0.82);
 
   const [design, setDesign] = useState({
     layout: 'lively', format: 'A4', colorScheme: 'Per vecka',
@@ -47,29 +42,21 @@ export default function App() {
     groupWeeks:        false,
   });
 
-  // --- Auth ---
   const { user, loading: authLoading, error: authError, loginAnon, loginEmail, registerEmail, logout } = useAuth();
 
-  // --- Schema-state ---
   const currentMonthKey = toMonthKey(year, month);
-  const { activities, setActivities, templates, addTemplate, isLoading: scheduleLoading } =
-    useSchedule(currentMonthKey, openDays);
+  const { activities, setActivities, templates, addTemplate } = useSchedule(currentMonthKey, openDays);
 
-  // --- Historik ---
   const { pushHistory, undo, redo, canUndo, canRedo } = useHistory(activities, setActivities);
 
-  // --- Firestore sync ---
   useFirebaseSync({
-    uid:           user?.uid,
-    monthKey:      currentMonthKey,
-    activities,
-    settings,
-    setActivities,
-    setSettings,
-    localMode:     settings.localMode || !user,
+    uid:       user?.uid,
+    monthKey:  currentMonthKey,
+    activities, settings,
+    setActivities, setSettings,
+    localMode: settings.localMode || !user,
   });
 
-  // --- Sync-status feedback ---
   useEffect(() => {
     if (!user || settings.localMode) { setSyncStatus('local'); return; }
     setSyncStatus('saving');
@@ -77,7 +64,6 @@ export default function App() {
     return () => clearTimeout(t);
   }, [activities, settings]);
 
-  // --- Aktivitetshantering ---
   const updateActivity = useCallback((id, patch) => {
     pushHistory(activities.map(a => a.id === id ? { ...a, ...patch } : a));
   }, [activities, pushHistory]);
@@ -106,7 +92,6 @@ export default function App() {
     else setMonth(m => m + 1);
   };
 
-  // --- Loading-skärm ---
   if (authLoading) return (
     <div className="min-h-screen bg-gradient-to-br from-slate-100 via-indigo-50 to-slate-100 flex items-center justify-center">
       <div className="flex flex-col items-center gap-4 text-slate-500">
@@ -116,7 +101,6 @@ export default function App() {
     </div>
   );
 
-  // --- Login-skärm ---
   if (!user) return (
     <LoginScreen
       onLoginEmail={loginEmail}
@@ -127,7 +111,6 @@ export default function App() {
     />
   );
 
-  // --- Huvud-app ---
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-100 via-indigo-50 to-slate-100 font-sans">
       <Header
@@ -138,7 +121,6 @@ export default function App() {
         syncStatus={syncStatus}
         user={user}
       />
-
       <main className="pt-[88px] p-4 lg:p-6">
         {activeTab === 'Schema' && (
           <SchemaView
@@ -149,7 +131,6 @@ export default function App() {
             updateActivity={updateActivity}
             moveActivity={moveActivity}
             reorderActivities={reorderActivities}
-            onOpenAsset={setAssetModalFor}
             pushHistory={pushHistory}
           />
         )}
@@ -160,7 +141,6 @@ export default function App() {
             settings={settings}
             year={year} month={month}
             zoom={studioZoom} setZoom={setStudioZoom}
-            onCrop={setCropModalFor}
             templates={templates} addTemplate={addTemplate}
           />
         )}
@@ -168,22 +148,6 @@ export default function App() {
           <SettingsView settings={settings} setSettings={setSettings} />
         )}
       </main>
-
-      {assetModalFor && (
-        <AssetManagerModal
-          activityId={assetModalFor}
-          activity={activities.find(a => a.id === assetModalFor)}
-          onSelect={img => { updateActivity(assetModalFor, { image: img }); setAssetModalFor(null); }}
-          onClose={() => setAssetModalFor(null)}
-        />
-      )}
-      {cropModalFor && (
-        <CropModal
-          activity={activities.find(a => a.id === cropModalFor)}
-          onSave={crop => { updateActivity(cropModalFor, { crop }); setCropModalFor(null); }}
-          onClose={() => setCropModalFor(null)}
-        />
-      )}
     </div>
   );
 }
