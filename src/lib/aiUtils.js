@@ -1,4 +1,4 @@
-const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent';
+const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
 
 async function callGemini(prompt, apiKey) {
   if (!apiKey) throw new Error('VITE_GEMINI_API_KEY saknas i .env');
@@ -18,10 +18,6 @@ async function callGemini(prompt, apiKey) {
   return data.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
 }
 
-/**
- * Magic Paste: tolka råtext och extrahera strukturerade aktiviteter.
- * Returnerar en array av aktivitetsobjekt.
- */
 export async function magicPaste(rawText, apiKey) {
   const prompt = `Du är en assistent för svenska fritidsgårdar.
 Analysera följande text och extrahera alla aktiviteter du hittar.
@@ -46,10 +42,6 @@ Svara ENBART med JSON-arrayen.`;
   }
 }
 
-/**
- * Vässa: förbättra titel och beskrivning för en aktivitet.
- * Returnerar { title, description }.
- */
 export async function vasssa(activity, apiKey) {
   const prompt = `Du är en copywriter för svenska fritidsgårdar. Din uppgift är att göra aktivitetstexter mer engagerande, tydliga och inbjudande för ungdomar.
 
@@ -73,9 +65,6 @@ Svara ENBART med JSON-objektet.`;
   }
 }
 
-/**
- * Generera bildprompt för en aktivitet (för Unsplash-sökning eller AI-bild).
- */
 export async function generateImagePrompt(activity, apiKey) {
   const prompt = `Skapa en kort engelsk söksträng (5–8 ord) för Unsplash som passar denna fritidsgårdsaktivitet:
 Titel: ${activity.title}
