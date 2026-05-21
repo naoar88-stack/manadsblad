@@ -1,8 +1,6 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 
-const WEEKDAY_SV   = ['Sön','Mån','Tis','Ons','Tors','Fre','Lör'];
-const MONTH_SV     = ['Januari','Februari','Mars','April','Maj','Juni','Juli','Augusti','September','Oktober','November','December'];
-const IMAGE_POOL   = [
+const IMAGE_POOL = [
   'https://images.unsplash.com/photo-1517457373958-b7bdd4587205?auto=format&fit=crop&w=800&q=80',
   'https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=800&q=80',
   'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=800&q=80',
@@ -12,12 +10,12 @@ const IMAGE_POOL   = [
   'https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=800&q=80',
   'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?auto=format&fit=crop&w=800&q=80',
 ];
-const AGE_GROUPS   = ['10–12 år','13–15 år','16–18 år','Mix'];
+const AGE_GROUPS = ['10-12 ar', '13-15 ar', '16-18 ar', 'Mix'];
 
-function buildActivities(monthKey, openDays) {
+function buildSeedActivities(monthKey, openDays) {
   const [y, m] = monthKey.split('-').map(Number);
-  const month  = m - 1;
-  const date   = new Date(y, month, 1);
+  const month = m - 1;
+  const date = new Date(y, month, 1);
   const result = [];
   let idx = 0;
   while (date.getMonth() === month) {
@@ -25,7 +23,7 @@ function buildActivities(monthKey, openDays) {
       result.push({
         id: `${monthKey}-${date.getDate()}`,
         date: new Date(date),
-        title: `${WEEKDAY_SV[date.getDay()]}aktivitet ${idx + 1}`,
+        title: `Aktivitet ${idx + 1}`,
         description: 'Drop-in, spel, skapande och gemensam aktivitet.',
         ageGroup: AGE_GROUPS[idx % AGE_GROUPS.length],
         badges: { signup: idx % 2 === 0, cost: idx % 3 === 0, trip: idx % 4 === 0 },
@@ -40,21 +38,41 @@ function buildActivities(monthKey, openDays) {
 }
 
 export function useSchedule(monthKey, openDays) {
-  const [activities, setActivities] = useState(() => buildActivities(monthKey, openDays));
-  const [templates,  setTemplates]  = useState([]);
-  const [isLoading,  setIsLoading]  = useState(false);
+  // aktiviteter per manadsnyckel — bevaras vid manadsbyten
+  const [activitiesMap, setActivitiesMap] = useState(() => ({
+    [monthKey]: buildSeedActivities(monthKey, openDays),
+  }));
+  const [templates, setTemplates] = useState([]);
+  const prevMonthKey = useRef(monthKey);
 
+  // Nar en ny manad oppnas for forsta gangen — generera standardaktiviteter
   useEffect(() => {
-    setActivities(buildActivities(monthKey, openDays));
-  }, [monthKey, openDays.join(',')]);
+    if (prevMonthKey.current !== monthKey) {
+      prevMonthKey.current = monthKey;
+    }
+    setActivitiesMap(prev => {
+      if (prev[monthKey]) return prev; // finns redan — rora inte
+      return { ...prev, [monthKey]: buildSeedActivities(monthKey, openDays) };
+    });
+  }, [monthKey]); // avsiktligt bara monthKey
+
+  const activities = activitiesMap[monthKey] ?? [];
+
+  const setActivities = (newActs) => {
+    const updated = typeof newActs === 'function' ? newActs(activities) : newActs;
+    setActivitiesMap(prev => ({ ...prev, [monthKey]: updated }));
+  };
 
   const schedule = useMemo(() => {
     const map = {};
-    activities.forEach(a => { map[a.date.getDate()] = a; });
+    activities.forEach(a => {
+      const d = a.date instanceof Date ? a.date : new Date(a.date);
+      map[d.getDate()] = a;
+    });
     return map;
   }, [activities]);
 
   const addTemplate = (t) => setTemplates(prev => [...prev, t]);
 
-  return { schedule, activities, setActivities, templates, addTemplate, isLoading };
+  return { schedule, activities, setActivities, activitiesMap, setActivitiesMap, templates, addTemplate };
 }
