@@ -1,21 +1,28 @@
-const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
+// Groq API — gratis, inget kreditkort, extremt snabb (Llama 3.3 70B)
+const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
+const MODEL    = 'llama-3.3-70b-versatile';
 
-async function callGemini(prompt, apiKey) {
-  if (!apiKey) throw new Error('VITE_GEMINI_API_KEY saknas i .env');
-  const res = await fetch(`${GEMINI_URL}?key=${apiKey}`, {
+async function callGroq(prompt, apiKey) {
+  if (!apiKey) throw new Error('VITE_GROQ_API_KEY saknas — lägg till den i Vercel Environment Variables');
+  const res = await fetch(GROQ_URL, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${apiKey}`,
+    },
     body: JSON.stringify({
-      contents: [{ parts: [{ text: prompt }] }],
-      generationConfig: { temperature: 0.7, maxOutputTokens: 1024 },
+      model: MODEL,
+      messages: [{ role: 'user', content: prompt }],
+      temperature: 0.7,
+      max_tokens: 1024,
     }),
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
-    throw new Error(err?.error?.message || `Gemini API-fel: ${res.status}`);
+    throw new Error(err?.error?.message || `Groq API-fel: ${res.status}`);
   }
   const data = await res.json();
-  return data.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
+  return data.choices?.[0]?.message?.content ?? '';
 }
 
 export async function magicPaste(rawText, apiKey) {
@@ -33,17 +40,17 @@ ${rawText}
 
 Svara ENBART med JSON-arrayen.`;
 
-  const raw = await callGemini(prompt, apiKey);
+  const raw = await callGroq(prompt, apiKey);
   const cleaned = raw.replace(/```json?/gi, '').replace(/```/g, '').trim();
   try {
     return JSON.parse(cleaned);
   } catch {
-    throw new Error('Gemini returnerade ogiltig JSON. Försök igen.');
+    throw new Error('AI returnerade ogiltig JSON. Försök igen.');
   }
 }
 
 export async function vasssa(activity, apiKey) {
-  const prompt = `Du är en copywriter för svenska fritidsgårdar. Din uppgift är att göra aktivitetstexter mer engagerande, tydliga och inbjudande för ungdomar.
+  const prompt = `Du är en copywriter för svenska fritidsgårdar. Gör aktivitetstexter mer engagerande och inbjudande för ungdomar.
 
 Aktivitet:
 Titel: ${activity.title}
@@ -51,17 +58,17 @@ Beskrivning: ${activity.description}
 Åldersgrupp: ${activity.ageGroup || 'okänd'}
 
 Returnera ENBART ett JSON-objekt (inga kodblock) med:
-- title (string): en slagkraftig, kortfattad titel (max 6 ord)
+- title (string): slagkraftig titel (max 6 ord)
 - description (string): engagerande beskrivning på svenska (max 120 tecken)
 
 Svara ENBART med JSON-objektet.`;
 
-  const raw = await callGemini(prompt, apiKey);
+  const raw = await callGroq(prompt, apiKey);
   const cleaned = raw.replace(/```json?/gi, '').replace(/```/g, '').trim();
   try {
     return JSON.parse(cleaned);
   } catch {
-    throw new Error('Gemini returnerade ogiltig JSON. Försök igen.');
+    throw new Error('AI returnerade ogiltig JSON. Försök igen.');
   }
 }
 
@@ -70,5 +77,5 @@ export async function generateImagePrompt(activity, apiKey) {
 Titel: ${activity.title}
 Beskrivning: ${activity.description}
 Returnera ENBART söktexten, ingen annan text.`;
-  return callGemini(prompt, apiKey);
+  return callGroq(prompt, apiKey);
 }
