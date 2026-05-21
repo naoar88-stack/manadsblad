@@ -1,12 +1,12 @@
 import { useState, useCallback } from 'react';
 import { magicPaste, vasssa, generateImagePrompt } from '../lib/aiUtils';
 
-const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
+const API_KEY = import.meta.env.VITE_GROQ_API_KEY;
 
 export function useAI() {
-  const [aiLoading, setAiLoading]   = useState(false);
-  const [aiError,   setAiError]     = useState('');
-  const [aiSuccess, setAiSuccess]   = useState('');
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError,   setAiError]   = useState('');
+  const [aiSuccess, setAiSuccess] = useState('');
 
   const hasKey = !!API_KEY;
 
@@ -28,20 +28,9 @@ export function useAI() {
     }
   }, []);
 
-  const runMagicPaste = useCallback(
-    (text) => run(() => magicPaste(text, API_KEY)),
-    [run]
-  );
-
-  const runVasssa = useCallback(
-    (activity) => run(() => vasssa(activity, API_KEY)),
-    [run]
-  );
-
-  const runImagePrompt = useCallback(
-    (activity) => run(() => generateImagePrompt(activity, API_KEY)),
-    [run]
-  );
+  const runMagicPaste  = useCallback((text)     => run(() => magicPaste(text, API_KEY)),       [run]);
+  const runVasssa      = useCallback((activity) => run(() => vasssa(activity, API_KEY)),        [run]);
+  const runImagePrompt = useCallback((activity) => run(() => generateImagePrompt(activity, API_KEY)), [run]);
 
   return { aiLoading, aiError, aiSuccess, hasKey, runMagicPaste, runVasssa, runImagePrompt };
 }
