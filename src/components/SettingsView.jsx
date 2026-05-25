@@ -30,7 +30,7 @@ function SwitchRow({ icon: Icon, label, description, checked, onChange }) {
   );
 }
 
-export function SettingsView({ settings, setSettings }) {
+export function SettingsView({ settings, setSettings , user, onLogout }) {
   const update = (patch) => setSettings(prev => ({ ...prev, ...patch }));
 
   return (
