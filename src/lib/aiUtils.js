@@ -1,7 +1,6 @@
 // Groq API — gratis, inget kreditkort, extremt snabb
 const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
-const MODEL    = 'llama3-8b-8192'; // stabil gratis modell
-
+const MODEL    = 'llama-3.1-8b-instant'; // aktuell gratis modell
 async function callGroq(prompt, apiKey) {
   if (!apiKey) throw new Error('VITE_GROQ_API_KEY saknas — lagg till den i Vercel Environment Variables');
   const res = await fetch(GROQ_URL, {
