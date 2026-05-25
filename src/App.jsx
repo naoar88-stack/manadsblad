@@ -157,8 +157,7 @@ export default function App() {
             addTemplate={addTemplate}
           />
         )}
-        {activeTab === 'Installningar' && (
-          <SettingsView
+      {activeTab === 'Inställningar' && (          <SettingsView
             settings={settings}
             setSettings={setSettings}
             user={user}
