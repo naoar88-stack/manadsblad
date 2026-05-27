@@ -151,16 +151,53 @@ export function SchemaView({ year, month, prevMonth, nextMonth, openDays, setOpe
     setImprovingText(p=>({...p,[id]:false}));
   }, [updateActivity]);
 
-  const generateAIImage = useCallback(async (id, title) => {
-    if (!title?.trim()) return;
-    setGeneratingImages(p=>({...p,[id]:true}));
-    try {
-      const q = encodeURIComponent(title + ' youth activity');
-      const res = await fetch(`https://api.unsplash.com/photos/random?query=${q}&orientation=landscape&client_id=kMSn_5smZtEf4z9bBKXGZuPMHu-DJX8RL3zBHk2eXnY`);
-      if (res.ok) { const data = await res.json(); if (data?.urls?.regular) updateActivity(id,{image:data.urls.regular}); }
-    } catch(e) { console.error('generateAIImage:', e); }
-    setGeneratingImages(p=>({...p,[id]:false}));
-  }, [updateActivity]);
+const generateAIImage = useCallback(async (id, title) => {
+  if (!title?.trim()) return;
+  setGeneratingImages(p => ({ ...p, [id]: true }));
+  try {
+    const terms = title
+      .toLowerCase()
+      .replace(/fotboll/g, 'football')
+      .replace(/basket/g, 'basketball')
+      .replace(/dans/g, 'dance')
+      .replace(/musik/g, 'music')
+      .replace(/konst/g, 'art craft')
+      .replace(/matlagning/g, 'cooking food')
+      .replace(/utflykt/g, 'outdoor nature')
+      .replace(/gaming/g, 'gaming esports')
+      .replace(/film/g, 'cinema movie')
+      .replace(/pyssel/g, 'craft hobby');
+    const q = encodeURIComponent(terms + ' teenagers youth activity');
+
+    // Försök Pexels om nyckel finns
+    const pexelsKey = import.meta.env.VITE_PEXELS_API_KEY ?? '';
+    if (pexelsKey) {
+      const res = await fetch(
+        `https://api.pexels.com/v1/search?query=${q}&per_page=10&orientation=landscape`,
+        { headers: { Authorization: pexelsKey } }
+      );
+      if (res.ok) {
+        const data = await res.json();
+        const photos = data?.photos ?? [];
+        if (photos.length > 0) {
+          const pick = photos[Math.floor(Math.random() * photos.length)];
+          updateActivity(id, { image: pick.src.large });
+          setGeneratingImages(p => ({ ...p, [id]: false }));
+          return;
+        }
+      }
+    }
+
+    // Fallback: Unsplash source med relevant sökterm
+    const seed = Math.floor(Math.random() * 99);
+    updateActivity(id, {
+      image: `https://source.unsplash.com/800x500/?${q}&sig=${seed}`
+    });
+  } catch (e) {
+    console.error('generateAIImage:', e);
+  }
+  setGeneratingImages(p => ({ ...p, [id]: false }));
+}, [updateActivity]);
 
   const handleMagicImport = useCallback(parsed => {
     const safe = activeDays.length > 0 ? activeDays : [new Date(year, month, 1)];
