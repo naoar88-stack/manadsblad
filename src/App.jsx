@@ -6,6 +6,7 @@ import { useHistory }      from './hooks/useHistory';
 import { useFirebaseSync } from './hooks/useFirebaseSync';
 import { LoginScreen }     from './components/LoginScreen';
 import { Header }          from './components/Header';
+import { ToastProvider }   from './components/Toast';
 
 const SchemaView        = lazy(() => import('./components/SchemaView').then(m => ({ default: m.SchemaView })));
 const StudioView        = lazy(() => import('./components/StudioView').then(m => ({ default: m.StudioView })));
@@ -16,12 +17,12 @@ const CropModal         = lazy(() => import('./components/CropModal').then(m => 
 const toMonthKey = (y, m) => `${y}-${String(m + 1).padStart(2, '0')}`;
 
 const Spinner = () => (
-  <div className="flex items-center justify-center min-h-screen bg-slate-50">
+  <div className="flex items-center justify-center min-h-screen">
     <div className="flex flex-col items-center gap-4">
-      <div className="w-12 h-12 bg-white rounded-2xl shadow flex items-center justify-center">
+      <div className="w-12 h-12 bg-white rounded-2xl shadow-lg flex items-center justify-center border border-slate-100">
         <Loader2 className="w-6 h-6 text-indigo-600 animate-spin" />
       </div>
-      <p className="text-sm font-semibold text-slate-400 animate-pulse">Laddar arbetsytan…</p>
+      <p className="text-sm font-semibold text-slate-400 animate-pulse tracking-wide">Laddar…</p>
     </div>
   </div>
 );
@@ -94,69 +95,72 @@ export default function App() {
     (id, patch) => pushHistory(activities.map(a => a.id === id ? { ...a, ...patch } : a)),
     [activities, pushHistory]
   );
-
   const prevMonth = useCallback(() => {
     if (month === 0) { setMonth(11); setYear(y => y - 1); } else setMonth(m => m - 1);
   }, [month]);
-
   const nextMonth = useCallback(() => {
     if (month === 11) { setMonth(0); setYear(y => y + 1); } else setMonth(m => m + 1);
   }, [month]);
 
   if (authLoading) return <Spinner />;
-  if (!user) return <LoginScreen onLoginEmail={loginEmail} onRegister={registerEmail} onAnon={loginAnon} />;
+  if (!user) return (
+    <ToastProvider>
+      <LoginScreen onLoginEmail={loginEmail} onRegister={registerEmail} onAnon={loginAnon} />
+    </ToastProvider>
+  );
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col">
-      <Header
-        activeTab={activeTab} setActiveTab={setActiveTab}
-        syncStatus={syncStatus} canUndo={canUndo} canRedo={canRedo}
-        onUndo={undo} onRedo={redo} user={user} onLogout={logout}
-      />
-      <main className="flex-1">
-        <Suspense fallback={<Spinner />}>
-          {activeTab === 'Schema' && (
-            <SchemaView
-              year={year} month={month}
-              prevMonth={prevMonth} nextMonth={nextMonth}
-              openDays={openDays} setOpenDays={setOpenDays}
-              activities={activities} updateActivity={updateActivity}
-              pushHistory={pushHistory} onOpenAsset={id => setAssetModalFor(id)}
-            />
-          )}
-          {activeTab === 'Studio' && (
-            <StudioView
-              activities={activities} design={design} setDesign={setDesign}
-              settings={settings} year={year} month={month}
-              zoom={studioZoom} setZoom={setStudioZoom}
-              onCrop={id => setCropModalFor(id)} templates={templates} addTemplate={addTemplate}
-            />
-          )}
-          {activeTab === 'Inställningar' && (
-            <SettingsView settings={settings} setSettings={setSettings} user={user} onLogout={logout} />
-          )}
-        </Suspense>
-      </main>
+    <ToastProvider>
+      <div className="min-h-screen flex flex-col">
+        <Header
+          activeTab={activeTab} setActiveTab={setActiveTab}
+          syncStatus={syncStatus} canUndo={canUndo} canRedo={canRedo}
+          onUndo={undo} onRedo={redo} user={user} onLogout={logout}
+        />
+        <main className="flex-1">
+          <Suspense fallback={<Spinner />}>
+            {activeTab === 'Schema' && (
+              <SchemaView
+                year={year} month={month}
+                prevMonth={prevMonth} nextMonth={nextMonth}
+                openDays={openDays} setOpenDays={setOpenDays}
+                activities={activities} updateActivity={updateActivity}
+                pushHistory={pushHistory} onOpenAsset={id => setAssetModalFor(id)}
+              />
+            )}
+            {activeTab === 'Studio' && (
+              <StudioView
+                activities={activities} design={design} setDesign={setDesign}
+                settings={settings} year={year} month={month}
+                zoom={studioZoom} setZoom={setStudioZoom}
+                onCrop={id => setCropModalFor(id)} templates={templates} addTemplate={addTemplate}
+              />
+            )}
+            {activeTab === 'Inställningar' && (
+              <SettingsView settings={settings} setSettings={setSettings} user={user} onLogout={logout} />
+            )}
+          </Suspense>
+        </main>
 
-      {assetModalFor && (
-        <Suspense fallback={null}>
-          <AssetManagerModal
-            activity={activities.find(a => a.id === assetModalFor)}
-            onSelect={img => { updateActivity(assetModalFor, { image: img }); setAssetModalFor(null); }}
-            onClose={() => setAssetModalFor(null)}
-          />
-        </Suspense>
-      )}
-
-      {cropModalFor && (
-        <Suspense fallback={null}>
-          <CropModal
-            activity={activities.find(a => a.id === cropModalFor)}
-            onSave={crop => { updateActivity(cropModalFor, { crop }); setCropModalFor(null); }}
-            onClose={() => setCropModalFor(null)}
-          />
-        </Suspense>
-      )}
-    </div>
+        {assetModalFor && (
+          <Suspense fallback={null}>
+            <AssetManagerModal
+              activity={activities.find(a => a.id === assetModalFor)}
+              onSelect={img => { updateActivity(assetModalFor, { image: img }); setAssetModalFor(null); }}
+              onClose={() => setAssetModalFor(null)}
+            />
+          </Suspense>
+        )}
+        {cropModalFor && (
+          <Suspense fallback={null}>
+            <CropModal
+              activity={activities.find(a => a.id === cropModalFor)}
+              onSave={crop => { updateActivity(cropModalFor, { crop }); setCropModalFor(null); }}
+              onClose={() => setCropModalFor(null)}
+            />
+          </Suspense>
+        )}
+      </div>
+    </ToastProvider>
   );
 }
