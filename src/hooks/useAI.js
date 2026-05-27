@@ -1,7 +1,6 @@
 import { useState, useCallback } from 'react';
 import { magicPaste, vasssa, generateImagePrompt } from '../lib/aiUtils';
 
-// Groq API-nyckel — lägg till VITE_GROQ_API_KEY i Vercel Environment Variables
 const API_KEY = import.meta.env.VITE_GROQ_API_KEY;
 
 export function useAI() {
@@ -12,9 +11,7 @@ export function useAI() {
   const hasKey = !!API_KEY;
 
   const run = useCallback(async (fn) => {
-    setAiLoading(true);
-    setAiError('');
-    setAiSuccess('');
+    setAiLoading(true); setAiError(''); setAiSuccess('');
     try {
       const result = await fn();
       setAiSuccess('Klart!');
@@ -29,9 +26,10 @@ export function useAI() {
     }
   }, []);
 
-  const runMagicPaste  = useCallback((text)     => run(() => magicPaste(text, API_KEY)),       [run]);
-  const runVasssa      = useCallback((activity) => run(() => vasssa(activity, API_KEY)),        [run]);
-  const runImagePrompt = useCallback((activity) => run(() => generateImagePrompt(activity, API_KEY)), [run]);
+  // yearMonth skickas vidare till magicPaste för korrekt datumexpansion av veckodagsregler
+  const runMagicPaste  = useCallback((text, yearMonth) => run(() => magicPaste(text, API_KEY, yearMonth)), [run]);
+  const runVasssa      = useCallback((activity)        => run(() => vasssa(activity, API_KEY)),             [run]);
+  const runImagePrompt = useCallback((activity)        => run(() => generateImagePrompt(activity, API_KEY)), [run]);
 
   return { aiLoading, aiError, aiSuccess, hasKey, runMagicPaste, runVasssa, runImagePrompt };
 }
