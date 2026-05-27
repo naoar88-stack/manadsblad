@@ -3,8 +3,8 @@ import { ZoomIn, ZoomOut, Download, Share2, Cloud, PanelRightOpen, Loader2, Chec
 import { useExport, PREVIEW_ELEMENT_ID } from '../hooks/useExport';
 
 const MONTH_SV = ['Januari','Februari','Mars','April','Maj','Juni','Juli','Augusti','September','Oktober','November','December'];
-const WEEKDAY_SV = ['Son','Man','Tis','Ons','Tors','Fre','Lor'];
-const WEEKDAY_FULL = ['Sondag','Mandag','Tisdag','Onsdag','Torsdag','Fredag','Lordag'];
+const WEEKDAY_SV = ['Sön','Mån','Tis','Ons','Tor','Fre','Lör'];
+const WEEKDAY_FULL = ['Söndag','Måndag','Tisdag','Onsdag','Torsdag','Fredag','Lördag'];
 
 const LAYOUTS = [
   { id: 'lively',  name: 'Lively',  desc: 'Fargblock & glad energi',       gradient: 'from-orange-400 to-rose-500'    },
