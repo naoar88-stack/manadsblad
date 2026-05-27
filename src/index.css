@@ -130,3 +130,35 @@ body {
   body { background: white !important; }
   header, .no-print { display: none !important; }
 }
+/* ── Mobilresponsiv kalender ── */
+@media (max-width: 639px) {
+  /* Kalender: komprimera till 1 dag = 1 rad istället för 7-kolumnersgrid */
+  .calendar-mobile-stack .grid-cols-7 {
+    display: flex;
+    flex-direction: column;
+  }
+  .calendar-mobile-stack .day-cell {
+    min-height: 72px;
+    border-right: none !important;
+    border-bottom: 1px solid rgba(241,245,249,1) !important;
+  }
+  /* Dölj stängda dagar på mobil */
+  .calendar-mobile-stack .day-cell--closed {
+    display: none;
+  }
+  /* Veckodagsrubriker på mobil */
+  .calendar-header-mobile {
+    display: none;
+  }
+  /* Datumrad på mobil visar veckodag + datum */
+  .day-cell .day-label-mobile {
+    display: flex;
+  }
+  .day-cell .day-label-desktop {
+    display: none;
+  }
+}
+@media (min-width: 640px) {
+  .day-cell .day-label-mobile  { display: none; }
+  .day-cell .day-label-desktop { display: flex; }
+}
