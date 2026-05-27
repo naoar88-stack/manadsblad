@@ -37,7 +37,7 @@ function ActivityChip({ a, onUpdate, onRemove, onOpenAsset, onGenerateImage, gen
   return (
     <div className="activity-chip relative group/chip rounded-xl overflow-hidden bg-white border border-slate-100 mb-1.5 cursor-grab active:cursor-grabbing">
 
-      {/* Bild eller AI-knapp */}
+      {/* Bild eller alltid-synlig AI-knapp */}
       {a.image ? (
         <img src={a.image} alt={a.title}
           className="w-full h-12 object-cover block"
@@ -54,7 +54,7 @@ function ActivityChip({ a, onUpdate, onRemove, onOpenAsset, onGenerateImage, gen
         </button>
       )}
 
-      {/* Hover-actions */}
+      {/* Hover-actions (synliga vid hover) */}
       <button onClick={e => { e.stopPropagation(); onOpenAsset(a.id); }}
         className="absolute top-1 right-1 h-6 w-6 rounded-md bg-white/95 shadow flex items-center justify-center opacity-0 group-hover/chip:opacity-100 transition z-10"
         title="Byt bild">
@@ -128,37 +128,56 @@ function QuickAddForm({ day, onAdd, onCancel }) {
 // ── Aktivitetskort i listan ──
 function ActivityCard({ a, activeDays, month, activities, updateActivity, pushHistory, onOpenAsset, onRemove, onGenerateImage, onImproveText, generatingImages, improvingText }) {
   const MON = ['Jan','Feb','Mar','Apr','Maj','Jun','Jul','Aug','Sep','Okt','Nov','Dec'];
+
   return (
     <div className="group/card relative bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
 
-      {/* Bild / AI-bildknapp */}
+      {/* ── Bild / knappar ── */}
       <div className="relative">
         {a.image ? (
-          <img src={a.image} alt={a.title}
-            className="w-full h-32 object-cover block"
-            onError={e => e.currentTarget.style.display='none'}/>
-        ) : (
-          <button onClick={() => onGenerateImage(a.id, a.title)} disabled={generatingImages[a.id]}
-            className="w-full h-24 bg-gradient-to-br from-slate-100 to-slate-50 flex flex-col items-center justify-center gap-2 text-slate-400 hover:text-indigo-600 hover:from-indigo-50 hover:to-white transition disabled:opacity-60 border-b border-slate-100">
-            {generatingImages[a.id]
-              ? <><Loader2 size={18} className="animate-spin text-indigo-500"/><span className="text-xs font-semibold">Hämtar bild…</span></>
-              : <><ImageIcon size={20}/><span className="text-xs font-semibold">Generera AI-bild</span></>}
-          </button>
-        )}
-        {a.image && (
-          <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity flex items-end justify-between p-2">
-            <button onClick={() => onRemove(a.id)}
-              className="h-7 w-7 rounded-xl bg-red-500 flex items-center justify-center shadow-md hover:bg-red-600 transition">
-              <Trash2 size={13} className="text-white"/>
-            </button>
-            <div className="flex gap-1.5">
-              <button onClick={() => onGenerateImage(a.id, a.title)} disabled={generatingImages[a.id]}
-                className="h-7 px-2.5 rounded-xl bg-indigo-600/90 flex items-center gap-1 shadow-md text-white text-[10px] font-bold hover:bg-indigo-700 transition disabled:opacity-60">
-                {generatingImages[a.id] ? <Loader2 size={10} className="animate-spin"/> : <Sparkles size={10}/>} AI-bild
+          <>
+            <img src={a.image} alt={a.title}
+              className="w-full h-32 object-cover block"
+              onError={e => e.currentTarget.style.display='none'}/>
+            {/* Hover-overlay */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity flex items-end justify-between p-2">
+              <button onClick={() => onRemove(a.id)}
+                className="h-7 w-7 rounded-xl bg-red-500 flex items-center justify-center shadow-md hover:bg-red-600 transition">
+                <Trash2 size={13} className="text-white"/>
               </button>
-              <button onClick={() => onOpenAsset(a.id)}
-                className="h-7 w-7 rounded-xl bg-white/95 flex items-center justify-center shadow-md hover:bg-white transition">
-                <ImageIcon size={12} className="text-slate-700"/>
+              <div className="flex gap-1.5">
+                <button onClick={() => onGenerateImage(a.id, a.title)} disabled={generatingImages[a.id]}
+                  className="h-7 px-2.5 rounded-xl bg-indigo-600/90 flex items-center gap-1 shadow-md text-white text-[10px] font-bold hover:bg-indigo-700 transition disabled:opacity-60">
+                  {generatingImages[a.id] ? <Loader2 size={10} className="animate-spin"/> : <Sparkles size={10}/>} AI-bild
+                </button>
+                <button onClick={() => onOpenAsset(a.id)}
+                  className="h-7 w-7 rounded-xl bg-white/95 flex items-center justify-center shadow-md hover:bg-white transition">
+                  <ImageIcon size={12} className="text-slate-700"/>
+                </button>
+              </div>
+            </div>
+          </>
+        ) : (
+          /* ── INGEN BILD — alltid synliga knappar ── */
+          <div className="border-b border-slate-100 bg-gradient-to-br from-slate-50 to-white p-3 space-y-2">
+            <button
+              onClick={() => onGenerateImage(a.id, a.title)}
+              disabled={generatingImages[a.id]}
+              className="w-full h-12 rounded-xl bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 flex items-center justify-center gap-2 text-indigo-600 font-bold text-xs transition disabled:opacity-60">
+              {generatingImages[a.id]
+                ? <><Loader2 size={14} className="animate-spin"/> Hämtar bild…</>
+                : <><Sparkles size={14}/> Generera AI-bild</>}
+            </button>
+            <div className="flex gap-2">
+              <button
+                onClick={() => onOpenAsset(a.id)}
+                className="flex-1 h-9 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 flex items-center justify-center gap-1.5 text-slate-600 font-semibold text-xs transition">
+                <ImageIcon size={12}/> Välj bild
+              </button>
+              <button
+                onClick={() => onRemove(a.id)}
+                className="h-9 w-9 rounded-xl border border-red-200 bg-red-50 hover:bg-red-100 flex items-center justify-center text-red-500 transition">
+                <Trash2 size={13}/>
               </button>
             </div>
           </div>
@@ -188,7 +207,7 @@ function ActivityCard({ a, activeDays, month, activities, updateActivity, pushHi
           </select>
         </div>
 
-        {/* Titel med AI-förbättra */}
+        {/* Titel + AI-förbättra */}
         <div className="relative group/title">
           <input value={a.title ?? ''}
             onChange={e => updateActivity(a.id, { title: e.target.value })}
@@ -223,14 +242,6 @@ function ActivityCard({ a, activeDays, month, activities, updateActivity, pushHi
             </button>
           ))}
         </div>
-
-        {/* Ta bort (när ingen bild) */}
-        {!a.image && (
-          <button onClick={() => onRemove(a.id)}
-            className="flex items-center gap-1.5 text-[11px] text-slate-400 hover:text-red-500 font-semibold transition mt-1">
-            <Trash2 size={11}/> Ta bort aktivitet
-          </button>
-        )}
       </div>
     </div>
   );
@@ -246,17 +257,17 @@ export function SchemaView({
   onOpenAsset,
 }) {
   const toast = useToast();
-  const [showMagicPaste,    setShowMagicPaste]    = useState(false);
-  const [dragActId,         setDragActId]          = useState(null);
-  const [dragOverDay,       setDragOverDay]         = useState(null);
-  const [quickAddDay,       setQuickAddDay]         = useState(null);
-  const [generatingImages,  setGeneratingImages]    = useState({});
-  const [improvingText,     setImprovingText]       = useState({});
+  const [showMagicPaste,   setShowMagicPaste]   = useState(false);
+  const [dragActId,        setDragActId]         = useState(null);
+  const [dragOverDay,      setDragOverDay]        = useState(null);
+  const [quickAddDay,      setQuickAddDay]        = useState(null);
+  const [generatingImages, setGeneratingImages]   = useState({});
+  const [improvingText,    setImprovingText]      = useState({});
+  const [generatingAll,    setGeneratingAll]      = useState(false);
 
   const allDays    = getDaysInMonth(year, month);
   const firstDow   = new Date(year, month, 1).getDay();
   const totalCells = Math.ceil((firstDow + allDays.length) / 7) * 7;
-
   const cells = Array.from({ length: totalCells }, (_, i) => {
     const dayNum = i - firstDow + 1;
     return { date: new Date(year, month, dayNum), outside: dayNum < 1 || dayNum > allDays.length };
@@ -325,9 +336,7 @@ export function SchemaView({
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
         body: JSON.stringify({
-          model: 'llama3-8b-8192',
-          temperature: 0.7,
-          max_tokens: 60,
+          model: 'llama3-8b-8192', temperature: 0.7, max_tokens: 60,
           messages: [{ role: 'user', content: `Förbättra denna aktivitetstitel för ett månadsblad på en fritidsgård, max 5 ord, energisk och engagerande. Svara ENBART med titeln: "${currentTitle}"` }],
         }),
       });
@@ -344,26 +353,24 @@ export function SchemaView({
     setImprovingText(p => ({ ...p, [id]: false }));
   }, [updateActivity, toast]);
 
-  // ── AI: Hämta bild (används BÅDE i chip och i kort) ──
+  // ── AI: Hämta bild ──
   const generateAIImage = useCallback(async (id, title) => {
     if (!title?.trim()) return;
     setGeneratingImages(p => ({ ...p, [id]: true }));
     try {
       const terms = title.toLowerCase()
-        .replace(/fotboll/g,   'football')
-        .replace(/basket/g,    'basketball')
-        .replace(/dans/g,      'dance')
-        .replace(/musik/g,     'music')
-        .replace(/konst/g,     'art craft')
-        .replace(/matlagning/g,'cooking food')
-        .replace(/utflykt/g,   'outdoor nature')
-        .replace(/gaming/g,    'gaming esports')
-        .replace(/film/g,      'cinema movie')
-        .replace(/pyssel/g,    'craft hobby');
-
-      const q          = encodeURIComponent(terms + ' teenagers youth activity');
-      const pexelsKey  = import.meta.env.VITE_PEXELS_API_KEY ?? '';
-
+        .replace(/fotboll/g,    'football')
+        .replace(/basket/g,     'basketball')
+        .replace(/dans/g,       'dance')
+        .replace(/musik/g,      'music')
+        .replace(/konst/g,      'art craft')
+        .replace(/matlagning/g, 'cooking food')
+        .replace(/utflykt/g,    'outdoor nature')
+        .replace(/gaming/g,     'gaming esports')
+        .replace(/film/g,       'cinema movie')
+        .replace(/pyssel/g,     'craft hobby');
+      const q         = encodeURIComponent(terms + ' teenagers youth activity');
+      const pexelsKey = import.meta.env.VITE_PEXELS_API_KEY ?? '';
       if (pexelsKey) {
         const res = await fetch(
           `https://api.pexels.com/v1/search?query=${q}&per_page=10&orientation=landscape`,
@@ -381,8 +388,6 @@ export function SchemaView({
           }
         }
       }
-
-      // Fallback: Unsplash source
       const seed = Math.floor(Math.random() * 99);
       updateActivity(id, { image: `https://source.unsplash.com/800x500/?${q}&sig=${seed}` });
       toast?.success('Bild hämtad ✓');
@@ -392,6 +397,19 @@ export function SchemaView({
     }
     setGeneratingImages(p => ({ ...p, [id]: false }));
   }, [updateActivity, toast]);
+
+  // ── AI: Generera bilder till ALLA som saknar ──
+  const generateAllImages = useCallback(async () => {
+    const without = activities.filter(a => !a.image);
+    if (!without.length) return;
+    setGeneratingAll(true);
+    toast?.info(`Genererar bilder för ${without.length} aktiviteter…`);
+    for (const a of without) {
+      await generateAIImage(a.id, a.title);
+    }
+    setGeneratingAll(false);
+    toast?.success('Alla bilder klara ✓');
+  }, [activities, generateAIImage, toast]);
 
   // ── Magic Paste import ──
   const handleMagicImport = useCallback(parsed => {
@@ -412,6 +430,8 @@ export function SchemaView({
     setShowMagicPaste(false);
     toast?.success(`${parsed.length} aktiviteter importerade ✓`);
   }, [activities, activeDays, year, month, pushHistory, toast]);
+
+  const hasImageless = activities.some(a => !a.image);
 
   // ────────────────────────────────────────────
   // RENDER
@@ -454,7 +474,21 @@ export function SchemaView({
           ))}
         </div>
 
-        <div className="flex gap-2 ml-auto">
+        {/* Höger-knappar */}
+        <div className="flex gap-2 ml-auto flex-wrap justify-end">
+
+          {/* AI-bilder till alla — visas bara om någon saknar bild */}
+          {hasImageless && (
+            <button
+              onClick={generateAllImages}
+              disabled={generatingAll || Object.values(generatingImages).some(Boolean)}
+              className="h-10 px-4 rounded-2xl border border-indigo-200 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-sm flex items-center gap-2 transition disabled:opacity-50">
+              {generatingAll
+                ? <><Loader2 size={14} className="animate-spin"/> Genererar…</>
+                : <><Sparkles size={14}/> AI-bilder till alla</>}
+            </button>
+          )}
+
           <button onClick={() => setShowMagicPaste(true)}
             className="btn-ai h-10 px-4 rounded-2xl text-white font-bold text-sm flex items-center gap-2">
             <Wand2 size={15}/> Magic Paste
@@ -551,7 +585,7 @@ export function SchemaView({
                   </div>
                 )}
 
-                {/* Aktivitetschips — med onGenerateImage ── FIX #4 */}
+                {/* Aktivitetschips */}
                 {dayActs.map(a => (
                   <div key={a.id} draggable
                     onDragStart={() => setDragActId(a.id)}
