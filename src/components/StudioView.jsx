@@ -142,8 +142,7 @@ export function StudioView({
 
             {/* QR */}
             <div className="absolute top-6 right-8 text-right">
-              <div className="w-16 h-16 bg-slate-900 rounded-lg mb-1"></div>
-              <div className="text-[9px] font-medium text-slate-500">{design.format}</div>
+              <div className="w-16 h-16 rounded-lg mb-1 overflow-hidden"><img src={`https://api.qrserver.com/v1/create-qr-code/?size=64x64&data=${encodeURIComponent(settings.qrLink)}`} alt="QR" className="w-full h-full" /></div>              <div className="text-[9px] font-medium text-slate-500">{design.format}</div>
               <div className="text-[8px] text-slate-400">{settings.qrLink.replace('https://','')}</div>
             </div>
 
