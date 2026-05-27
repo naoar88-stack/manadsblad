@@ -74,7 +74,6 @@ export default function App() {
     return () => clearTimeout(t);
   }, [activities, settings]);
 
-  // Ctrl+Z / Ctrl+Shift+Z / Ctrl+Y
   useEffect(() => {
     const handle = e => {
       if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
@@ -95,22 +94,11 @@ export default function App() {
     (id, patch) => pushHistory(activities.map(a => a.id === id ? { ...a, ...patch } : a)),
     [activities, pushHistory]
   );
-  const moveActivity = useCallback((index, dir) => {
-    const next = [...activities];
-    const t = index + dir;
-    if (t < 0 || t >= next.length) return;
-    [next[index], next[t]] = [next[t], next[index]];
-    pushHistory(next);
-  }, [activities, pushHistory]);
-  const reorderActivities = useCallback((from, to) => {
-    const next = [...activities];
-    const [item] = next.splice(from, 1);
-    next.splice(to, 0, item);
-    pushHistory(next);
-  }, [activities, pushHistory]);
+
   const prevMonth = useCallback(() => {
     if (month === 0) { setMonth(11); setYear(y => y - 1); } else setMonth(m => m - 1);
   }, [month]);
+
   const nextMonth = useCallback(() => {
     if (month === 11) { setMonth(0); setYear(y => y + 1); } else setMonth(m => m + 1);
   }, [month]);
@@ -129,7 +117,8 @@ export default function App() {
         <Suspense fallback={<Spinner />}>
           {activeTab === 'Schema' && (
             <SchemaView
-              year={year} month={month} prevMonth={prevMonth} nextMonth={nextMonth}
+              year={year} month={month}
+              prevMonth={prevMonth} nextMonth={nextMonth}
               openDays={openDays} setOpenDays={setOpenDays}
               activities={activities} updateActivity={updateActivity}
               pushHistory={pushHistory} onOpenAsset={id => setAssetModalFor(id)}
@@ -148,6 +137,7 @@ export default function App() {
           )}
         </Suspense>
       </main>
+
       {assetModalFor && (
         <Suspense fallback={null}>
           <AssetManagerModal
@@ -157,6 +147,7 @@ export default function App() {
           />
         </Suspense>
       )}
+
       {cropModalFor && (
         <Suspense fallback={null}>
           <CropModal
@@ -164,4 +155,8 @@ export default function App() {
             onSave={crop => { updateActivity(cropModalFor, { crop }); setCropModalFor(null); }}
             onClose={() => setCropModalFor(null)}
           />
-        
+        </Suspense>
+      )}
+    </div>
+  );
+}
