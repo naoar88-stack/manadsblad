@@ -1,13 +1,46 @@
-// Groq API — gratis, inget kreditkort, extremt snabb
 const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
 const MODEL    = 'llama-3.1-8b-instant';
+
+const MONTH_MAP = {
+  januari:1, februari:2, mars:3, april:4, maj:5, juni:6,
+  juli:7, augusti:8, september:9, oktober:10, november:11, december:12,
+};
+
+/** Parsar "Maj 2026" eller "2026-05" → { year, month (1-12) } */
+function parseYearMonth(yearMonth) {
+  if (!yearMonth) {
+    const n = new Date();
+    return { year: n.getFullYear(), month: n.getMonth() + 1 };
+  }
+  // Format "YYYY-MM"
+  if (/^\d{4}-\d{2}$/.test(yearMonth.trim())) {
+    const [y, m] = yearMonth.split('-').map(Number);
+    return { year: y, month: m };
+  }
+  // Format "Maj 2026" eller "maj 2026"
+  const parts = yearMonth.trim().toLowerCase().split(/\s+/);
+  const monthNum = MONTH_MAP[parts[0]];
+  const yearNum  = parseInt(parts[1]);
+  if (monthNum && yearNum) return { year: yearNum, month: monthNum };
+  // Fallback
+  const n = new Date();
+  return { year: n.getFullYear(), month: n.getMonth() + 1 };
+}
 
 async function callGroq(prompt, apiKey) {
   if (!apiKey) throw new Error('VITE_GROQ_API_KEY saknas — lägg till den i Vercel Environment Variables');
   const res = await fetch(GROQ_URL, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
-    body: JSON.stringify({ model: MODEL, messages: [{ role: 'user', content: prompt }], temperature: 0.4, max_tokens: 2048 }),
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify({
+      model: MODEL,
+      messages: [{ role: 'user', content: prompt }],
+      temperature: 0.3,
+      max_tokens: 3000,
+    }),
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
@@ -20,52 +53,75 @@ async function callGroq(prompt, apiKey) {
 /**
  * Magic Paste — returnerar array av aktiviteter med dateKey (YYYY-MM-DD).
  * Expanderar veckodagsregler ("alla onsdagar = matlagning") till ALLA matchande datum i månaden.
+ * yearMonth kan vara "Maj 2026" eller "2026-05"
  */
 export async function magicPaste(rawText, apiKey, yearMonth) {
-  const [y, m] = (yearMonth || new Date().toISOString().slice(0, 7)).split('-').map(Number);
-  const daysInMonth = new Date(y, m, 0).getDate();
+  const { year, month } = parseYearMonth(yearMonth);
+
   const WEEKDAY_SV = ['söndag','måndag','tisdag','onsdag','torsdag','fredag','lördag'];
   const allDates = [];
+  const daysInMonth = new Date(year, month, 0).getDate(); // month är 1-baserat, new Date(y,m,0) ger sista dagen i month-1
+
   for (let d = 1; d <= daysInMonth; d++) {
-    const date = new Date(y, m - 1, d);
+    const date = new Date(year, month - 1, d);
     allDates.push({
-      date: `${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`,
-      weekday: WEEKDAY_SV[date.getDay()]
+      date:    `${year}-${String(month).padStart(2,'0')}-${String(d).padStart(2,'0')}`,
+      weekday: WEEKDAY_SV[date.getDay()],
     });
   }
-  const calendarContext = allDates.map(d => `${d.date} (${d.weekday})`).join(', ');
 
-  const prompt = `Du är en assistent för svenska fritidsgårdar. Månaden är ${yearMonth}.
+  const calendarContext = allDates
+    .map(d => `${d.date} (${d.weekday})`)
+    .join(', ');
 
-Kalendern för denna månad: ${calendarContext}
+  const prompt = `Du är en assistent för svenska fritidsgårdar.
+Månaden är ${year}-${String(month).padStart(2,'0')} (${yearMonth}).
 
-Din uppgift: Analysera texten nedan och returnera ett JSON-array med aktiviteter.
-VIKTIGT: Om texten nämner en veckodag (t.ex. "onsdagar", "alla fredagar", "torsdagar kl 15")
-ska du skapa EN aktivitet för VARJE sådant datum i månaden ovan.
-Om texten nämner ett specifikt datum, skapa aktivitet för just det datumet.
+Kalendern för denna månad — ALLA datum du får använda:
+${calendarContext}
 
-Varje objekt i arrayen ska ha dessa fält:
-- dateKey (string): datum i formatet YYYY-MM-DD (OBLIGATORISKT — använd exakt ett datum från kalendern ovan)
+DIN UPPGIFT:
+Analysera texten nedan och returnera ett JSON-array med aktiviteter.
+
+REGLER (följ exakt):
+1. Om texten säger "alla onsdagar" eller "varje onsdag" → skapa EN aktivitet för VARJE onsdag i månaden (använd exakt de onsdagsdatum från kalendern ovan).
+2. Om texten säger ett specifikt datum → skapa aktivitet för just det datumet.
+3. Använd ALDRIG ett datum som inte finns i kalendern ovan.
+4. dateKey MÅSTE vara exakt "YYYY-MM-DD" från kalendern ovan.
+
+Varje objekt ska ha:
+- dateKey (string): YYYY-MM-DD från kalendern
 - title (string): aktivitetens namn, max 40 tecken
 - description (string): kort beskrivning på svenska, max 120 tecken
-- ageGroup (string): t.ex. "13-16 år" eller "Alla åldrar"
+- ageGroup (string): t.ex. "13–16 år" eller "Alla åldrar"
 - badges (object): { signup: bool, cost: bool, trip: bool }
 
-Returnera ENBART ett JSON-array, inga kodblock, ingen förklaring.
+Returnera ENBART ett JSON-array utan kodblock eller förklaring.
 
 Text att analysera:
 ${rawText}`;
 
   const raw = await callGroq(prompt, apiKey);
+
   try {
     const cleaned = raw.replace(/```json|```/g, '').trim();
-    const parsed = JSON.parse(cleaned);
-    return parsed.filter(p => p.dateKey && /^\d{4}-\d{2}-\d{2}$/.test(p.dateKey));
+    const parsed  = JSON.parse(cleaned);
+    const validDates = new Set(allDates.map(d => d.date));
+    return parsed.filter(p =>
+      p.dateKey &&
+      /^\d{4}-\d{2}-\d{2}$/.test(p.dateKey) &&
+      validDates.has(p.dateKey)  // ← extra kontroll: bara datum som faktiskt finns i månaden
+    );
   } catch {
     const match = raw.match(/\[.*\]/s);
     if (match) {
       const parsed = JSON.parse(match[0]);
-      return parsed.filter(p => p.dateKey && /^\d{4}-\d{2}-\d{2}$/.test(p.dateKey));
+      const validDates = new Set(allDates.map(d => d.date));
+      return parsed.filter(p =>
+        p.dateKey &&
+        /^\d{4}-\d{2}-\d{2}$/.test(p.dateKey) &&
+        validDates.has(p.dateKey)
+      );
     }
     throw new Error('Kunde inte tolka AI-svaret som JSON');
   }
