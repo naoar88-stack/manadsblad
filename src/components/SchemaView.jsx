@@ -25,7 +25,7 @@ function getDaysInMonth(year, month) {
 function sortByDate(arr) { return [...arr].sort((a,b) => new Date(a.date) - new Date(b.date)); }
 
 // ── Aktivitets-chip i kalendern ──
-function ActivityChip({ a, onUpdate, onRemove, onOpenAsset }) {
+function ActivityChip({ a, onUpdate, onRemove, onOpenAsset, onGenerateImage, generatingImage }) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft]     = useState(a.title);
   const inputRef = useRef(null);
@@ -36,21 +36,36 @@ function ActivityChip({ a, onUpdate, onRemove, onOpenAsset }) {
 
   return (
     <div className="activity-chip relative group/chip rounded-xl overflow-hidden bg-white border border-slate-100 mb-1.5 cursor-grab active:cursor-grabbing">
-      {a.image && (
+
+      {/* Bild eller AI-knapp */}
+      {a.image ? (
         <img src={a.image} alt={a.title}
           className="w-full h-12 object-cover block"
           onError={e => e.currentTarget.style.display='none'} />
+      ) : (
+        <button
+          onClick={e => { e.stopPropagation(); onGenerateImage?.(a.id, a.title); }}
+          disabled={generatingImage}
+          className="w-full h-8 bg-slate-50 hover:bg-indigo-50 flex items-center justify-center gap-1 text-slate-400 hover:text-indigo-500 transition disabled:opacity-50 border-b border-slate-100">
+          {generatingImage
+            ? <Loader2 size={10} className="animate-spin text-indigo-400"/>
+            : <ImageIcon size={10}/>}
+          <span className="text-[9px] font-bold">{generatingImage ? 'Hämtar…' : 'AI-bild'}</span>
+        </button>
       )}
-      <button onClick={e=>{e.stopPropagation();onOpenAsset(a.id)}}
+
+      {/* Hover-actions */}
+      <button onClick={e => { e.stopPropagation(); onOpenAsset(a.id); }}
         className="absolute top-1 right-1 h-6 w-6 rounded-md bg-white/95 shadow flex items-center justify-center opacity-0 group-hover/chip:opacity-100 transition z-10"
         title="Byt bild">
-        <ImageIcon size={11} className="text-slate-600" />
+        <ImageIcon size={11} className="text-slate-600"/>
       </button>
-      <button onClick={e=>{e.stopPropagation();onRemove(a.id)}}
+      <button onClick={e => { e.stopPropagation(); onRemove(a.id); }}
         className="absolute top-1 left-1 h-5 w-5 rounded-md bg-red-500 flex items-center justify-center opacity-0 group-hover/chip:opacity-100 transition z-10"
         title="Ta bort">
-        <X size={10} className="text-white" />
+        <X size={10} className="text-white"/>
       </button>
+
       <div className="px-2 py-1.5">
         {editing ? (
           <div className="flex gap-1">
@@ -58,7 +73,7 @@ function ActivityChip({ a, onUpdate, onRemove, onOpenAsset }) {
               onChange={e => setDraft(e.target.value)}
               onKeyDown={e => { if(e.key==='Enter') confirm(); if(e.key==='Escape') cancel(); }}
               className="flex-1 text-[11px] font-semibold text-slate-900 outline-none bg-indigo-50 border border-indigo-300 rounded px-1.5 py-0.5"
-              onClick={e => e.stopPropagation()} />
+              onClick={e => e.stopPropagation()}/>
             <button onClick={confirm} className="text-emerald-600"><Check size={12}/></button>
             <button onClick={cancel}  className="text-slate-400"><X size={12}/></button>
           </div>
@@ -91,7 +106,7 @@ function QuickAddForm({ day, onAdd, onCancel }) {
         onChange={e => setTitle(e.target.value)}
         onKeyDown={e => { if(e.key==='Enter') submit(); if(e.key==='Escape') onCancel(); }}
         placeholder="Aktivitetens namn…"
-        className="text-xs font-semibold text-slate-900 bg-white rounded-lg px-2.5 py-2 outline-none border border-indigo-200 focus:border-indigo-500 w-full shadow-sm transition" />
+        className="text-xs font-semibold text-slate-900 bg-white rounded-lg px-2.5 py-2 outline-none border border-indigo-200 focus:border-indigo-500 w-full shadow-sm transition"/>
       <select value={ageGroup} onChange={e => setAgeGroup(e.target.value)}
         className="text-[11px] text-slate-600 bg-white rounded-lg px-2 py-1.5 outline-none border border-indigo-200 w-full">
         {AGE_GROUPS.map(ag => <option key={ag}>{ag}</option>)}
@@ -115,11 +130,13 @@ function ActivityCard({ a, activeDays, month, activities, updateActivity, pushHi
   const MON = ['Jan','Feb','Mar','Apr','Maj','Jun','Jul','Aug','Sep','Okt','Nov','Dec'];
   return (
     <div className="group/card relative bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
+
+      {/* Bild / AI-bildknapp */}
       <div className="relative">
         {a.image ? (
           <img src={a.image} alt={a.title}
             className="w-full h-32 object-cover block"
-            onError={e => e.currentTarget.style.display='none'} />
+            onError={e => e.currentTarget.style.display='none'}/>
         ) : (
           <button onClick={() => onGenerateImage(a.id, a.title)} disabled={generatingImages[a.id]}
             className="w-full h-24 bg-gradient-to-br from-slate-100 to-slate-50 flex flex-col items-center justify-center gap-2 text-slate-400 hover:text-indigo-600 hover:from-indigo-50 hover:to-white transition disabled:opacity-60 border-b border-slate-100">
@@ -149,6 +166,7 @@ function ActivityCard({ a, activeDays, month, activities, updateActivity, pushHi
       </div>
 
       <div className="p-4 space-y-3">
+        {/* Datum + åldersgrupp */}
         <div className="flex items-center gap-2 flex-wrap">
           <select value={toISO(a.date)}
             onChange={e => {
@@ -159,7 +177,7 @@ function ActivityCard({ a, activeDays, month, activities, updateActivity, pushHi
             {activeDays.map(d => (
               <option key={toISO(d)} value={toISO(d)}>
                 {WEEKDAY_FULL[d.getDay()]} {d.getDate()} {MON[d.getMonth()]}
-                {d.getMonth()!==month?` (${MON[d.getMonth()]})`:''}
+                {d.getMonth()!==month ? ` (${MON[d.getMonth()]})` : ''}
               </option>
             ))}
           </select>
@@ -170,11 +188,12 @@ function ActivityCard({ a, activeDays, month, activities, updateActivity, pushHi
           </select>
         </div>
 
+        {/* Titel med AI-förbättra */}
         <div className="relative group/title">
           <input value={a.title ?? ''}
             onChange={e => updateActivity(a.id, { title: e.target.value })}
             className="font-bold text-base text-slate-900 w-full px-3 py-2 rounded-xl outline-none border border-transparent bg-slate-50 hover:bg-white focus:bg-white focus:border-indigo-300 transition placeholder:text-slate-300"
-            placeholder="Aktivitetens namn…" />
+            placeholder="Aktivitetens namn…"/>
           <button onClick={() => onImproveText(a.id, a.title)} disabled={improvingText[a.id]}
             title="Förbättra med AI"
             className="absolute right-2 top-1/2 -translate-y-1/2 h-6 px-2 rounded-lg bg-purple-50 hover:bg-purple-100 text-purple-600 flex items-center gap-1 opacity-0 group-hover/title:opacity-100 transition text-[10px] font-bold disabled:opacity-50">
@@ -182,15 +201,19 @@ function ActivityCard({ a, activeDays, month, activities, updateActivity, pushHi
           </button>
         </div>
 
+        {/* Beskrivning */}
         <textarea value={a.description ?? ''}
           onChange={e => updateActivity(a.id, { description: e.target.value })}
           className="w-full text-sm text-slate-500 px-3 py-2 rounded-xl outline-none border border-transparent bg-slate-50 hover:bg-white focus:bg-white focus:border-indigo-200 resize-none transition placeholder:text-slate-300"
-          rows={2} placeholder="Kort beskrivning (valfritt)…" />
+          rows={2} placeholder="Kort beskrivning (valfritt)…"/>
 
+        {/* Badges */}
         <div className="flex gap-2 flex-wrap">
-          {[['signup','Anmälan','bg-emerald-100 text-emerald-700 border-emerald-200'],
-            ['cost','Kostnad','bg-amber-100 text-amber-700 border-amber-200'],
-            ['trip','Utflykt','bg-sky-100 text-sky-700 border-sky-200']].map(([k,l,cls]) => (
+          {[
+            ['signup','Anmälan','bg-emerald-100 text-emerald-700 border-emerald-200'],
+            ['cost',  'Kostnad', 'bg-amber-100 text-amber-700 border-amber-200'],
+            ['trip',  'Utflykt', 'bg-sky-100 text-sky-700 border-sky-200'],
+          ].map(([k,l,cls]) => (
             <button key={k}
               onClick={() => updateActivity(a.id, { badges: { ...a.badges, [k]: !a.badges?.[k] } })}
               className={`px-3 py-1 rounded-full text-[11px] font-bold border transition ${
@@ -201,6 +224,7 @@ function ActivityCard({ a, activeDays, month, activities, updateActivity, pushHi
           ))}
         </div>
 
+        {/* Ta bort (när ingen bild) */}
         {!a.image && (
           <button onClick={() => onRemove(a.id)}
             className="flex items-center gap-1.5 text-[11px] text-slate-400 hover:text-red-500 font-semibold transition mt-1">
@@ -212,49 +236,61 @@ function ActivityCard({ a, activeDays, month, activities, updateActivity, pushHi
   );
 }
 
-// ── HUVUDKOMPONENT ──
-export function SchemaView({ year, month, prevMonth, nextMonth, openDays, setOpenDays, activities, updateActivity, pushHistory, onOpenAsset }) {
+// ────────────────────────────────────────────
+// HUVUDKOMPONENT
+// ────────────────────────────────────────────
+export function SchemaView({
+  year, month, prevMonth, nextMonth,
+  openDays, setOpenDays,
+  activities, updateActivity, pushHistory,
+  onOpenAsset,
+}) {
   const toast = useToast();
-  const [showMagicPaste, setShowMagicPaste] = useState(false);
-  const [dragActId, setDragActId]           = useState(null);
-  const [dragOverDay, setDragOverDay]       = useState(null);
-  const [quickAddDay, setQuickAddDay]       = useState(null);
-  const [generatingImages, setGeneratingImages] = useState({});
-  const [improvingText, setImprovingText]       = useState({});
+  const [showMagicPaste,    setShowMagicPaste]    = useState(false);
+  const [dragActId,         setDragActId]          = useState(null);
+  const [dragOverDay,       setDragOverDay]         = useState(null);
+  const [quickAddDay,       setQuickAddDay]         = useState(null);
+  const [generatingImages,  setGeneratingImages]    = useState({});
+  const [improvingText,     setImprovingText]       = useState({});
 
   const allDays    = getDaysInMonth(year, month);
   const firstDow   = new Date(year, month, 1).getDay();
   const totalCells = Math.ceil((firstDow + allDays.length) / 7) * 7;
+
   const cells = Array.from({ length: totalCells }, (_, i) => {
     const dayNum = i - firstDow + 1;
     return { date: new Date(year, month, dayNum), outside: dayNum < 1 || dayNum > allDays.length };
   });
+
   const activeDays      = cells.map(c => c.date).filter(d => openDays.includes(d.getDay()));
   const sortedActs      = sortByDate(activities);
   const activitiesOnDay = day => activities.filter(a => toISO(a.date) === toISO(day));
 
+  // ── Lägg till aktivitet ──
   const addActivity = useCallback((date, patch = {}) => {
     pushHistory(sortByDate([...activities, {
-      id: crypto.randomUUID(),
-      date: date ?? activeDays[0] ?? new Date(),
-      title: patch.title ?? '',
+      id:          crypto.randomUUID(),
+      date:        date ?? activeDays[0] ?? new Date(),
+      title:       patch.title       ?? '',
       description: patch.description ?? '',
-      ageGroup: patch.ageGroup ?? 'Alla åldrar',
-      image: patch.image ?? DEFAULT_IMG,
-      badges: patch.badges ?? { signup: false, cost: false, trip: false },
-      crop: { x: 50, y: 50, zoom: 1 },
+      ageGroup:    patch.ageGroup    ?? 'Alla åldrar',
+      image:       patch.image       ?? DEFAULT_IMG,
+      badges:      patch.badges      ?? { signup: false, cost: false, trip: false },
+      crop:        { x: 50, y: 50, zoom: 1 },
       ...patch,
     }]));
     setQuickAddDay(null);
     toast?.success(`"${patch.title || 'Ny aktivitet'}" tillagd ✓`);
   }, [activities, activeDays, pushHistory, toast]);
 
+  // ── Ta bort aktivitet ──
   const removeActivity = useCallback(id => {
     const name = activities.find(a => a.id === id)?.title || 'Aktivitet';
     pushHistory(activities.filter(a => a.id !== id));
     toast?.info(`"${name}" borttagen`);
   }, [activities, pushHistory, toast]);
 
+  // ── Drag & drop ──
   const handleDropOnDay = useCallback(day => {
     if (!dragActId || !day) return;
     pushHistory(sortByDate(activities.map(a => a.id === dragActId ? { ...a, date: day } : a)));
@@ -274,6 +310,7 @@ export function SchemaView({ year, month, prevMonth, nextMonth, openDays, setOpe
     setDragOverDay(null);
   }, [addActivity]);
 
+  // ── AI: Förbättra text ──
   const improveText = useCallback(async (id, currentTitle) => {
     if (!currentTitle?.trim()) return;
     setImprovingText(p => ({ ...p, [id]: true }));
@@ -288,7 +325,9 @@ export function SchemaView({ year, month, prevMonth, nextMonth, openDays, setOpe
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
         body: JSON.stringify({
-          model: 'llama3-8b-8192', temperature: 0.7, max_tokens: 60,
+          model: 'llama3-8b-8192',
+          temperature: 0.7,
+          max_tokens: 60,
           messages: [{ role: 'user', content: `Förbättra denna aktivitetstitel för ett månadsblad på en fritidsgård, max 5 ord, energisk och engagerande. Svara ENBART med titeln: "${currentTitle}"` }],
         }),
       });
@@ -305,25 +344,33 @@ export function SchemaView({ year, month, prevMonth, nextMonth, openDays, setOpe
     setImprovingText(p => ({ ...p, [id]: false }));
   }, [updateActivity, toast]);
 
+  // ── AI: Hämta bild (används BÅDE i chip och i kort) ──
   const generateAIImage = useCallback(async (id, title) => {
     if (!title?.trim()) return;
     setGeneratingImages(p => ({ ...p, [id]: true }));
     try {
       const terms = title.toLowerCase()
-        .replace(/fotboll/g,'football').replace(/basket/g,'basketball')
-        .replace(/dans/g,'dance').replace(/musik/g,'music')
-        .replace(/konst/g,'art craft').replace(/matlagning/g,'cooking food')
-        .replace(/utflykt/g,'outdoor nature').replace(/gaming/g,'gaming esports')
-        .replace(/film/g,'cinema movie').replace(/pyssel/g,'craft hobby');
-      const q = encodeURIComponent(terms + ' teenagers youth activity');
-      const pexelsKey = import.meta.env.VITE_PEXELS_API_KEY ?? '';
+        .replace(/fotboll/g,   'football')
+        .replace(/basket/g,    'basketball')
+        .replace(/dans/g,      'dance')
+        .replace(/musik/g,     'music')
+        .replace(/konst/g,     'art craft')
+        .replace(/matlagning/g,'cooking food')
+        .replace(/utflykt/g,   'outdoor nature')
+        .replace(/gaming/g,    'gaming esports')
+        .replace(/film/g,      'cinema movie')
+        .replace(/pyssel/g,    'craft hobby');
+
+      const q          = encodeURIComponent(terms + ' teenagers youth activity');
+      const pexelsKey  = import.meta.env.VITE_PEXELS_API_KEY ?? '';
+
       if (pexelsKey) {
         const res = await fetch(
           `https://api.pexels.com/v1/search?query=${q}&per_page=10&orientation=landscape`,
           { headers: { Authorization: pexelsKey } }
         );
         if (res.ok) {
-          const data = await res.json();
+          const data   = await res.json();
           const photos = data?.photos ?? [];
           if (photos.length > 0) {
             const pick = photos[Math.floor(Math.random() * photos.length)];
@@ -334,6 +381,8 @@ export function SchemaView({ year, month, prevMonth, nextMonth, openDays, setOpe
           }
         }
       }
+
+      // Fallback: Unsplash source
       const seed = Math.floor(Math.random() * 99);
       updateActivity(id, { image: `https://source.unsplash.com/800x500/?${q}&sig=${seed}` });
       toast?.success('Bild hämtad ✓');
@@ -344,47 +393,61 @@ export function SchemaView({ year, month, prevMonth, nextMonth, openDays, setOpe
     setGeneratingImages(p => ({ ...p, [id]: false }));
   }, [updateActivity, toast]);
 
+  // ── Magic Paste import ──
   const handleMagicImport = useCallback(parsed => {
     const safe = activeDays.length > 0 ? activeDays : [new Date(year, month, 1)];
-    pushHistory(sortByDate([...activities, ...parsed.map((p, i) => ({
-      id: crypto.randomUUID(),
-      date: safe[i % safe.length],
-      title: p.title || 'Importerad aktivitet',
-      description: p.description || '',
-      ageGroup: p.ageGroup || 'Alla åldrar',
-      image: DEFAULT_IMG,
-      badges: p.badges ?? { signup: false, cost: false, trip: false },
-      crop: { x: 50, y: 50, zoom: 1 },
-    }))]));
+    pushHistory(sortByDate([
+      ...activities,
+      ...parsed.map((p, i) => ({
+        id:          crypto.randomUUID(),
+        date:        p.dateKey ? new Date(p.dateKey + 'T12:00:00') : safe[i % safe.length],
+        title:       p.title       || 'Importerad aktivitet',
+        description: p.description || '',
+        ageGroup:    p.ageGroup    || 'Alla åldrar',
+        image:       DEFAULT_IMG,
+        badges:      p.badges      ?? { signup: false, cost: false, trip: false },
+        crop:        { x: 50, y: 50, zoom: 1 },
+      })),
+    ]));
     setShowMagicPaste(false);
     toast?.success(`${parsed.length} aktiviteter importerade ✓`);
   }, [activities, activeDays, year, month, pushHistory, toast]);
 
+  // ────────────────────────────────────────────
+  // RENDER
+  // ────────────────────────────────────────────
   return (
     <div className="max-w-screen-xl mx-auto px-4 sm:px-6 py-6 space-y-6">
 
       {/* ── TOOLBAR ── */}
       <div className="flex flex-wrap items-center gap-3">
+
+        {/* Månadsnavigation */}
         <div className="flex items-center gap-2 bg-white rounded-2xl border border-slate-200 shadow-sm px-2 py-1.5">
           <button onClick={prevMonth}
             className="h-8 w-8 rounded-xl hover:bg-slate-100 flex items-center justify-center text-slate-600 transition">
-            <ChevronLeft size={16} />
+            <ChevronLeft size={16}/>
           </button>
           <span className="text-sm font-black text-slate-900 w-36 text-center tracking-tight">
             {MONTH_SV[month]} {year}
           </span>
           <button onClick={nextMonth}
             className="h-8 w-8 rounded-xl hover:bg-slate-100 flex items-center justify-center text-slate-600 transition">
-            <ChevronRight size={16} />
+            <ChevronRight size={16}/>
           </button>
         </div>
 
+        {/* Veckodagväljare */}
         <div className="flex gap-1 bg-white rounded-2xl border border-slate-200 shadow-sm p-1.5">
           {WEEKDAY_SV.map((d, i) => (
             <button key={i}
-              onClick={() => setOpenDays(prev => prev.includes(i) ? prev.filter(x=>x!==i) : [...prev,i])}
+              onClick={() => setOpenDays(prev =>
+                prev.includes(i) ? prev.filter(x => x !== i) : [...prev, i]
+              )}
               className={`h-8 w-8 rounded-xl text-xs font-bold transition ${
-                openDays.includes(i) ? 'bg-slate-900 text-white shadow-sm' : 'text-slate-400 hover:bg-slate-100'
+                openDays.includes(i)
+                  ? 'bg-slate-900 text-white shadow-sm'
+                  : 'text-slate-400 hover:bg-slate-100'
               }`}>
               {d}
             </button>
@@ -396,7 +459,10 @@ export function SchemaView({ year, month, prevMonth, nextMonth, openDays, setOpe
             className="btn-ai h-10 px-4 rounded-2xl text-white font-bold text-sm flex items-center gap-2">
             <Wand2 size={15}/> Magic Paste
           </button>
-          <button onClick={() => { const d = activeDays[0] ?? allDays[0]; setQuickAddDay(toISO(d)); }}
+          <button onClick={() => {
+            const d = activeDays[0] ?? allDays[0];
+            setQuickAddDay(toISO(d));
+          }}
             className="btn-primary h-10 px-4 rounded-2xl text-white font-bold text-sm flex items-center gap-2">
             <Plus size={15}/> Ny aktivitet
           </button>
@@ -431,7 +497,10 @@ export function SchemaView({ year, month, prevMonth, nextMonth, openDays, setOpe
                 draggable={false}
                 onDragOver={e => { e.preventDefault(); setDragOverDay(toISO(day)); }}
                 onDragLeave={() => setDragOverDay(null)}
-                onDrop={e => { if(e.dataTransfer.files?.length) handleFileDrop(e,day); else handleDropOnDay(day); }}
+                onDrop={e => {
+                  if (e.dataTransfer.files?.length) handleFileDrop(e, day);
+                  else handleDropOnDay(day);
+                }}
                 className={[
                   'day-cell min-h-[120px] border-b border-r border-slate-100/80 p-2 flex flex-col transition-colors group relative',
                   isDragOver ? 'bg-indigo-50 ring-2 ring-inset ring-indigo-400'
@@ -445,15 +514,16 @@ export function SchemaView({ year, month, prevMonth, nextMonth, openDays, setOpe
                 {/* Datum — desktop */}
                 <div className="day-label-desktop items-center justify-between mb-1.5">
                   <span className={`text-xs font-bold w-6 h-6 flex items-center justify-center rounded-full transition ${
-                    isToday   ? 'bg-indigo-600 text-white shadow-md shadow-indigo-300/50'
-                    : outside ? 'text-slate-300'
-                    : isOpen  ? 'text-slate-700' : 'text-slate-400'
+                    isToday    ? 'bg-indigo-600 text-white shadow-md shadow-indigo-300/50'
+                    : outside  ? 'text-slate-300'
+                    : isOpen   ? 'text-slate-700'
+                    :            'text-slate-400'
                   }`}>
                     {day.getDate()}
                   </span>
                   {isOpen && (
                     <button
-                      onClick={() => setQuickAddDay(toISO(day)===quickAddDay ? null : toISO(day))}
+                      onClick={() => setQuickAddDay(toISO(day) === quickAddDay ? null : toISO(day))}
                       className="h-5 w-5 rounded-md bg-indigo-100 hover:bg-indigo-200 flex items-center justify-center text-indigo-600 opacity-0 group-hover:opacity-100 transition">
                       <Plus size={11}/>
                     </button>
@@ -474,27 +544,31 @@ export function SchemaView({ year, month, prevMonth, nextMonth, openDays, setOpe
                       </span>
                     </div>
                     <button
-                      onClick={() => setQuickAddDay(toISO(day)===quickAddDay ? null : toISO(day))}
+                      onClick={() => setQuickAddDay(toISO(day) === quickAddDay ? null : toISO(day))}
                       className="h-6 w-6 rounded-lg bg-indigo-100 hover:bg-indigo-200 flex items-center justify-center text-indigo-600 transition">
                       <Plus size={12}/>
                     </button>
                   </div>
                 )}
 
-                {/* Aktiviteter */}
+                {/* Aktivitetschips — med onGenerateImage ── FIX #4 */}
                 {dayActs.map(a => (
                   <div key={a.id} draggable
                     onDragStart={() => setDragActId(a.id)}
                     onDragEnd={() => { setDragActId(null); setDragOverDay(null); }}>
-                    <ActivityChip a={a}
+                    <ActivityChip
+                      a={a}
                       onUpdate={updateActivity}
                       onRemove={removeActivity}
-                      onOpenAsset={onOpenAsset} />
+                      onOpenAsset={onOpenAsset}
+                      onGenerateImage={generateAIImage}
+                      generatingImage={generatingImages[a.id]}
+                    />
                   </div>
                 ))}
 
                 {showQuick && (
-                  <QuickAddForm day={day} onAdd={addActivity} onCancel={() => setQuickAddDay(null)} />
+                  <QuickAddForm day={day} onAdd={addActivity} onCancel={() => setQuickAddDay(null)}/>
                 )}
 
                 {isOpen && !showQuick && dayActs.length === 0 && (
@@ -522,12 +596,13 @@ export function SchemaView({ year, month, prevMonth, nextMonth, openDays, setOpe
             <h2 className="text-base font-black text-slate-900 tracking-tight">
               Aktiviteter — <span className="text-indigo-600">{sortedActs.length} st</span>
             </h2>
-            <div className="flex-1 h-px bg-slate-200" />
+            <div className="flex-1 h-px bg-slate-200"/>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {sortedActs.map(a => (
               <ActivityCard key={a.id} a={a}
-                activeDays={activeDays} month={month}
+                activeDays={activeDays}
+                month={month}
                 activities={activities}
                 updateActivity={updateActivity}
                 pushHistory={pushHistory}
@@ -536,7 +611,8 @@ export function SchemaView({ year, month, prevMonth, nextMonth, openDays, setOpe
                 onGenerateImage={generateAIImage}
                 onImproveText={improveText}
                 generatingImages={generatingImages}
-                improvingText={improvingText} />
+                improvingText={improvingText}
+              />
             ))}
           </div>
         </div>
@@ -546,7 +622,7 @@ export function SchemaView({ year, month, prevMonth, nextMonth, openDays, setOpe
       {sortedActs.length === 0 && (
         <div className="flex flex-col items-center justify-center min-h-[300px] rounded-3xl border-2 border-dashed border-slate-200 bg-white/50 text-center p-10">
           <div className="w-16 h-16 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-3xl flex items-center justify-center mb-5 shadow-sm">
-            <Calendar size={28} className="text-indigo-400" />
+            <Calendar size={28} className="text-indigo-400"/>
           </div>
           <h2 className="text-xl font-black text-slate-800 mb-2 tracking-tight">Inga aktiviteter ännu</h2>
           <p className="text-sm text-slate-500 mb-6 max-w-xs leading-relaxed">
@@ -557,7 +633,10 @@ export function SchemaView({ year, month, prevMonth, nextMonth, openDays, setOpe
               className="btn-ai h-11 px-5 rounded-2xl text-white font-bold text-sm flex items-center gap-2">
               <Wand2 size={15}/> Magic Paste
             </button>
-            <button onClick={() => { const d = activeDays[0] ?? allDays[0]; setQuickAddDay(toISO(d)); }}
+            <button onClick={() => {
+              const d = activeDays[0] ?? allDays[0];
+              setQuickAddDay(toISO(d));
+            }}
               className="h-11 px-5 rounded-2xl border border-slate-200 bg-white hover:bg-slate-50 font-bold text-sm flex items-center gap-2 text-slate-700 transition">
               <Plus size={15}/> Lägg till manuellt
             </button>
@@ -565,6 +644,7 @@ export function SchemaView({ year, month, prevMonth, nextMonth, openDays, setOpe
         </div>
       )}
 
+      {/* ── MAGIC PASTE MODAL ── */}
       {showMagicPaste && (
         <MagicPasteModal
           onImport={handleMagicImport}
