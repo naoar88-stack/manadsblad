@@ -1,64 +1,67 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, lazy, Suspense } from 'react';
 import { Loader2 } from 'lucide-react';
-
-import { useAuth }         from './hooks/useAuth';
-import { useSchedule }     from './hooks/useSchedule';
-import { useHistory }      from './hooks/useHistory';
+import { useAuth } from './hooks/useAuth';
+import { useSchedule } from './hooks/useSchedule';
+import { useHistory } from './hooks/useHistory';
 import { useFirebaseSync } from './hooks/useFirebaseSync';
+import { LoginScreen } from './components/LoginScreen';
+import { Header } from './components/Header';
 
-import { LoginScreen }      from './components/LoginScreen';
-import { Header }           from './components/Header';
-import { SchemaView }       from './components/SchemaView';
-import { StudioView }       from './components/StudioView';
-import { SettingsView }     from './components/SettingsView';
-import { AssetManagerModal } from './components/AssetManagerModal';
-import { CropModal }        from './components/CropModal';
+// Lazy-load tunga vyer
+const SchemaView = lazy(() => import('./components/SchemaView').then(m => ({ default: m.SchemaView })));
+const StudioView = lazy(() => import('./components/StudioView').then(m => ({ default: m.StudioView })));
+const SettingsView = lazy(() => import('./components/SettingsView').then(m => ({ default: m.SettingsView })));
+const AssetManagerModal = lazy(() => import('./components/AssetManagerModal').then(m => ({ default: m.AssetManagerModal })));
+const CropModal = lazy(() => import('./components/CropModal').then(m => ({ default: m.CropModal })));
 
 const toMonthKey = (y, m) => `${y}-${String(m + 1).padStart(2, '0')}`;
 
+const Spinner = () => (
+  <div className="min-h-screen flex items-center justify-center bg-slate-50">
+    <Loader2 className="animate-spin w-8 h-8 text-indigo-600" />
+  </div>
+);
+
 export default function App() {
   const today = new Date();
-  const [year,  setYear]  = useState(today.getFullYear());
+  const [year, setYear] = useState(today.getFullYear());
   const [month, setMonth] = useState(today.getMonth());
   const [activeTab, setActiveTab] = useState('Schema');
-  const [openDays, setOpenDays]   = useState([3, 4, 5]);
+  const [openDays, setOpenDays] = useState([3, 4, 5]);
   const [syncStatus, setSyncStatus] = useState('saved');
   const [studioZoom, setStudioZoom] = useState(0.82);
-  const [assetModalFor, setAssetModalFor] = useState(null); // aktivitets-id
-  const [cropModalFor,  setCropModalFor]  = useState(null); // aktivitets-id
-
+  const [assetModalFor, setAssetModalFor] = useState(null);
+  const [cropModalFor, setCropModalFor] = useState(null);
   const [design, setDesign] = useState({
     layout: 'lively', format: 'A4', colorScheme: 'Per vecka',
     font: 'Inter', background: 'Rutnat', backgroundOpacity: 28,
     backgroundImage: '',
     colors: { week1: '#4f46e5', week2: '#0ea5e9', week3: '#22c55e', week4: '#f97316' },
   });
-
   const [settings, setSettings] = useState({
-    yardName:    'Fritidsgardenerna',
-    footerText:  'Valkommen till en trygg och kreativ motesplats.',
-    qrLink:      'https://fritidsgard.se',
+    yardName: 'Fritidsgardenerna',
+    footerText: 'Valkommen till en trygg och kreativ motesplats.',
+    qrLink: 'https://fritidsgard.se',
     cloudExport: true,
-    localMode:   false,
+    localMode: false,
     closeOnHolidays: true,
-    fillCalendar:    true,
-    groupWeeks:      false,
+    fillCalendar: true,
+    groupWeeks: false,
   });
 
   const { user, loading: authLoading, loginAnon, loginEmail, registerEmail, logout } = useAuth();
-
   const currentMonthKey = toMonthKey(year, month);
   const { activities, setActivities, templates, addTemplate } = useSchedule(currentMonthKey, openDays);
   const { pushHistory, undo, redo, canUndo, canRedo } = useHistory(activities, setActivities);
 
   useFirebaseSync({
-    uid:         user?.uid,
-    monthKey:    currentMonthKey,
+    uid: user?.uid,
+    monthKey: currentMonthKey,
     activities,
     settings,
     setActivities,
     setSettings,
-    localMode:   settings.localMode || !user,
+    localMode: settings.localMode || !user,
   });
 
   useEffect(() => {
@@ -87,20 +90,17 @@ export default function App() {
     pushHistory(next);
   }, [activities, pushHistory]);
 
-  const prevMonth = () => {
+  const prevMonth = useCallback(() => {
     if (month === 0) { setMonth(11); setYear(y => y - 1); }
     else setMonth(m => m - 1);
-  };
-  const nextMonth = () => {
+  }, [month]);
+
+  const nextMonth = useCallback(() => {
     if (month === 11) { setMonth(0); setYear(y => y + 1); }
     else setMonth(m => m + 1);
-  };
+  }, [month]);
 
-  if (authLoading) return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50">
-      <Loader2 className="animate-spin w-8 h-8 text-indigo-600" />
-    </div>
-  );
+  if (authLoading) return <Spinner />;
 
   if (!user) return (
     <LoginScreen
@@ -123,72 +123,72 @@ export default function App() {
         syncStatus={syncStatus}
         user={user}
       />
-
-      {/* pt-20 = 80px avstand under fixed header */}
       <main className="pt-20">
-        {activeTab === 'Schema' && (
-          <SchemaView
-            year={year}
-            month={month}
-            prevMonth={prevMonth}
-            nextMonth={nextMonth}
-            openDays={openDays}
-            setOpenDays={setOpenDays}
-            activities={activities}
-            updateActivity={updateActivity}
-            moveActivity={moveActivity}
-            reorderActivities={reorderActivities}
-            pushHistory={pushHistory}
-            onOpenAsset={(id) => setAssetModalFor(id)}
-          />
-        )}
-        {activeTab === 'Studio' && (
-          <StudioView
-            activities={activities}
-            design={design}
-            setDesign={setDesign}
-            settings={settings}
-            year={year}
-            month={month}
-            zoom={studioZoom}
-            setZoom={setStudioZoom}
-            onCrop={(id) => setCropModalFor(id)}
-            templates={templates}
-            addTemplate={addTemplate}
-          />
-        )}
-      {activeTab === 'Inställningar' && (          <SettingsView
-            settings={settings}
-            setSettings={setSettings}
-            user={user}
-            onLogout={logout}
-          />
-        )}
+        <Suspense fallback={<Spinner />}>
+          {activeTab === 'Schema' && (
+            <SchemaView
+              year={year}
+              month={month}
+              prevMonth={prevMonth}
+              nextMonth={nextMonth}
+              openDays={openDays}
+              setOpenDays={setOpenDays}
+              activities={activities}
+              updateActivity={updateActivity}
+              moveActivity={moveActivity}
+              reorderActivities={reorderActivities}
+              pushHistory={pushHistory}
+              onOpenAsset={(id) => setAssetModalFor(id)}
+            />
+          )}
+          {activeTab === 'Studio' && (
+            <StudioView
+              activities={activities}
+              design={design}
+              setDesign={setDesign}
+              settings={settings}
+              year={year}
+              month={month}
+              zoom={studioZoom}
+              setZoom={setStudioZoom}
+              onCrop={(id) => setCropModalFor(id)}
+              templates={templates}
+              addTemplate={addTemplate}
+            />
+          )}
+          {activeTab === 'Inställningar' && (
+            <SettingsView
+              settings={settings}
+              setSettings={setSettings}
+              user={user}
+              onLogout={logout}
+            />
+          )}
+        </Suspense>
       </main>
 
-      {/* Asset (bild) modal */}
-      {assetModalFor && (
-        <AssetManagerModal
-          activity={activities.find(a => a.id === assetModalFor)}
-          onSelect={img => {
-            updateActivity(assetModalFor, { image: img });
-            setAssetModalFor(null);
-          }}
-          onClose={() => setAssetModalFor(null)}
-        />
-      )}
-
-      {/* Crop modal */}
-      {cropModalFor && (
-        <CropModal
-          activity={activities.find(a => a.id === cropModalFor)}
-          onSave={crop => {
-            updateActivity(cropModalFor, { crop });
-            setCropModalFor(null);
-          }}
-          onClose={() => setCropModalFor(null)}
-        />
-      )}
+      <Suspense fallback={null}>
+        {assetModalFor && (
+          <AssetManagerModal
+            activity={activities.find(a => a.id === assetModalFor)}
+            onSelect={img => {
+              updateActivity(assetModalFor, { image: img });
+              setAssetModalFor(null);
+            }}
+            onClose={() => setAssetModalFor(null)}
+          />
+        )}
+        {cropModalFor && (
+          <CropModal
+            activity={activities.find(a => a.id === cropModalFor)}
+            onSave={crop => {
+              updateActivity(cropModalFor, { crop });
+              setCropModalFor(null);
+            }}
+            onClose={() => setCropModalFor(null)}
+          />
+        )}
+      </Suspense>
     </div>
   );
 }
