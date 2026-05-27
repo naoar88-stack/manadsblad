@@ -23,7 +23,7 @@ function sortByDate(arr) {
   return [...arr].sort((a, b) => new Date(a.date) - new Date(b.date));
 }
 
-/* ── Inline-redigering direkt i kalenderchipsen ── */
+/* ── Inline-redigering i kalenderchipsen ── */
 function ActivityChip({ a, onUpdate, onRemove, onOpenAsset }) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft]     = useState(a.title);
@@ -37,7 +37,7 @@ function ActivityChip({ a, onUpdate, onRemove, onOpenAsset }) {
   return (
     <div
       draggable={!editing}
-      className="group/chip relative rounded-lg overflow-hidden cursor-grab active:cursor-grabbing select-none"
+      className="activity-chip group/chip relative rounded-lg overflow-hidden cursor-grab active:cursor-grabbing select-none"
       style={{ marginBottom: 4 }}
     >
       {a.image && (
@@ -144,16 +144,22 @@ export function SchemaView({
   const [dragOverDay,    setDragOverDay]    = useState(null);
   const [quickAddDay,    setQuickAddDay]    = useState(null);
 
-  const allDays    = getDaysInMonth(year, month);
-  const activeDays = allDays.filter(d => openDays.includes(d.getDay()));
-
-  const firstDow   = new Date(year, month, 1).getDay();
+  const allDays  = getDaysInMonth(year, month);
+  const firstDow = new Date(year, month, 1).getDay();
   const totalCells = Math.ceil((firstDow + allDays.length) / 7) * 7;
-  const cells      = Array.from({ length: totalCells }, (_, i) => {
+
+  // Alla celler inkl. spilldagar från föreg. och nästa månad
+  const cells = Array.from({ length: totalCells }, (_, i) => {
     const dayNum = i - firstDow + 1;
-    if (dayNum < 1 || dayNum > allDays.length) return null;
-    return allDays[dayNum - 1];
+    const date   = new Date(year, month, dayNum); // fungerar korrekt för negativa tal och tal > månadens längd
+    const outside = dayNum < 1 || dayNum > allDays.length;
+    return { date, outside };
   });
+
+  // Alla klickbara dagar i rutnätet (inkl. spilldagar) filtrerade på öppna veckodagar
+  const activeDays = cells
+    .map(c => c.date)
+    .filter(d => openDays.includes(d.getDay()));
 
   const sortedActivities = sortByDate(activities);
 
@@ -206,7 +212,7 @@ export function SchemaView({
 
       {/* TOOLBAR */}
       <div className="flex flex-wrap items-center gap-3">
-        <div className="flex items-center gap-2 bg-white rounded-2xl border border-slate-200 px-3 py-2">
+        <div className="flex items-center gap-2 bg-white rounded-2xl border border-slate-200 px-3 py-2 shadow-sm">
           <button onClick={prevMonth} className="h-8 w-8 rounded-xl hover:bg-slate-100 flex items-center justify-center transition">
             <ChevronLeft size={16} />
           </button>
@@ -238,20 +244,21 @@ export function SchemaView({
 
         <button
           onClick={() => setShowMagicPaste(true)}
-          className="h-10 px-4 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm flex items-center gap-2 transition"
+          className="btn-ai h-10 px-4 rounded-2xl text-white font-semibold text-sm flex items-center gap-2"
         >
           <Wand2 size={15} /> Magic Paste
         </button>
         <button
           onClick={() => addActivity(activeDays[0] ?? allDays[0])}
-          className="h-10 px-4 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white font-semibold text-sm flex items-center gap-2 transition"
+          className="btn-primary h-10 px-4 rounded-2xl text-white font-semibold text-sm flex items-center gap-2"
         >
           <Plus size={15} /> Ny aktivitet
         </button>
       </div>
 
       {/* KALENDERRUTNÄT */}
-      <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+      <div className="glass rounded-2xl overflow-hidden shadow-sm">
+        {/* Veckodagsrubriker */}
         <div className="grid grid-cols-7 border-b border-slate-100">
           {WEEKDAY_SV.map((d, i) => (
             <div key={i} className={`py-2 text-center text-xs font-bold tracking-widest uppercase ${openDays.includes(i) ? 'text-indigo-600' : 'text-slate-300'}`}>
@@ -260,79 +267,93 @@ export function SchemaView({
           ))}
         </div>
 
+        {/* Dagceller */}
         <div className="grid grid-cols-7">
-          {cells.map((day, i) => {
-            const isOpen       = day && openDays.includes(day.getDay());
-            const isToday      = day && toISO(day) === toISO(new Date());
-            const dayActs      = day ? activitiesOnDay(day) : [];
-            const isDragTarget = day && dragActId && dragOverDay === toISO(day);
-            const showQuick    = day && quickAddDay === toISO(day);
+          {cells.map(({ date: day, outside }, i) => {
+            const isOpen       = openDays.includes(day.getDay());
+            const isToday      = toISO(day) === toISO(new Date());
+            const isCurrMonth  = day.getMonth() === month;
+            const dayActs      = activitiesOnDay(day);
+            const isDragTarget = dragActId && dragOverDay === toISO(day);
+            const showQuick    = quickAddDay === toISO(day);
 
             return (
               <div
                 key={i}
-                onDragOver={e => { e.preventDefault(); day && setDragOverDay(toISO(day)); }}
+                onDragOver={e => { e.preventDefault(); setDragOverDay(toISO(day)); }}
                 onDragLeave={() => setDragOverDay(null)}
                 onDrop={() => handleDropOnDay(day)}
-                className={`min-h-[120px] border-b border-r border-slate-100 p-2 flex flex-col transition-colors group ${
-                  !day          ? 'bg-slate-50' :
+                className={`day-cell min-h-[120px] border-b border-r border-slate-100 p-2 flex flex-col transition-colors group ${
                   isDragTarget  ? 'bg-indigo-50 ring-2 ring-inset ring-indigo-400' :
+                  outside       ? 'bg-slate-50/70' :
                   isOpen        ? 'bg-white hover:bg-slate-50/60' :
                                   'bg-slate-50/60'
                 }`}
+                style={{ animationDelay: `${i * 10}ms` }}
               >
-                {day && (
-                  <>
-                    <div className="flex items-center justify-between mb-1">
-                      <span className={`text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center ${
-                        isToday ? 'bg-indigo-600 text-white' : isOpen ? 'text-slate-700' : 'text-slate-300'
-                      }`}>
-                        {day.getDate()}
-                      </span>
-                      {isOpen && (
-                        <button
-                          onClick={() => setQuickAddDay(toISO(day) === quickAddDay ? null : toISO(day))}
-                          className="h-6 w-6 rounded-lg bg-indigo-50 hover:bg-indigo-100 flex items-center justify-center text-indigo-600 opacity-0 group-hover:opacity-100 transition"
-                        >
-                          <Plus size={12} />
-                        </button>
-                      )}
-                    </div>
+                {/* Dag-nummer + plusknapp */}
+                <div className="flex items-center justify-between mb-1">
+                  <span className={`text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center ${
+                    isToday      ? 'bg-indigo-600 text-white' :
+                    !isCurrMonth ? 'text-slate-300' :
+                    isOpen       ? 'text-slate-700' :
+                                   'text-slate-400'
+                  }`}>
+                    {day.getDate()}
+                  </span>
 
-                    {dayActs.map(a => (
-                      <div
-                        key={a.id}
-                        draggable
-                        onDragStart={() => setDragActId(a.id)}
-                        onDragEnd={() => { setDragActId(null); setDragOverDay(null); }}
-                      >
-                        <ActivityChip
-                          a={a}
-                          onUpdate={updateActivity}
-                          onRemove={removeActivity}
-                          onOpenAsset={onOpenAsset}
-                        />
-                      </div>
-                    ))}
+                  {/* Liten månadsetikett på spilldagar */}
+                  {outside && (
+                    <span className="text-[9px] text-slate-300 font-medium">
+                      {MONTH_SV[day.getMonth()].slice(0,3)}
+                    </span>
+                  )}
 
-                    {showQuick && (
-                      <QuickAddForm
-                        day={day}
-                        activeDays={activeDays}
-                        onAdd={addActivity}
-                        onCancel={() => setQuickAddDay(null)}
-                      />
-                    )}
+                  {isOpen && (
+                    <button
+                      onClick={() => setQuickAddDay(toISO(day) === quickAddDay ? null : toISO(day))}
+                      className="h-6 w-6 rounded-lg bg-indigo-50 hover:bg-indigo-100 flex items-center justify-center text-indigo-600 opacity-0 group-hover:opacity-100 transition"
+                    >
+                      <Plus size={12} />
+                    </button>
+                  )}
+                </div>
 
-                    {isOpen && !showQuick && dayActs.length === 0 && (
-                      <button
-                        onClick={() => setQuickAddDay(toISO(day))}
-                        className="mt-auto text-[10px] text-slate-400 hover:text-indigo-600 flex items-center gap-1 transition py-0.5"
-                      >
-                        <Plus size={9} /> Lägg till
-                      </button>
-                    )}
-                  </>
+                {/* Aktivitetschips */}
+                {dayActs.map(a => (
+                  <div
+                    key={a.id}
+                    draggable
+                    onDragStart={() => setDragActId(a.id)}
+                    onDragEnd={() => { setDragActId(null); setDragOverDay(null); }}
+                  >
+                    <ActivityChip
+                      a={a}
+                      onUpdate={updateActivity}
+                      onRemove={removeActivity}
+                      onOpenAsset={onOpenAsset}
+                    />
+                  </div>
+                ))}
+
+                {/* Snabbformulär */}
+                {showQuick && (
+                  <QuickAddForm
+                    day={day}
+                    activeDays={activeDays}
+                    onAdd={addActivity}
+                    onCancel={() => setQuickAddDay(null)}
+                  />
+                )}
+
+                {/* Tom dag-hint */}
+                {isOpen && !showQuick && dayActs.length === 0 && (
+                  <button
+                    onClick={() => setQuickAddDay(toISO(day))}
+                    className="mt-auto text-[10px] text-slate-400 hover:text-indigo-600 flex items-center gap-1 transition py-0.5"
+                  >
+                    <Plus size={9} /> Lägg till
+                  </button>
                 )}
               </div>
             );
@@ -344,11 +365,11 @@ export function SchemaView({
       {sortedActivities.length > 0 && (
         <div>
           <h3 className="text-sm font-bold text-slate-500 uppercase tracking-widest mb-3">
-            Aktiviteter denna månad ({sortedActivities.length} st)
+            Aktiviteter denna period ({sortedActivities.length} st)
           </h3>
           <div className="flex flex-col gap-3">
             {sortedActivities.map(a => (
-              <div key={a.id} className="group/card bg-white rounded-2xl border border-slate-200 shadow-sm flex gap-4 p-3 items-start hover:shadow-md transition">
+              <div key={a.id} className="group/card glass rounded-2xl shadow-sm flex gap-4 p-3 items-start hover:shadow-md transition">
                 <div className="relative w-24 h-20 rounded-xl overflow-hidden shrink-0">
                   <img src={a.image || DEFAULT_IMG} alt={a.title} className="w-full h-full object-cover" />
                   <button
@@ -380,6 +401,7 @@ export function SchemaView({
                       {activeDays.map(d => (
                         <option key={toISO(d)} value={toISO(d)}>
                           {WEEKDAY_FULL[d.getDay()]} {d.getDate()} {MONTH_SV[d.getMonth()].slice(0,3)}
+                          {d.getMonth() !== month ? ` (${d.getFullYear()})` : ''}
                         </option>
                       ))}
                     </select>
@@ -395,14 +417,14 @@ export function SchemaView({
                   <input
                     value={a.title}
                     onChange={e => updateActivity(a.id, { title: e.target.value })}
-                    className="font-bold text-sm text-slate-900 bg-transparent outline-none border-b border-transparent focus:border-indigo-300 transition w-full"
+                    className="clean-input font-bold text-sm text-slate-900 w-full px-1 py-0.5 rounded"
                     placeholder="Aktivitetens namn"
                   />
 
                   <textarea
                     value={a.description}
                     onChange={e => updateActivity(a.id, { description: e.target.value })}
-                    className="w-full text-xs text-slate-500 bg-transparent outline-none resize-none border-b border-transparent focus:border-indigo-200 transition"
+                    className="clean-input w-full text-xs text-slate-500 resize-none px-1 py-0.5 rounded"
                     rows={2}
                     placeholder="Kort beskrivning…"
                   />
