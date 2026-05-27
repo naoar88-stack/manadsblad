@@ -1,92 +1,133 @@
 import React from 'react';
-import { Info, Cloud, Database, Calendar, Globe, Users, Layout } from 'lucide-react';
+import { LogOut, User, Image as ImageIcon, QrCode, Building2, AlignLeft, Users, Cloud, Wifi, Calendar, BookOpen } from 'lucide-react';
 
-function Field({ label, children }) {
+function Field({ label, icon: Icon, children }) {
   return (
-    <label className="block">
-      <div className="text-sm font-medium text-slate-700 mb-2">{label}</div>
+    <div className="mb-5">
+      <label className="flex items-center gap-2 text-sm font-semibold text-slate-700 mb-2">
+        {Icon && <Icon className="w-4 h-4 text-slate-400" />}{label}
+      </label>
       {children}
-    </label>
+    </div>
   );
 }
 
 function SwitchRow({ icon: Icon, label, description, checked, onChange }) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-4 flex items-start justify-between gap-4">
-      <div className="flex items-start gap-3">
-        {Icon && <div className="h-9 w-9 rounded-xl bg-indigo-50 flex items-center justify-center shrink-0"><Icon className="w-4 h-4 text-indigo-600" /></div>}
+    <div className="flex items-center justify-between py-3 border-b border-slate-100 last:border-0">
+      <div className="flex items-center gap-3">
+        {Icon && <Icon className="w-4 h-4 text-slate-400" />}
         <div>
-          <div className="font-medium text-slate-900">{label}</div>
-          <div className="text-sm text-slate-500 mt-0.5">{description}</div>
+          <div className="text-sm font-medium text-slate-800">{label}</div>
+          {description && <div className="text-xs text-slate-500 mt-0.5">{description}</div>}
         </div>
       </div>
       <button
         onClick={() => onChange(!checked)}
-        className={`w-14 h-8 rounded-full relative transition-colors shrink-0 mt-0.5 ${ checked ? 'bg-indigo-600' : 'bg-slate-200' }`}
+        className={`w-11 h-6 rounded-full transition-colors ${checked ? 'bg-indigo-500' : 'bg-slate-200'}`}
       >
-        <span className={`absolute top-1 h-6 w-6 rounded-full bg-white shadow transition-all ${ checked ? 'left-7' : 'left-1' }`} />
+        <span className={`block w-5 h-5 rounded-full bg-white shadow transition-transform mx-0.5 ${checked ? 'translate-x-5' : 'translate-x-0'}`} />
       </button>
     </div>
   );
 }
 
-export function SettingsView({ settings, setSettings , user, onLogout }) {
-  const update = (patch) => setSettings(prev => ({ ...prev, ...patch }));
+export function SettingsView({ settings, setSettings, user, onLogout }) {
+  const update = (p) => setSettings(prev => ({ ...prev, ...p }));
 
   return (
-    <div className="max-w-screen-lg mx-auto grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_380px] gap-5">
-      {/* Gårdsinformation */}
-      <div className="bg-white/80 backdrop-blur rounded-[28px] border border-white shadow-[0_8px_24px_rgba(15,23,42,0.06)] p-6">
-        <div className="flex items-center gap-3 mb-5">
-          <div className="h-10 w-10 rounded-2xl bg-indigo-50 flex items-center justify-center"><Info className="w-5 h-5 text-indigo-600" /></div>
-          <div>
-            <h2 className="font-bold text-slate-900">Gårdsinformation</h2>
-            <p className="text-sm text-slate-500">Styr sidfot, QR-länk och organisationsinfo i exporten.</p>
-          </div>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Field label="Namn på fritidsgård">
-            <input value={settings.yardName} onChange={e => update({ yardName: e.target.value })} className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-indigo-200" />
-          </Field>
-          <Field label="QR-kodslänk">
-            <input value={settings.qrLink} onChange={e => update({ qrLink: e.target.value })} className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-indigo-200" />
-          </Field>
-          <div className="md:col-span-2">
-            <Field label="Sidfotstext">
-              <textarea value={settings.footerText} onChange={e => update({ footerText: e.target.value })} rows={4} className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-indigo-200" />
-            </Field>
-          </div>
-        </div>
-      </div>
+    <div className="max-w-2xl mx-auto p-6 space-y-8">
 
-      {/* Systeminställningar */}
-      <div className="bg-white/80 backdrop-blur rounded-[28px] border border-white shadow-[0_8px_24px_rgba(15,23,42,0.06)] p-6">
-        <div className="flex items-center gap-3 mb-5">
-          <div className="h-10 w-10 rounded-2xl bg-indigo-50 flex items-center justify-center"><Layout className="w-5 h-5 text-indigo-600" /></div>
-          <div>
-            <h2 className="font-bold text-slate-900">Systeminställningar</h2>
-            <p className="text-sm text-slate-500">Moln-export, lokalt läge och smart kalenderlogik.</p>
-          </div>
-        </div>
-        <div className="space-y-3">
-          <SwitchRow icon={Cloud}     label="Aktivera Moln-export"   description="Render-server: manadsblad-export.onrender.com"         checked={settings.cloudExport}       onChange={v => update({ cloudExport: v })} />
-          <SwitchRow icon={Database}  label="Kör lokalt"             description="Fallback till LocalStorage istället för Firestore."   checked={settings.localMode}         onChange={v => update({ localMode: v })} />
-          <SwitchRow icon={Calendar}  label="Stäng på röda dagar"    description="Filtrerar helgdagar i den beräknade kalendern."         checked={settings.closeOnHolidays}  onChange={v => update({ closeOnHolidays: v })} />
-          <SwitchRow icon={Globe}     label="Fyll ut kalendern"      description="Skapar platshållare om verksamheten har glapp."        checked={settings.fillCalendar}     onChange={v => update({ fillCalendar: v })} />
-          <SwitchRow icon={Users}     label="Stockholm Stad-logotyp" description="Logotyp i nederkant av affischen vid export."           checked={settings.showStockholmLogo} onChange={v => update({ showStockholmLogo: v })} />
-          <SwitchRow icon={Layout}    label="Gruppera i veckor"      description="Delar aktivitetslistan i block per vecka."             checked={settings.groupWeeks}       onChange={v => update({ groupWeeks: v })} />
-        </div>
+      {/* Fritidsgård-info */}
+      <section>
+        <h2 className="text-lg font-bold text-slate-900 mb-1">Fritidsgårdsinfo</h2>
+        <p className="text-sm text-slate-500 mb-4">Namn och logotyp visas i månadsbladets header.</p>
 
-        <div className="mt-5 rounded-2xl bg-slate-900 text-white p-4">
-          <div className="font-semibold mb-2 text-sm">Arkitektur</div>
-          <ul className="space-y-1.5 text-xs text-slate-300">
-            <li>· useMemo för kalenderdagar och helgdagar</li>
-            <li>· Debounced autosave till Firestore</li>
-            <li>· useHistory för Ctrl+Z / Ctrl+Y</li>
-            <li>· Off-canvas sidopanel i Studio (mobil)</li>
-          </ul>
+        <Field label="Fritidsgårdens namn" icon={Building2}>
+          <input value={settings.yardName} onChange={e => update({ yardName: e.target.value })}
+            className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-indigo-200" />
+        </Field>
+
+        {/* Logotyp-uppladdning */}
+        <Field label="Logotyp (visas i headern)" icon={ImageIcon}>
+          <div className="flex items-center gap-4">
+            {settings.yardLogo ? (
+              <img src={settings.yardLogo} alt="Logotyp" className="h-14 max-w-[120px] object-contain rounded-xl border border-slate-200 bg-white p-1" />
+            ) : (
+              <div className="h-14 w-24 rounded-xl border-2 border-dashed border-slate-200 flex items-center justify-center text-slate-400 text-xs text-center p-1">
+                Ingen logotyp
+              </div>
+            )}
+            <div className="flex flex-col gap-2">
+              <label className="cursor-pointer px-4 py-2 rounded-xl bg-indigo-50 text-indigo-700 text-sm font-semibold hover:bg-indigo-100 transition">
+                <input type="file" accept="image/*" className="hidden"
+                  onChange={e => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    const reader = new FileReader();
+                    reader.onload = ev => update({ yardLogo: ev.target?.result });
+                    reader.readAsDataURL(file);
+                  }} />
+                Ladda upp logotyp
+              </label>
+              {settings.yardLogo && (
+                <button onClick={() => update({ yardLogo: '' })} className="text-xs text-rose-500 hover:text-rose-700">Ta bort</button>
+              )}
+            </div>
+          </div>
+          <p className="text-xs text-slate-400 mt-2">Rekommenderat: PNG med transparent bakgrund. Logotypen placeras uppe till höger i månadsbladet.</p>
+        </Field>
+      </section>
+
+      {/* Export */}
+      <section>
+        <h2 className="text-lg font-bold text-slate-900 mb-1">Export & QR</h2>
+        <p className="text-sm text-slate-500 mb-4">Styr sidfot, QR-länk och organisationsinfo i exporten.</p>
+
+        <Field label="Sidfottext" icon={AlignLeft}>
+          <input value={settings.footerText} onChange={e => update({ footerText: e.target.value })}
+            className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-indigo-200" />
+        </Field>
+
+        <Field label="QR-kodslänk (visas i sidfoten)" icon={QrCode}>
+          <input value={settings.qrLink} onChange={e => update({ qrLink: e.target.value })}
+            className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-indigo-200" />
+          <p className="text-xs text-slate-400 mt-1">QR-koden placeras nu i sidfoten (inte i headern).</p>
+        </Field>
+
+        <div className="rounded-2xl border border-slate-100 bg-white overflow-hidden">
+          <SwitchRow icon={Users} label="Stockholm Stad-logotyp" description="Logotyp i sidfoten vid export." checked={settings.showStockholmLogo} onChange={v => update({ showStockholmLogo: v })} />
+          <SwitchRow icon={Cloud} label="Molnexport" description="Spara PDF direkt i molnet." checked={settings.cloudExport} onChange={v => update({ cloudExport: v })} />
         </div>
-      </div>
+      </section>
+
+      {/* Schema */}
+      <section>
+        <h2 className="text-lg font-bold text-slate-900 mb-1">Schema</h2>
+        <div className="rounded-2xl border border-slate-100 bg-white overflow-hidden">
+          <SwitchRow icon={Wifi}     label="Lokal läge" description="Inga data sparas till molnet." checked={settings.localMode} onChange={v => update({ localMode: v })} />
+          <SwitchRow icon={Calendar} label="Stäng på helgdagar" description="Röda dagar markeras automatiskt som stängt." checked={settings.closeOnHolidays} onChange={v => update({ closeOnHolidays: v })} />
+          <SwitchRow icon={BookOpen} label="Fyll kalender automatiskt" description="Visa platshållare för alla öppna dagar." checked={settings.fillCalendar} onChange={v => update({ fillCalendar: v })} />
+          <SwitchRow icon={Calendar} label="Gruppera per vecka i Studio" description="Visa månadsbladet uppdelat i veckor med dag-kolumner (som referensbilden)." checked={settings.groupWeeks} onChange={v => update({ groupWeeks: v })} />
+        </div>
+      </section>
+
+      {/* Konto */}
+      <section>
+        <h2 className="text-lg font-bold text-slate-900 mb-1">Konto</h2>
+        <div className="rounded-2xl border border-slate-100 bg-white p-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-full bg-indigo-100 flex items-center justify-center"><User className="w-4 h-4 text-indigo-600" /></div>
+            <div>
+              <div className="text-sm font-semibold text-slate-900">{user?.email ?? 'Anonym'}</div>
+              <div className="text-xs text-slate-500">{user?.isAnonymous ? 'Anonym session' : 'Inloggad'}</div>
+            </div>
+          </div>
+          <button onClick={onLogout} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-medium transition">
+            <LogOut className="w-4 h-4" />Logga ut
+          </button>
+        </div>
+      </section>
     </div>
   );
 }
