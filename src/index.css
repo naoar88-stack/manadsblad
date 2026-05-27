@@ -3,4 +3,111 @@
 @tailwind utilities;
 
 *, *::before, *::after { box-sizing: border-box; }
-html { font-family: 'Inter', sans-serif; }
+
+html {
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Dynamisk bakgrund ── */
+body {
+  min-height: 100dvh;
+  background:
+    radial-gradient(ellipse 80% 60% at 10% 0%,   rgba(99,102,241,0.10) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 50% at 90% 100%,  rgba(168,85,247,0.08) 0%, transparent 55%),
+    radial-gradient(ellipse 70% 70% at 50% 50%,   rgba(248,250,252,1)   0%, #f1f5f9 100%);
+  background-attachment: fixed;
+}
+
+/* ── Glassmorphism-utils ── */
+.glass {
+  background: rgba(255,255,255,0.72);
+  backdrop-filter: blur(20px) saturate(1.6);
+  -webkit-backdrop-filter: blur(20px) saturate(1.6);
+  border: 1px solid rgba(255,255,255,0.55);
+}
+
+.glass-dark {
+  background: rgba(15,23,42,0.82);
+  backdrop-filter: blur(24px) saturate(1.4);
+  -webkit-backdrop-filter: blur(24px) saturate(1.4);
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+/* ── Premium AI-glöd ── */
+.ai-glow {
+  box-shadow:
+    0 0 0 1px rgba(139,92,246,0.3),
+    0 4px 20px rgba(139,92,246,0.25),
+    0 1px 3px rgba(0,0,0,0.1);
+}
+.ai-glow:hover {
+  box-shadow:
+    0 0 0 1px rgba(139,92,246,0.5),
+    0 8px 32px rgba(139,92,246,0.35),
+    0 2px 6px rgba(0,0,0,0.12);
+}
+
+/* ── Cascading fade-in för kalenderdagar ── */
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.day-cell {
+  animation: fadeSlideUp 0.35s ease both;
+}
+
+/* ── Mjuka chip-skuggor ── */
+.activity-chip {
+  box-shadow: 0 1px 4px rgba(0,0,0,0.07), 0 0 0 1px rgba(0,0,0,0.04);
+  transition: box-shadow 0.15s ease, transform 0.15s ease;
+}
+.activity-chip:hover {
+  box-shadow: 0 4px 14px rgba(0,0,0,0.10), 0 0 0 1px rgba(99,102,241,0.15);
+  transform: translateY(-1px);
+}
+
+/* ── Gradient-knappar ── */
+.btn-primary {
+  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+  box-shadow: 0 2px 8px rgba(15,23,42,0.25), 0 1px 2px rgba(0,0,0,0.1);
+  transition: box-shadow 0.15s ease, transform 0.15s ease, filter 0.15s ease;
+}
+.btn-primary:hover {
+  filter: brightness(1.12);
+  box-shadow: 0 6px 20px rgba(15,23,42,0.30);
+  transform: translateY(-1px);
+}
+.btn-ai {
+  background: linear-gradient(135deg, #7c3aed 0%, #a855f7 50%, #ec4899 100%);
+  box-shadow: 0 2px 12px rgba(139,92,246,0.40), 0 1px 3px rgba(0,0,0,0.1);
+  transition: box-shadow 0.15s ease, transform 0.15s ease, filter 0.15s ease;
+}
+.btn-ai:hover {
+  filter: brightness(1.1);
+  box-shadow: 0 6px 24px rgba(139,92,246,0.55);
+  transform: translateY(-1px);
+}
+
+/* ── Inmatningsfält: dold tills fokus/hover ── */
+.clean-input {
+  background: transparent;
+  border: none;
+  border-bottom: 1.5px solid transparent;
+  outline: none;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+.clean-input:hover,
+.clean-input:focus {
+  border-bottom-color: rgba(99,102,241,0.35);
+  background: rgba(99,102,241,0.04);
+}
+
+/* ── Grip-ikon fade ── */
+.grip-icon {
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+.group\/card:hover .grip-icon {
+  opacity: 0.4;
+}
