@@ -123,7 +123,7 @@ export default function App() {
         syncStatus={syncStatus}
         user={user}
       />
-      <main className="pt-20">
+      <main className="pt-28">
         <Suspense fallback={<Spinner />}>
           {activeTab === 'Schema' && (
             <SchemaView
