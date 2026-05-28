@@ -1,19 +1,9 @@
 import { useEffect, useRef, useCallback, useState } from 'react';
 import { db, doc, getDoc, setDoc, onSnapshot, serverTimestamp } from '../lib/firebase';
 
-const DEBOUNCE_MS  = 1500;
-const MAX_RETRIES  = 3;
+const DEBOUNCE_MS = 1500;
+const MAX_RETRIES = 3;
 
-/**
- * useFirebaseSync
- * Synkroniserar activities + settings mot Firestore.
- *
- * Returnerar:
- *   dataLoading    — true tills första snapshot är klar
- *   registerDelete — registrera id som ska filtreras bort vid nästa snapshot
- *   onWriteResult  — callback(ok: boolean) anropas efter varje Firestore-skrivning
- *                    Sätt via ref i App.jsx för att styra syncStatus.
- */
 export function useFirebaseSync({ uid, monthKey, activities, settings, setActivities, setSettings, localMode, onWriteResult }) {
   const debounceActs     = useRef(null);
   const debounceSettings = useRef(null);
@@ -24,10 +14,8 @@ export function useFirebaseSync({ uid, monthKey, activities, settings, setActivi
   const retryCount       = useRef(0);
   const onWriteResultRef = useRef(onWriteResult);
 
-  // Håll ref uppdaterad utan att orsaka re-renders
   useEffect(() => { onWriteResultRef.current = onWriteResult; }, [onWriteResult]);
 
-  // dataLoading = true tills första snapshot kommit (per månad)
   const [dataLoading, setDataLoading] = useState(true);
 
   useEffect(() => { latestActivities.current = activities; }, [activities]);
@@ -39,9 +27,7 @@ export function useFirebaseSync({ uid, monthKey, activities, settings, setActivi
       return;
     }
 
-    // Återställ laddningsstatus vid månadsbyte
     setDataLoading(true);
-
     let stale = false;
 
     const planRef     = doc(db, 'users', uid, 'plans', monthKey);
@@ -58,7 +44,6 @@ export function useFirebaseSync({ uid, monthKey, activities, settings, setActivi
 
     const unsub = onSnapshot(planRef, snap => {
       if (stale) return;
-
       if (snap.exists()) {
         const data = snap.data();
         if (data?.activities) {
@@ -71,19 +56,19 @@ export function useFirebaseSync({ uid, monthKey, activities, settings, setActivi
           isRemoteUpdate.current = false;
         }
       }
-
-      // Första snapshot klar — oavsett om det fanns data
       setDataLoading(false);
     }, err => {
       if (stale) return;
       console.error('[Firestore] Snapshot-fel:', err);
-      setDataLoading(false); // Visa UI ändå vid fel
+      setDataLoading(false);
     });
 
     return () => {
       stale = true;
       unsub();
+      // Rensa båda debounce-timers vid unmount så inga missade skrivningar kör mot gamla månadsnycklar
       clearTimeout(debounceActs.current);
+      clearTimeout(debounceSettings.current);
     };
   }, [uid, monthKey, localMode]); // eslint-disable-line
 
