@@ -1,1 +1,127 @@
-aW1wb3J0IHsgdXNlRWZmZWN0LCB1c2VSZWYsIHVzZUNhbGxiYWNrIH0gZnJvbSAncmVhY3QnOwppbXBvcnQgeyBkYiwgZG9jLCBnZXREb2MsIHNldERvYywgb25TbmFwc2hvdCwgc2VydmVyVGltZXN0YW1wIH0gZnJvbSAnLi4vbGliL2ZpcmViYXNlJzsKCmNvbnN0IERFQk9VTkNFX01TICAgICA9IDE1MDA7CmNvbnN0IE1BWF9SRVRSSUVTICAgICA9IDM7CgpleHBvcnQgZnVuY3Rpb24gdXNlRmlyZWJhc2VTeW5jKHsgdWlkLCBtb250aEtleSwgYWN0aXZpdGllcywgc2V0dGluZ3MsIHNldEFjdGl2aXRpZXMsIHNldFNldHRpbmdzLCBsb2NhbE1vZGUgfSkgewogIGNvbnN0IGRlYm91bmNlQWN0cyAgICAgPSB1c2VSZWYobnVsbCk7CiAgY29uc3QgZGVib3VuY2VTZXR0aW5ncyA9IHVzZVJlZihudWxsKTsKICBjb25zdCBpc1JlbW90ZVVwZGF0ZSAgID0gdXNlUmVmKGZhbHNlKTsKICBjb25zdCBwZW5kaW5nRGVsZXRlcyAgID0gdXNlUmVmKG5ldyBTZXQoKSk7CiAgY29uc3QgbGF0ZXN0QWN0aXZpdGllcyA9IHVzZVJlZihhY3Rpdml0aWVzKTsKICBjb25zdCBsYXRlc3RTZXR0aW5ncyAgID0gdXNlUmVmKHNldHRpbmdzKTsKICBjb25zdCByZXRyeUNvdW50ICAgICAgID0gdXNlUmVmKDApOwoKICB1c2VFZmZlY3QoKCkgPT4geyBsYXRlc3RBY3Rpdml0aWVzLmN1cnJlbnQgPSBhY3Rpdml0aWVzOyB9LCBbYWN0aXZpdGllc10pOwogIHVzZUVmZmVjdCgoKSA9PiB7IGxhdGVzdFNldHRpbmdzLmN1cnJlbnQgICA9IHNldHRpbmdzOyAgIH0sIFtzZXR0aW5nc10pOwoKICAvLyBQcmVudW1lcmVyYSBww6UgRmlyZXN0b3JlIG9jaCBsYWRkYSBpbnN0w6RsbG5pbmdhcgogIHVzZUVmZmVjdCgoKSA9PiB7CiAgICBpZiAoIWRiIHx8ICF1aWQgfHwgbG9jYWxNb2RlKSByZXR1cm47CgogICAgY29uc3QgcGxhblJlZiAgICAgPSBkb2MoZGIsICd1c2VycycsIHVpZCwgJ3BsYW5zJywgbW9udGhLZXkpOwogICAgY29uc3Qgc2V0dGluZ3NSZWYgPSBkb2MoZGIsICd1c2VycycsIHVpZCwgJ21ldGEnLCAnc2V0dGluZ3MnKTsKCiAgICAvLyBIw6RtdGEgaW5zdMOkbGxuaW5nYXIgZW4gZ8OlbmcgdmlkIG1vdW50CiAgICBnZXREb2Moc2V0dGluZ3NSZWYpLnRoZW4oc25hcCA9PiB7CiAgICAgIGlmIChzbmFwLmV4aXN0cygpKSB7CiAgICAgICAgaXNSZW1vdGVVcGRhdGUuY3VycmVudCA9IHRydWU7CiAgICAgICAgc2V0U2V0dGluZ3MocHJldiA9PiAoeyAuLi5wcmV2LCAuLi5zbmFwLmRhdGEoKSB9KSk7CiAgICAgICAgaXNSZW1vdGVVcGRhdGUuY3VycmVudCA9IGZhbHNlOwogICAgICB9CiAgICB9KS5jYXRjaChlID0+IGNvbnNvbGUud2FybignW0ZpcmVzdG9yZV0gS3VuZGUgaW50ZSBow6RtdGEgaW5zdMOkbGxuaW5nYXI6JywgZSkpOwoKICAgIC8vIEx5c3NuYSBww6UgYWt0aXZpdGV0ZXIgaSByZWFsdGlkCiAgICBjb25zdCB1bnN1YiA9IG9uU25hcHNob3QocGxhblJlZiwgc25hcCA9PiB7CiAgICAgIGlmICghc25hcC5leGlzdHMoKSkgcmV0dXJuOwogICAgICBjb25zdCBkYXRhID0gc25hcC5kYXRhKCk7CiAgICAgIGlmICghZGF0YT8uYWN0aXZpdGllcykgcmV0dXJuOwoKICAgICAgLy8gRmlsdHJlcmEgYm9ydCBsb2thbHQgcmFkZXJhZGUgYWt0aXZpdGV0ZXIKICAgICAgY29uc3QgZmlsdGVyZWQgPSBkYXRhLmFjdGl2aXRpZXMuZmlsdGVyKGEgPT4gIXBlbmRpbmdEZWxldGVzLmN1cnJlbnQuaGFzKGEuaWQpKTsKICAgICAgaXNSZW1vdGVVcGRhdGUuY3VycmVudCA9IHRydWU7CiAgICAgIHNldEFjdGl2aXRpZXMoZmlsdGVyZWQubWFwKGEgPT4gKHsKICAgICAgICAuLi5hLAogICAgICAgIGRhdGU6IGEuZGF0ZSA/IG5ldyBEYXRlKGEuZGF0ZSkgOiBuZXcgRGF0ZSgpLAogICAgICB9KSkpOwogICAgICBpc1JlbW90ZVVwZGF0ZS5jdXJyZW50ID0gZmFsc2U7CiAgICB9LCBlcnIgPT4gewogICAgICBjb25zb2xlLmVycm9yKCdbRmlyZXN0b3JlXSBTbmFwc2hvdC1mZWw6JywgZXJyKTsKICAgIH0pOwoKICAgIHJldHVybiAoKSA9PiB1bnN1YigpOwogIH0sIFt1aWQsIG1vbnRoS2V5LCBsb2NhbE1vZGVdKTsgLy8gZXNsaW50LWRpc2FibGUtbGluZQoKICAvLyBTcGFyZnVua3Rpb24gbWVkIHJldHJ5LWxvZ2lrCiAgY29uc3QgcGVyc2lzdEFjdGl2aXRpZXMgPSB1c2VDYWxsYmFjayhhc3luYyAoKSA9PiB7CiAgICBpZiAoIWRiIHx8ICF1aWQgfHwgbG9jYWxNb2RlIHx8IGlzUmVtb3RlVXBkYXRlLmN1cnJlbnQpIHJldHVybjsKICAgIHRyeSB7CiAgICAgIGNvbnN0IHBsYW5SZWYgPSBkb2MoZGIsICd1c2VycycsIHVpZCwgJ3BsYW5zJywgbW9udGhLZXkpOwogICAgICBhd2FpdCBzZXREb2MocGxhblJlZiwgewogICAgICAgIGFjdGl2aXRpZXM6IGxhdGVzdEFjdGl2aXRpZXMuY3VycmVudC5tYXAoYSA9PiAoewogICAgICAgICAgLi4uYSwKICAgICAgICAgIGRhdGU6IGEuZGF0ZSBpbnN0YW5jZW9mIERhdGUgPyBhLmRhdGUudG9JU09TdHJpbmcoKSA6IGEuZGF0ZSwKICAgICAgICB9KSksCiAgICAgICAgdXBkYXRlZEF0OiBzZXJ2ZXJUaW1lc3RhbXAoKSwKICAgICAgfSwgeyBtZXJnZTogdHJ1ZSB9KTsKICAgICAgcGVuZGluZ0RlbGV0ZXMuY3VycmVudC5jbGVhcigpOwogICAgICByZXRyeUNvdW50LmN1cnJlbnQgPSAwOwogICAgfSBjYXRjaCAoZSkgewogICAgICBjb25zb2xlLmVycm9yKCdbRmlyZXN0b3JlXSBTcGFyZmVsIGFrdGl2aXRldGVyOicsIGUpOwogICAgICAvLyBFeHBvbmVudGllbGwgYmFja29mZiB2aWQgZmVsCiAgICAgIGlmIChyZXRyeUNvdW50LmN1cnJlbnQgPCBNQVhfUkVUUklFUykgewogICAgICAgIHJldHJ5Q291bnQuY3VycmVudCsrOwogICAgICAgIHNldFRpbWVvdXQocGVyc2lzdEFjdGl2aXRpZXMsIDEwMDAgKiByZXRyeUNvdW50LmN1cnJlbnQpOwogICAgICB9CiAgICB9CiAgfSwgW3VpZCwgbW9udGhLZXksIGxvY2FsTW9kZV0pOwoKICBjb25zdCBwZXJzaXN0U2V0dGluZ3MgPSB1c2VDYWxsYmFjayhhc3luYyAoKSA9PiB7CiAgICBpZiAoIWRiIHx8ICF1aWQgfHwgbG9jYWxNb2RlIHx8IGlzUmVtb3RlVXBkYXRlLmN1cnJlbnQpIHJldHVybjsKICAgIHRyeSB7CiAgICAgIGNvbnN0IHNldHRpbmdzUmVmID0gZG9jKGRiLCAndXNlcnMnLCB1aWQsICdtZXRhJywgJ3NldHRpbmdzJyk7CiAgICAgIGF3YWl0IHNldERvYyhzZXR0aW5nc1JlZiwgewogICAgICAgIC4uLmxhdGVzdFNldHRpbmdzLmN1cnJlbnQsCiAgICAgICAgdXBkYXRlZEF0OiBzZXJ2ZXJUaW1lc3RhbXAoKSwKICAgICAgfSwgeyBtZXJnZTogdHJ1ZSB9KTsKICAgIH0gY2F0Y2ggKGUpIHsKICAgICAgY29uc29sZS5lcnJvcignW0ZpcmVzdG9yZV0gU3BhcmZlbCBpbnN0w6RsbG5pbmdhcjonLCBlKTsKICAgIH0KICB9LCBbdWlkLCBsb2NhbE1vZGVdKTsKCiAgLy8gRGVib3VuY2VkIHdyaXRlcyDigJQgdHJpZ2dhcyBhdiBzdGF0ZS3DpG5kcmluZ2FyCiAgdXNlRWZmZWN0KCgpID0+IHsKICAgIGlmIChpc1JlbW90ZVVwZGF0ZS5jdXJyZW50KSByZXR1cm47CiAgICBjbGVhclRpbWVvdXQoZGVib3VuY2VBY3RzLmN1cnJlbnQpOwogICAgZGVib3VuY2VBY3RzLmN1cnJlbnQgPSBzZXRUaW1lb3V0KHBlcnNpc3RBY3Rpdml0aWVzLCBERUJPVU5DRV9NUyk7CiAgICByZXR1cm4gKCkgPT4gY2xlYXJUaW1lb3V0KGRlYm91bmNlQWN0cy5jdXJyZW50KTsKICB9LCBbYWN0aXZpdGllcywgcGVyc2lzdEFjdGl2aXRpZXNdKTsKCiAgdXNlRWZmZWN0KCgpID0+IHsKICAgIGlmIChpc1JlbW90ZVVwZGF0ZS5jdXJyZW50KSByZXR1cm47CiAgICBjbGVhclRpbWVvdXQoZGVib3VuY2VTZXR0aW5ncy5jdXJyZW50KTsKICAgIGRlYm91bmNlU2V0dGluZ3MuY3VycmVudCA9IHNldFRpbWVvdXQocGVyc2lzdFNldHRpbmdzLCBERUJPVU5DRV9NUyk7CiAgICByZXR1cm4gKCkgPT4gY2xlYXJUaW1lb3V0KGRlYm91bmNlU2V0dGluZ3MuY3VycmVudCk7CiAgfSwgW3NldHRpbmdzLCBwZXJzaXN0U2V0dGluZ3NdKTsKCiAgcmV0dXJuIHsKICAgIHJlZ2lzdGVyRGVsZXRlOiB1c2VDYWxsYmFjaygoaWQpID0+IHsgcGVuZGluZ0RlbGV0ZXMuY3VycmVudC5hZGQoaWQpOyB9LCBbXSksCiAgfTsKfQo=
+import { useEffect, useRef, useCallback } from 'react';
+import { db, doc, getDoc, setDoc, onSnapshot, serverTimestamp } from '../lib/firebase';
+
+const DEBOUNCE_MS  = 1500;
+const MAX_RETRIES  = 3;
+
+export function useFirebaseSync({ uid, monthKey, activities, settings, setActivities, setSettings, localMode }) {
+  const debounceActs     = useRef(null);
+  const debounceSettings = useRef(null);
+  const isRemoteUpdate   = useRef(false);
+  const pendingDeletes   = useRef(new Set());
+  const latestActivities = useRef(activities);
+  const latestSettings   = useRef(settings);
+  const retryCount       = useRef(0);
+
+  useEffect(() => { latestActivities.current = activities; }, [activities]);
+  useEffect(() => { latestSettings.current   = settings;   }, [settings]);
+
+  // ── Prenumerera på Firestore och ladda inställningar ──
+  useEffect(() => {
+    if (!db || !uid || localMode) return;
+
+    // Capture monthKey i closuren.
+    // stale = true när cleanup körs (dvs. månaden har bytt).
+    // onSnapshot-callbacks kollar denna flagga före alla state-uppdateringar
+    // så ett svar från en gammal subscription aldrig kan skriva över
+    // data för den nya månaden.
+    let stale = false;
+
+    const planRef     = doc(db, 'users', uid, 'plans', monthKey);
+    const settingsRef = doc(db, 'users', uid, 'meta', 'settings');
+
+    // Hämta inställningar en gång vid mount
+    getDoc(settingsRef).then(snap => {
+      if (stale) return; // Månaden har bytts sedan anropet startades
+      if (snap.exists()) {
+        isRemoteUpdate.current = true;
+        setSettings(prev => ({ ...prev, ...snap.data() }));
+        isRemoteUpdate.current = false;
+      }
+    }).catch(e => console.warn('[Firestore] Kunde inte hämta inställningar:', e));
+
+    // Lyssna på aktiviteter i realtid
+    const unsub = onSnapshot(planRef, snap => {
+      if (stale) return; // Gamla subscription svarar efter månadsbyte → ignorera
+      if (!snap.exists()) return;
+      const data = snap.data();
+      if (!data?.activities) return;
+
+      // Filtrera bort lokalt raderade aktiviteter
+      const filtered = data.activities.filter(a => !pendingDeletes.current.has(a.id));
+      isRemoteUpdate.current = true;
+      setActivities(filtered.map(a => ({
+        ...a,
+        date: a.date ? new Date(a.date) : new Date(),
+      })));
+      isRemoteUpdate.current = false;
+    }, err => {
+      if (stale) return;
+      console.error('[Firestore] Snapshot-fel:', err);
+    });
+
+    return () => {
+      stale = true;  // Markera alla pendända callbacks som föråldrade
+      unsub();       // Avsluta Firestore-subscription
+      // Avbryt eventuellt pendände debounce-skrivningar för gamla månaden
+      // så vi inte råkar spara fel månads data
+      clearTimeout(debounceActs.current);
+    };
+  }, [uid, monthKey, localMode]); // eslint-disable-line
+
+  // Sparfunktion med retry-logik
+  const persistActivities = useCallback(async () => {
+    if (!db || !uid || localMode || isRemoteUpdate.current) return;
+    try {
+      const planRef = doc(db, 'users', uid, 'plans', monthKey);
+      await setDoc(planRef, {
+        activities: latestActivities.current.map(a => ({
+          ...a,
+          date: a.date instanceof Date ? a.date.toISOString() : a.date,
+        })),
+        updatedAt: serverTimestamp(),
+      }, { merge: true });
+      pendingDeletes.current.clear();
+      retryCount.current = 0;
+    } catch (e) {
+      console.error('[Firestore] Sparfel aktiviteter:', e);
+      // Exponentiell backoff vid fel
+      if (retryCount.current < MAX_RETRIES) {
+        retryCount.current++;
+        setTimeout(persistActivities, 1000 * retryCount.current);
+      }
+    }
+  }, [uid, monthKey, localMode]);
+
+  const persistSettings = useCallback(async () => {
+    if (!db || !uid || localMode || isRemoteUpdate.current) return;
+    try {
+      const settingsRef = doc(db, 'users', uid, 'meta', 'settings');
+      await setDoc(settingsRef, {
+        ...latestSettings.current,
+        updatedAt: serverTimestamp(),
+      }, { merge: true });
+    } catch (e) {
+      console.error('[Firestore] Sparfel inställningar:', e);
+    }
+  }, [uid, localMode]);
+
+  // Debounced writes – triggas av state-ändringar
+  useEffect(() => {
+    if (isRemoteUpdate.current) return;
+    clearTimeout(debounceActs.current);
+    debounceActs.current = setTimeout(persistActivities, DEBOUNCE_MS);
+    return () => clearTimeout(debounceActs.current);
+  }, [activities, persistActivities]);
+
+  useEffect(() => {
+    if (isRemoteUpdate.current) return;
+    clearTimeout(debounceSettings.current);
+    debounceSettings.current = setTimeout(persistSettings, DEBOUNCE_MS);
+    return () => clearTimeout(debounceSettings.current);
+  }, [settings, persistSettings]);
+
+  return {
+    registerDelete: useCallback((id) => { pendingDeletes.current.add(id); }, []),
+  };
+}
