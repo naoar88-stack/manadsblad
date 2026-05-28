@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback, useRef, useMemo } from 'react';
 import { format, getDaysInMonth, getDay } from 'date-fns';
 import { sv } from 'date-fns/locale';
 import {
@@ -14,21 +14,50 @@ export function SchemaView({
   activities, updateActivity, removeActivity,
   pushHistory, onOpenAsset,
 }) {
-  const toast              = useToast();
+  const toast            = useToast();
   const [dragOver,  setDragOver]  = useState(null);
   const [dragItem,  setDragItem]  = useState(null);
   const [improvingText, setImprovingText] = useState({});
-  const dragCounter      = useRef(0);
+  const dragCounter = useRef(0);
 
-  const daysInMonth = getDaysInMonth(new Date(year, month));
-  const firstDayOfWeek = getDay(new Date(year, month, 1));
-  const mondayFirstOffset = (firstDayOfWeek + 6) % 7;
+  const monthName = useMemo(
+    () => format(new Date(year, month), 'MMMM yyyy', { locale: sv }),
+    [year, month],
+  );
 
-  const monthName = format(new Date(year, month), 'MMMM yyyy', { locale: sv });
+  // Bygg dagar-array en gång per år/månad
+  const days = useMemo(() => {
+    const daysInMonth      = getDaysInMonth(new Date(year, month));
+    const firstDayOfWeek   = getDay(new Date(year, month, 1));
+    const mondayFirstOffset = (firstDayOfWeek + 6) % 7;
+    const arr = [];
+    for (let i = 0; i < mondayFirstOffset; i++) arr.push({ day: null, isPadding: true });
+    for (let d = 1; d <= daysInMonth; d++) {
+      const date      = new Date(year, month, d);
+      const dayOfWeek = (date.getDay() + 6) % 7; // 0=Mån, 6=Sön
+      arr.push({ day: d, date, dayOfWeek, isPadding: false });
+    }
+    return arr;
+  }, [year, month]);
+
+  // Aktiviteter per dag — ett enda filter-pass för hela månaden
+  const activitiesByDay = useMemo(() => {
+    const map = {};
+    for (const a of activities) {
+      const d = a.date instanceof Date ? a.date : new Date(a.date);
+      if (d.getMonth() !== month || d.getFullYear() !== year) continue;
+      const key = d.getDate();
+      if (!map[key]) map[key] = [];
+      map[key].push(a);
+    }
+    return map;
+  }, [activities, year, month]);
+
+  const totalActivities    = useMemo(() => Object.values(activitiesByDay).reduce((s, a) => s + a.length, 0), [activitiesByDay]);
+  const openDaysThisMonth  = useMemo(() => days.filter(d => !d.isPadding && openDays.includes(d.dayOfWeek)), [days, openDays]);
 
   // ─ Adda ny aktivitet på dag
   const addActivity = useCallback((day) => {
-    // Spara datum som ISO-sträng för konsekvent Firebase-serialisering
     const date = new Date(year, month, day).toISOString();
     const newAct = {
       id: crypto.randomUUID(),
@@ -47,10 +76,10 @@ export function SchemaView({
     if (!currentTitle?.trim()) return;
     setImprovingText(p => ({ ...p, [id]: true }));
     try {
-      const res = await fetch('/api/improve-text', {
-        method: 'POST',
+      const res  = await fetch('/api/improve-text', {
+        method:  'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: currentTitle }),
+        body:    JSON.stringify({ text: currentTitle }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || `Serverfel ${res.status}`);
@@ -62,7 +91,6 @@ export function SchemaView({
       console.error('improveText:', e);
       toast?.error(e.message || 'Kunde inte förbättra texten');
     } finally {
-      // Garantera att spinner alltid stängs av, oavsett fel
       setImprovingText(p => ({ ...p, [id]: false }));
     }
   }, [updateActivity, toast]);
@@ -84,7 +112,6 @@ export function SchemaView({
     if (dragCounter.current === 0) setDragOver(null);
   }, []);
 
-  // Återställ state om drag avslutas utanför ett drop-mål (t.ex. utanför fönstret)
   const handleDragEnd = useCallback(() => {
     dragCounter.current = 0;
     setDragOver(null);
@@ -106,42 +133,16 @@ export function SchemaView({
     setOpenDays(prev =>
       prev.includes(dayOfWeek)
         ? prev.filter(d => d !== dayOfWeek)
-        : [...prev, dayOfWeek].sort((a, b) => a - b)
+        : [...prev, dayOfWeek].sort((a, b) => a - b),
     );
   }, [setOpenDays]);
 
   const weekdayNames = ['Mån', 'Tis', 'Ons', 'Tor', 'Fre', 'Lör', 'Sön'];
 
-  // Bygg dagar med offset för veckodag
-  const days = [];
-  for (let i = 0; i < mondayFirstOffset; i++) {
-    days.push({ day: null, isPadding: true });
-  }
-  for (let d = 1; d <= daysInMonth; d++) {
-    const date = new Date(year, month, d);
-    const dayOfWeek = (date.getDay() + 6) % 7; // 0=Mån, 6=Sön
-    days.push({
-      day: d,
-      date,
-      dayOfWeek,
-      isOpen: openDays.includes(dayOfWeek),
-      isPadding: false,
-    });
-  }
-
-  // Räkna aktiviteter denna månad
-  const totalActivities = activities.filter(a => {
-    const d = a.date instanceof Date ? a.date : new Date(a.date);
-    return d.getMonth() === month && d.getFullYear() === year;
-  }).length;
-
-  // Öppna dagar denna månad
-  const openDaysThisMonth = days.filter(d => !d.isPadding && d.isOpen);
-
   return (
     <div className="max-w-5xl mx-auto px-4 py-6">
 
-      {/* Header med månadsnavigering och veckodagstogglar */}
+      {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-4">
           <button
@@ -151,9 +152,7 @@ export function SchemaView({
           >
             <ChevronLeft className="w-5 h-5 text-slate-600" />
           </button>
-          <h1 className="text-2xl font-bold text-slate-800 capitalize">
-            {monthName}
-          </h1>
+          <h1 className="text-2xl font-bold text-slate-800 capitalize">{monthName}</h1>
           <button
             onClick={nextMonth}
             className="p-2 hover:bg-white rounded-lg transition-colors border border-slate-200 hover:shadow-sm"
@@ -183,7 +182,6 @@ export function SchemaView({
         </div>
       </div>
 
-      {/* Empty-state: inga öppna dagar valda */}
       {openDays.length === 0 && (
         <EmptyState
           icon={<CalendarDays />}
@@ -193,27 +191,20 @@ export function SchemaView({
         />
       )}
 
-      {/* Kalenderrutnät */}
       {openDays.length > 0 && (
         <div className="grid grid-cols-7 gap-2">
-
-          {/* Veckodagshuvuden */}
           {weekdayNames.map((name) => (
             <div key={name} className="text-center text-xs font-semibold text-slate-400 py-2 uppercase tracking-wider">
               {name}
             </div>
           ))}
 
-          {/* Dagceller */}
-          {days.map(({ day, date, dayOfWeek, isOpen, isPadding }, idx) => {
+          {days.map(({ day, date, dayOfWeek, isPadding }, idx) => {
             if (isPadding) return <div key={`pad-${idx}`} className="rounded-xl" />;
 
-            const dayActivities = activities.filter(a => {
-              const d = a.date instanceof Date ? a.date : new Date(a.date);
-              return d.getDate() === day && d.getMonth() === month && d.getFullYear() === year;
-            });
-
-            const isToday = new Date().toDateString() === date.toDateString();
+            const isOpen         = openDays.includes(dayOfWeek);
+            const dayActivities  = activitiesByDay[day] ?? [];
+            const isToday        = new Date().toDateString() === date.toDateString();
 
             return (
               <div
@@ -228,7 +219,6 @@ export function SchemaView({
                 onDragLeave={handleDragLeave}
                 onDrop={e => handleDrop(e, day)}
               >
-                {/* Dagnummer + lägg-till-knapp */}
                 <div className="flex items-center justify-between">
                   <span className={`text-xs font-semibold ${
                     isToday ? 'text-indigo-600 bg-indigo-100 px-2 rounded-full'
@@ -248,7 +238,6 @@ export function SchemaView({
                   )}
                 </div>
 
-                {/* Aktivitetskort */}
                 {dayActivities.map(activity => (
                   <ActivityCard
                     key={activity.id}
@@ -263,7 +252,6 @@ export function SchemaView({
                   />
                 ))}
 
-                {/* Empty-state per cell: öppen dag utan aktiviteter */}
                 {isOpen && dayActivities.length === 0 && (
                   <button
                     onClick={() => addActivity(day)}
@@ -279,7 +267,6 @@ export function SchemaView({
         </div>
       )}
 
-      {/* Empty-state: öppna dagar finns men inga aktiviteter planerade */}
       {openDays.length > 0 && totalActivities === 0 && openDaysThisMonth.length > 0 && (
         <div className="mt-8 mb-4">
           <EmptyState
@@ -294,23 +281,19 @@ export function SchemaView({
 }
 
 // ─────────────────────────────────────────────────────────────── ActivityCard
-function ActivityCard({ activity, onUpdate, onRemove, onImprove, isImproving, onDragStart, onDragEnd, onOpenAsset }) {
-  const [isExpanded, setIsExpanded] = useState(false);
+const ActivityCard = memo(function ActivityCard({
+  activity, onUpdate, onRemove, onImprove, isImproving,
+  onDragStart, onDragEnd, onOpenAsset,
+}) {
+  const [isExpanded,        setIsExpanded]        = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const titleRef = useRef(null);
 
-  // Keyboard: Enter expanderar, Delete/Backspace på tomt fält = bekräfta borttagning
   const handleTitleKeyDown = useCallback((e) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      setIsExpanded(v => !v);
-    }
-    if ((e.key === 'Delete' || e.key === 'Backspace') && !activity.title) {
-      setShowDeleteConfirm(true);
-    }
+    if (e.key === 'Enter') { e.preventDefault(); setIsExpanded(v => !v); }
+    if ((e.key === 'Delete' || e.key === 'Backspace') && !activity.title) setShowDeleteConfirm(true);
   }, [activity.title]);
 
-  // Escape stänger delete-confirm
   const handleKeyDown = useCallback((e) => {
     if (e.key === 'Escape') setShowDeleteConfirm(false);
   }, []);
@@ -345,12 +328,8 @@ function ActivityCard({ activity, onUpdate, onRemove, onImprove, isImproving, on
         </div>
       ) : (
         <>
-          {/* Titelrad */}
           <div className="flex items-start gap-1">
-            <GripVertical
-              className="w-3 h-3 mt-0.5 text-slate-300 flex-shrink-0"
-              aria-hidden="true"
-            />
+            <GripVertical className="w-3 h-3 mt-0.5 text-slate-300 flex-shrink-0" aria-hidden="true" />
             <input
               ref={titleRef}
               className="flex-1 text-xs font-medium text-slate-700 bg-transparent outline-none placeholder:text-slate-300"
@@ -368,16 +347,14 @@ function ActivityCard({ activity, onUpdate, onRemove, onImprove, isImproving, on
                 aria-label="Förbättra med AI"
                 title="Förbättra med AI"
               >
-                {isImproving ? (
-                  <span className="text-xs animate-pulse">♦</span>
-                ) : (
-                  <Wand2 className="w-3 h-3" />
-                )}
+                {isImproving
+                  ? <span className="text-xs animate-pulse" aria-hidden="true">♦</span>
+                  : <Wand2 className="w-3 h-3" />}
               </button>
               <button
                 onClick={() => setIsExpanded(v => !v)}
                 className="p-0.5 rounded hover:bg-slate-200 text-slate-400"
-                aria-label={isExpanded ? 'Följ ihop' : 'Expandera'}
+                aria-label={isExpanded ? 'Fäll ihop' : 'Expandera'}
                 aria-expanded={isExpanded}
               >
                 {isExpanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
@@ -392,21 +369,20 @@ function ActivityCard({ activity, onUpdate, onRemove, onImprove, isImproving, on
             </div>
           </div>
 
-          {/* Expanderat innehåll */}
           {isExpanded && (
             <div className="mt-2 space-y-1.5">
               {[{
-                icon: <AlarmClock className="w-3 h-3" />,
+                icon:        <AlarmClock className="w-3 h-3" />,
                 placeholder: 'Tid (t.ex. 10:00)',
-                field: 'time',
+                field:       'time',
               }, {
-                icon: <MapPin className="w-3 h-3" />,
+                icon:        <MapPin className="w-3 h-3" />,
                 placeholder: 'Plats',
-                field: 'location',
+                field:       'location',
               }, {
-                icon: <Users className="w-3 h-3" />,
+                icon:        <Users className="w-3 h-3" />,
                 placeholder: 'Max-deltagare',
-                field: 'maxParticipants',
+                field:       'maxParticipants',
               }].map(({ icon, placeholder, field }) => (
                 <div key={field} className="flex items-center gap-1">
                   <span className="text-slate-400" aria-hidden="true">{icon}</span>
@@ -420,7 +396,6 @@ function ActivityCard({ activity, onUpdate, onRemove, onImprove, isImproving, on
                 </div>
               ))}
 
-              {/* Bildselektör */}
               <button
                 onClick={() => onOpenAsset(activity.id)}
                 className="flex items-center gap-1 text-xs text-indigo-500 hover:text-indigo-700 transition-colors"
@@ -430,7 +405,6 @@ function ActivityCard({ activity, onUpdate, onRemove, onImprove, isImproving, on
                 <span>{activity.image ? 'Byt bild' : 'Lägg till bild'}</span>
               </button>
 
-              {/* Miniatyrbild om satt */}
               {activity.image && (
                 <img
                   src={activity.image}
@@ -445,4 +419,4 @@ function ActivityCard({ activity, onUpdate, onRemove, onImprove, isImproving, on
       )}
     </div>
   );
-}
+});

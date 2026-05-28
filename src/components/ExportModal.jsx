@@ -1,8 +1,16 @@
-import React, { useRef, useEffect, useCallback } from 'react';
+import React, { useRef, useEffect, useCallback, useState } from 'react';
 import {
   Share2, Download, FileDown, Send, Loader2, X, AlertCircle, CheckCircle2,
 } from 'lucide-react';
 import { useExport } from '../hooks/useExport';
+
+// Steg som visas i progress-overlayens under export
+const EXPORT_STEPS = [
+  'Förbereder canvas…',
+  'Renderar innehåll…',
+  'Komprimerar bild…',
+  'Sparar fil…',
+];
 
 export const ExportModal = ({
   isOpen,
@@ -14,6 +22,10 @@ export const ExportModal = ({
 }) => {
   const dialogRef = useRef(null);
   const closeRef  = useRef(null);
+
+  // Progresstext som stegar framåt under export
+  const [progressStep, setProgressStep] = useState(0);
+  const progressTimerRef = useRef(null);
 
   const hasContent = Object.keys(schedule ?? {}).length > 0;
   const safeLabel  = monthLabel || 'Månadsblad';
@@ -27,6 +39,22 @@ export const ExportModal = ({
     cloudExport,
     webShare,
   } = useExport({ format, cloudEnabled, yardName: safeLabel });
+
+  // Starta/stoppa progress-steg-timer i takt med export
+  useEffect(() => {
+    if (exporting) {
+      setProgressStep(0);
+      let step = 0;
+      progressTimerRef.current = setInterval(() => {
+        step = Math.min(step + 1, EXPORT_STEPS.length - 1);
+        setProgressStep(step);
+      }, 900);
+    } else {
+      clearInterval(progressTimerRef.current);
+      setProgressStep(0);
+    }
+    return () => clearInterval(progressTimerRef.current);
+  }, [exporting]);
 
   // Fokusera stängknappen när modalen öppnar
   useEffect(() => {
@@ -60,13 +88,26 @@ export const ExportModal = ({
     [onClose, exporting],
   );
 
-  // Klick på bakgrunden stänger (ej under aktiv export)
   const handleBackdropClick = useCallback(
     (e) => { if (e.target === e.currentTarget && !exporting) onClose(); },
     [onClose, exporting],
   );
 
+  // Web Share med fallback till nedladdning om API saknas
+  const handleWebShare = useCallback(async () => {
+    if (typeof navigator.share === 'function') {
+      await webShare();
+    } else {
+      // Fallback: ladda ned PNG direkt på enheter utan Web Share API
+      await downloadPNG();
+    }
+  }, [webShare, downloadPNG]);
+
   if (!isOpen) return null;
+
+  const webShareLabel = typeof navigator !== 'undefined' && typeof navigator.share === 'function'
+    ? 'Dela'
+    : 'Dela (laddar ned)';
 
   return (
     <div
@@ -143,12 +184,33 @@ export const ExportModal = ({
                 )}
               </div>
 
-              {/* Loading overlay */}
+              {/* Progress-overlay med steg-text */}
               {exporting && (
-                <div className="absolute inset-0 bg-slate-900/35 backdrop-blur-[2px] flex items-center justify-center rounded-3xl" aria-live="polite" aria-label="Exporterar">
-                  <div className="bg-white text-slate-800 rounded-2xl px-4 py-3 shadow-lg flex items-center gap-3">
-                    <Loader2 className="w-5 h-5 animate-spin text-indigo-600" aria-hidden="true" />
-                    <span className="text-sm font-semibold">Exporterar…</span>
+                <div
+                  className="absolute inset-0 bg-slate-900/35 backdrop-blur-[2px] flex items-center justify-center rounded-3xl"
+                  aria-live="polite"
+                  aria-label="Exporterar"
+                >
+                  <div className="bg-white text-slate-800 rounded-2xl px-5 py-4 shadow-lg flex flex-col items-center gap-2 min-w-[160px]">
+                    <div className="flex items-center gap-2">
+                      <Loader2 className="w-5 h-5 animate-spin text-indigo-600" aria-hidden="true" />
+                      <span className="text-sm font-semibold">Exporterar…</span>
+                    </div>
+                    <p className="text-xs text-slate-500 text-center transition-all">
+                      {EXPORT_STEPS[progressStep]}
+                    </p>
+                    {/* Progressbar */}
+                    <div className="w-full h-1 bg-slate-100 rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-indigo-500 rounded-full transition-all duration-700"
+                        style={{ width: `${((progressStep + 1) / EXPORT_STEPS.length) * 100}%` }}
+                        role="progressbar"
+                        aria-valuenow={progressStep + 1}
+                        aria-valuemin={1}
+                        aria-valuemax={EXPORT_STEPS.length}
+                        aria-label="Exportprogress"
+                      />
+                    </div>
                   </div>
                 </div>
               )}
@@ -202,12 +264,12 @@ export const ExportModal = ({
             </button>
 
             <button
-              onClick={webShare}
+              onClick={handleWebShare}
               disabled={!hasContent || exporting}
               className="bg-white text-slate-800 font-bold py-3 px-6 rounded-2xl flex items-center justify-center gap-2 border border-slate-200 hover:bg-slate-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Send className="w-5 h-5" aria-hidden="true" />
-              Dela
+              {webShareLabel}
             </button>
 
             <button
