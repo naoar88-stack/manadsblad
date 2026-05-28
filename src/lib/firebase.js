@@ -46,7 +46,11 @@ try {
   auth    = getAuth(app);
   db      = getFirestore(app);
   storage = getStorage(app);
-  console.log('[Firebase] Ansluten till:', cfg.projectId);
+
+  // Logga bara i dev-läge — avslöja inte projectId i produktion
+  if (import.meta.env.DEV) {
+    console.log('[Firebase] Ansluten till:', cfg.projectId);
+  }
 } catch (e) {
   console.warn('[Firebase] Lokalt läge —', e.message);
 }
