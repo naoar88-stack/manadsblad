@@ -1,3 +1,5 @@
+import { EXPORT_ELEMENT_ID } from '../hooks/useExport';
+
 function getISOWeekKey(dateKey) {
   const date = new Date(`${dateKey}T12:00:00`);
   const normalized = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
@@ -10,15 +12,11 @@ function getISOWeekKey(dateKey) {
 
 function groupDaysIntoWeeks(days) {
   const weeksByKey = new Map();
-
   days.forEach((day) => {
     const key = getISOWeekKey(day.dateKey);
-    if (!weeksByKey.has(key)) {
-      weeksByKey.set(key, []);
-    }
+    if (!weeksByKey.has(key)) weeksByKey.set(key, []);
     weeksByKey.get(key).push(day);
   });
-
   return Array.from(weeksByKey.entries()).map(([key, weekDays]) => ({
     key,
     weekNumber: key.split('-')[1],
@@ -76,18 +74,8 @@ function getCardTone(day) {
 }
 
 function orderWeekCards(week) {
-  const decorated = week.map((day) => ({
-    ...day,
-    tone: getCardTone(day),
-  }));
-
-  const priority = {
-    'card-feature': 0,
-    'card-visual': 1,
-    'card-text-heavy': 2,
-    'card-compact': 3,
-  };
-
+  const decorated = week.map((day) => ({ ...day, tone: getCardTone(day) }));
+  const priority = { 'card-feature': 0, 'card-visual': 1, 'card-text-heavy': 2, 'card-compact': 3 };
   return decorated.sort((a, b) => priority[a.tone] - priority[b.tone]);
 }
 
@@ -95,9 +83,7 @@ function splitHeadline(text) {
   const clean = (text || '').trim();
   if (!clean) return { title: '', body: '' };
   const lines = clean.split('\n').map((line) => line.trim()).filter(Boolean);
-  if (lines.length > 1) {
-    return { title: lines[0], body: lines.slice(1).join(' ') };
-  }
+  if (lines.length > 1) return { title: lines[0], body: lines.slice(1).join(' ') };
   if (clean.includes('. ')) {
     const [first, ...rest] = clean.split('. ');
     return { title: first, body: rest.join('. ') };
@@ -122,7 +108,16 @@ export default function ExportCanvas({ state, exportRef }) {
         </div>
       </div>
 
-      <div ref={exportRef} className={`export-canvas municipal-sheet ${currentFormat.className}`}>
+      {/*
+        id={EXPORT_ELEMENT_ID} gör att captureElement() i exportUtils.js
+        hittar rätt DOM-nod via getElementById.
+        exportRef behålls för bakåtkompatibilitet med StudioView.
+      */}
+      <div
+        id={EXPORT_ELEMENT_ID}
+        ref={exportRef}
+        className={`export-canvas municipal-sheet ${currentFormat.className}`}
+      >
         <header className="sheet-header">
           <div className="sheet-brand">
             <div className="sheet-mark" aria-hidden="true">
@@ -139,7 +134,12 @@ export default function ExportCanvas({ state, exportRef }) {
           </div>
           <div className="sheet-period">
             <span>Månadsprogram</span>
-            <strong>{new Date(state.selectedYear, state.selectedMonth).toLocaleDateString('sv-SE', { month: 'long', year: 'numeric' })}</strong>
+            <strong>
+              {new Date(state.selectedYear, state.selectedMonth).toLocaleDateString('sv-SE', {
+                month: 'long',
+                year: 'numeric',
+              })}
+            </strong>
           </div>
         </header>
 
@@ -152,7 +152,10 @@ export default function ExportCanvas({ state, exportRef }) {
             const orderedWeek = orderWeekCards(week.days);
             const hasFeature = orderedWeek.some((day) => day.tone === 'card-feature');
             return (
-              <section key={week.key} className={`sheet-week ${hasFeature ? 'sheet-week-highlight' : ''}`}>
+              <section
+                key={week.key}
+                className={`sheet-week ${hasFeature ? 'sheet-week-highlight' : ''}`}
+              >
                 <div className="sheet-week-header">
                   <span>Vecka {week.weekNumber}</span>
                 </div>
@@ -163,7 +166,11 @@ export default function ExportCanvas({ state, exportRef }) {
                     return (
                       <article key={day.dateKey} className={`sheet-card ${day.tone}`}>
                         {day.image ? (
-                          <img src={day.image} alt={`Aktivitet för ${day.weekdayLabel} ${day.dayNum}`} className="sheet-card-image" />
+                          <img
+                            src={day.image}
+                            alt={`Aktivitet för ${day.weekdayLabel} ${day.dayNum}`}
+                            className="sheet-card-image"
+                          />
                         ) : (
                           <div className="sheet-card-placeholder">Ingen bild vald</div>
                         )}

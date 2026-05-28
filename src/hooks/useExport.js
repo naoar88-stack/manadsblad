@@ -1,9 +1,10 @@
 import { useState, useCallback } from 'react';
 import { exportAsPNG, exportAsPDF, exportViaCloud, shareViaWebShare } from '../lib/exportUtils';
 
-export const PREVIEW_ELEMENT_ID = 'studio-preview-paper';
+// ID som sätts på export-canvasets DOM-element
+export const EXPORT_ELEMENT_ID = 'export-canvas-root';
 
-export function useExport({ format = 'A4', cloudEnabled = true, yardName = 'manadsblad' }) {
+export function useExport({ format = 'a4-portrait', cloudEnabled = true, yardName = 'manadsblad' }) {
   const [exporting, setExporting] = useState(false);
   const [exportError, setExportError] = useState('');
   const [exportSuccess, setExportSuccess] = useState('');
@@ -27,14 +28,29 @@ export function useExport({ format = 'A4', cloudEnabled = true, yardName = 'mana
     }
   }, []);
 
-  const downloadPNG   = useCallback(() => run(() => exportAsPNG(PREVIEW_ELEMENT_ID, `${filename}.png`)), [run, filename]);
-  const downloadPDF   = useCallback(() => run(() => exportAsPDF(PREVIEW_ELEMENT_ID, format, `${filename}.pdf`)), [run, filename, format]);
-  const cloudExport   = useCallback(() => {
-    if (!cloudEnabled) { setExportError('Moln-export är inaktiverad i inställningarna.'); return; }
-    const html = document.getElementById(PREVIEW_ELEMENT_ID)?.outerHTML ?? '';
+  const downloadPNG = useCallback(
+    () => run(() => exportAsPNG(EXPORT_ELEMENT_ID, `${filename}.png`)),
+    [run, filename]
+  );
+
+  const downloadPDF = useCallback(
+    () => run(() => exportAsPDF(EXPORT_ELEMENT_ID, format, `${filename}.pdf`)),
+    [run, filename, format]
+  );
+
+  const cloudExport = useCallback(() => {
+    if (!cloudEnabled) {
+      setExportError('Moln-export är inaktiverad i inställningarna.');
+      return;
+    }
+    const html = document.getElementById(EXPORT_ELEMENT_ID)?.outerHTML ?? '';
     return run(() => exportViaCloud(html, format, `${filename}.pdf`));
   }, [run, cloudEnabled, format, filename]);
-  const webShare = useCallback(() => run(() => shareViaWebShare(PREVIEW_ELEMENT_ID)), [run]);
+
+  const webShare = useCallback(
+    () => run(() => shareViaWebShare(EXPORT_ELEMENT_ID)),
+    [run]
+  );
 
   return { exporting, exportError, exportSuccess, downloadPNG, downloadPDF, cloudExport, webShare };
 }
