@@ -28,7 +28,8 @@ export function SchemaView({
 
   // ─ Adda ny aktivitet på dag
   const addActivity = useCallback((day) => {
-    const date = new Date(year, month, day);
+    // Spara datum som ISO-sträng för konsekvent Firebase-serialisering
+    const date = new Date(year, month, day).toISOString();
     const newAct = {
       id: crypto.randomUUID(),
       date,
@@ -60,8 +61,10 @@ export function SchemaView({
     } catch (e) {
       console.error('improveText:', e);
       toast?.error(e.message || 'Kunde inte förbättra texten');
+    } finally {
+      // Garantera att spinner alltid stängs av, oavsett fel
+      setImprovingText(p => ({ ...p, [id]: false }));
     }
-    setImprovingText(p => ({ ...p, [id]: false }));
   }, [updateActivity, toast]);
 
   // ─ Drag & Drop
@@ -81,12 +84,19 @@ export function SchemaView({
     if (dragCounter.current === 0) setDragOver(null);
   }, []);
 
+  // Återställ state om drag avslutas utanför ett drop-mål (t.ex. utanför fönstret)
+  const handleDragEnd = useCallback(() => {
+    dragCounter.current = 0;
+    setDragOver(null);
+    setDragItem(null);
+  }, []);
+
   const handleDrop = useCallback((e, day) => {
     e.preventDefault();
     dragCounter.current = 0;
     setDragOver(null);
     if (!dragItem) return;
-    const newDate = new Date(year, month, day);
+    const newDate = new Date(year, month, day).toISOString();
     updateActivity(dragItem.id, { date: newDate });
     setDragItem(null);
   }, [dragItem, updateActivity, year, month]);
@@ -248,6 +258,7 @@ export function SchemaView({
                     onImprove={() => improveText(activity.id, activity.title)}
                     isImproving={improvingText[activity.id]}
                     onDragStart={e => handleDragStart(e, activity)}
+                    onDragEnd={handleDragEnd}
                     onOpenAsset={onOpenAsset}
                   />
                 ))}
@@ -274,7 +285,7 @@ export function SchemaView({
           <EmptyState
             icon={<CalendarDays />}
             title="Inga aktiviteter planerade"
-            body={`Klicka på “+” i någon av de öppna dagarna för att lägga till din första aktivitet för ${monthName}.`}
+            body={`Klicka på "+" i någon av de öppna dagarna för att lägga till din första aktivitet för ${monthName}.`}
           />
         </div>
       )}
@@ -283,7 +294,7 @@ export function SchemaView({
 }
 
 // ─────────────────────────────────────────────────────────────── ActivityCard
-function ActivityCard({ activity, onUpdate, onRemove, onImprove, isImproving, onDragStart, onOpenAsset }) {
+function ActivityCard({ activity, onUpdate, onRemove, onImprove, isImproving, onDragStart, onDragEnd, onOpenAsset }) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const titleRef = useRef(null);
@@ -309,6 +320,7 @@ function ActivityCard({ activity, onUpdate, onRemove, onImprove, isImproving, on
       className="bg-indigo-50 border border-indigo-100 rounded-lg p-2 group cursor-grab active:cursor-grabbing transition-all hover:border-indigo-300 hover:shadow-sm"
       draggable
       onDragStart={onDragStart}
+      onDragEnd={onDragEnd}
       onKeyDown={handleKeyDown}
     >
       {showDeleteConfirm ? (
