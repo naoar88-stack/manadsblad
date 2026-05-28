@@ -54,7 +54,7 @@ export default async function handler(req, res) {
 
   // Rate limiting
   const ip = getClientIp(req);
-  if (isRateLimited(ip)) {
+  if (isRateLimited(ip, 'image')) {
     return res.status(429).json({ error: 'För många förfrågningar. Försök igen om en stund.' });
   }
 
