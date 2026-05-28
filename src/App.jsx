@@ -20,14 +20,13 @@ const CropModal         = lazy(() => import('./components/CropModal').then(m => 
 
 const toMonthKey = (y, m) => `${y}-${String(m + 1).padStart(2, '0')}`;
 
-/** Spinner för auth-loading och lazy-Suspense */
 const Spinner = () => (
   <div className="flex items-center justify-center min-h-screen bg-slate-50">
     <div className="flex flex-col items-center gap-4">
       <div className="w-12 h-12 bg-white rounded-2xl shadow-lg flex items-center justify-center border border-slate-100">
-        <Loader2 className="w-6 h-6 text-indigo-600 animate-spin" />
+        <Loader2 className="w-6 h-6 text-indigo-600 animate-spin" aria-hidden="true" />
       </div>
-      <p className="text-sm font-semibold text-slate-400 animate-pulse tracking-wide">Laddar…</p>
+      <p className="text-sm font-semibold text-slate-400 animate-pulse tracking-wide" aria-live="polite">Laddar…</p>
     </div>
   </div>
 );
@@ -36,19 +35,28 @@ const DEFAULT_DESIGN = {
   layout: 'lively', format: 'A4', colorScheme: 'Per vecka',
   font: 'Inter', background: 'Rutnat', backgroundOpacity: 28, backgroundImage: '',
   colors: { week1: '#4f46e5', week2: '#0ea5e9', week3: '#22c55e', week4: '#f97316' },
+  viewMode: 'grid',
 };
 
 const DEFAULT_SETTINGS = {
+  // Organisationsinfo
   yardName:        'Fritidsgårderna',
+  address:         '',
+  websiteUrl:      '',
   footerText:      'Välkommen till en trygg och kreativ mötesplats.',
   qrLink:          'https://fritidsgard.se',
+  // Logotyp — används som settings.logoUrl i StudioView
+  logoUrl:         '',
+  // Visning
+  showQr:          false,
+  showStockholmLogo: true,
+  // Export & synk
   cloudExport:     true,
   localMode:       false,
+  // Kalender
   closeOnHolidays: true,
   fillCalendar:    true,
   groupWeeks:      false,
-  showStockholmLogo: true,
-  yardLogo:        '',
 };
 
 export default function App() {
@@ -87,13 +95,23 @@ export default function App() {
     localMode:  settings.localMode || !user,
   });
 
-  const syncTimer = useRef(null);
+  // syncStatus — går via mounted-ref så setSyncStatus aldrig anropas
+  // på en unmountad komponent.
+  const mountedRef  = useRef(true);
+  const syncTimerRef = useRef(null);
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => { mountedRef.current = false; };
+  }, []);
+
   useEffect(() => {
     if (!user || settings.localMode) { setSyncStatus('local'); return; }
     setSyncStatus('saving');
-    clearTimeout(syncTimer.current);
-    syncTimer.current = setTimeout(() => setSyncStatus('saved'), 1600);
-    return () => clearTimeout(syncTimer.current);
+    clearTimeout(syncTimerRef.current);
+    syncTimerRef.current = setTimeout(() => {
+      if (mountedRef.current) setSyncStatus('saved');
+    }, 1600);
+    return () => clearTimeout(syncTimerRef.current);
   }, [activities, settings, user]);
 
   useEffect(() => {
@@ -129,6 +147,10 @@ export default function App() {
     setMonth(m => { if (m === 11) { setYear(y => y + 1); return 0; } return m + 1; });
   }, []);
 
+  // Null-guards: om aktiviteten tagits bort medan modalen var öppen — stäng modalen.
+  const assetActivity = assetModalFor ? activities.find(a => a.id === assetModalFor) ?? null : null;
+  const cropActivity  = cropModalFor  ? activities.find(a => a.id === cropModalFor)  ?? null : null;
+
   if (authLoading) return <Spinner />;
   if (!user) return (
     <ToastProvider>
@@ -139,7 +161,6 @@ export default function App() {
   return (
     <ToastProvider>
       <div className="min-h-screen flex flex-col bg-slate-50">
-        {/* Offline-banner: glider ned utan att rubba layout */}
         <OfflineBanner isOnline={isOnline} />
 
         <Header
@@ -152,7 +173,6 @@ export default function App() {
           <ErrorBoundary>
             <Suspense fallback={<Spinner />}>
               {activeTab === 'Schema' && (
-                // Visa skeleton-loader tills Firebase-data är klar
                 dataLoading
                   ? <SkeletonLoader />
                   : <SchemaView
@@ -184,11 +204,12 @@ export default function App() {
           </ErrorBoundary>
         </main>
 
-        {assetModalFor && (
+        {/* AssetManagerModal — rendreras inte om aktiviteten inte längre finns */}
+        {assetModalFor && assetActivity && (
           <ErrorBoundary fallback={null}>
             <Suspense fallback={null}>
               <AssetManagerModal
-                activity={activities.find(a => a.id === assetModalFor)}
+                activity={assetActivity}
                 onSelect={img => { updateActivity(assetModalFor, { image: img }); setAssetModalFor(null); }}
                 onClose={() => setAssetModalFor(null)}
               />
@@ -196,11 +217,12 @@ export default function App() {
           </ErrorBoundary>
         )}
 
-        {cropModalFor && (
+        {/* CropModal — rendreras inte om aktiviteten inte längre finns */}
+        {cropModalFor && cropActivity && (
           <ErrorBoundary fallback={null}>
             <Suspense fallback={null}>
               <CropModal
-                activity={activities.find(a => a.id === cropModalFor)}
+                activity={cropActivity}
                 onSave={img => { updateActivity(cropModalFor, { image: img }); setCropModalFor(null); }}
                 onClose={() => setCropModalFor(null)}
               />
