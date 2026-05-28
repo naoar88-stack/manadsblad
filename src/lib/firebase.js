@@ -15,27 +15,33 @@ import {
 } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 
-// Fallback-config om VITE_-miljövariabler saknas
-const FALLBACK_CONFIG = {
-  apiKey:            'AIzaSyAoxcHZZHnLFnl5i9ngF9LvYekjVef3AD0',
-  authDomain:        'manadsblad-2aafd.firebaseapp.com',
-  projectId:         'manadsblad-2aafd',
-  storageBucket:     'manadsblad-2aafd.firebasestorage.app',
-  messagingSenderId: '942783898702',
-  appId:             '1:942783898702:web:412d9bab6eb1fa68ef8f1f',
-};
+// Alla Firebase-värden måste sättas som VITE_-miljövariabler i Vercel.
+// Lokalt: kopiera .env.example till .env.local och fyll i värdena.
+const REQUIRED_VARS = [
+  'VITE_FIREBASE_API_KEY',
+  'VITE_FIREBASE_AUTH_DOMAIN',
+  'VITE_FIREBASE_PROJECT_ID',
+  'VITE_FIREBASE_APP_ID',
+];
 
 let app, auth, db, storage;
 
 try {
+  const missing = REQUIRED_VARS.filter(k => !import.meta.env[k]);
+  if (missing.length) {
+    console.warn('[Firebase] Saknade env-variabler:', missing, '→ Lokalt läge aktiverat');
+    throw new Error('Missing env vars: ' + missing.join(', '));
+  }
+
   const cfg = {
-    apiKey:            import.meta.env.VITE_FIREBASE_API_KEY             || FALLBACK_CONFIG.apiKey,
-    authDomain:        import.meta.env.VITE_FIREBASE_AUTH_DOMAIN         || FALLBACK_CONFIG.authDomain,
-    projectId:         import.meta.env.VITE_FIREBASE_PROJECT_ID          || FALLBACK_CONFIG.projectId,
-    storageBucket:     import.meta.env.VITE_FIREBASE_STORAGE_BUCKET      || FALLBACK_CONFIG.storageBucket,
-    messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || FALLBACK_CONFIG.messagingSenderId,
-    appId:             import.meta.env.VITE_FIREBASE_APP_ID              || FALLBACK_CONFIG.appId,
+    apiKey:            import.meta.env.VITE_FIREBASE_API_KEY,
+    authDomain:        import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+    projectId:         import.meta.env.VITE_FIREBASE_PROJECT_ID,
+    storageBucket:     import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+    messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+    appId:             import.meta.env.VITE_FIREBASE_APP_ID,
   };
+
   app     = initializeApp(cfg);
   auth    = getAuth(app);
   db      = getFirestore(app);
