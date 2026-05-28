@@ -20,13 +20,18 @@ const CropModal         = lazy(() => import('./components/CropModal').then(m => 
 
 const toMonthKey = (y, m) => `${y}-${String(m + 1).padStart(2, '0')}`;
 
+/** Fullskärms-spinner med korrekt ARIA */
 const Spinner = () => (
-  <div className="flex items-center justify-center min-h-screen bg-slate-50">
+  <div
+    className="flex items-center justify-center min-h-screen bg-slate-50"
+    role="status"
+    aria-label="Laddar applikationen"
+  >
     <div className="flex flex-col items-center gap-4">
       <div className="w-12 h-12 bg-white rounded-2xl shadow-lg flex items-center justify-center border border-slate-100">
         <Loader2 className="w-6 h-6 text-indigo-600 animate-spin" aria-hidden="true" />
       </div>
-      <p className="text-sm font-semibold text-slate-400 animate-pulse tracking-wide" aria-live="polite">Laddar…</p>
+      <p className="text-sm font-semibold text-slate-400 animate-pulse tracking-wide">Laddar…</p>
     </div>
   </div>
 );
@@ -40,12 +45,12 @@ const DEFAULT_DESIGN = {
 
 const DEFAULT_SETTINGS = {
   // Organisationsinfo
-  yardName:        'Fritidsgårderna',
+  yardName:        'Fritidsgårdarna',
   address:         '',
   websiteUrl:      '',
   footerText:      'Välkommen till en trygg och kreativ mötesplats.',
   qrLink:          'https://fritidsgard.se',
-  // Logotyp — används som settings.logoUrl i StudioView
+  // Logotyp
   logoUrl:         '',
   // Visning
   showQr:          false,
@@ -79,6 +84,24 @@ export default function App() {
   const { activities, setActivities, templates, addTemplate } = useSchedule(currentMonthKey, openDays);
   const { pushHistory, undo, redo, resetHistory, canUndo, canRedo } = useHistory(activities, setActivities);
 
+  // Refs för canUndo/canRedo — undviker stale closures i keyboard-handler
+  const canUndoRef = useRef(canUndo);
+  const canRedoRef = useRef(canRedo);
+  useEffect(() => { canUndoRef.current = canUndo; }, [canUndo]);
+  useEffect(() => { canRedoRef.current = canRedo; }, [canRedo]);
+
+  const mountedRef = useRef(true);
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => { mountedRef.current = false; };
+  }, []);
+
+  // Callback som useFirebaseSync anropar med faktiskt skriv-resultat
+  const handleWriteResult = useCallback((ok) => {
+    if (!mountedRef.current) return;
+    setSyncStatus(ok ? 'saved' : 'error');
+  }, []);
+
   const prevMonthKeyRef = useRef(currentMonthKey);
   useEffect(() => {
     if (prevMonthKeyRef.current !== currentMonthKey) {
@@ -88,48 +111,41 @@ export default function App() {
   }, [currentMonthKey, resetHistory]);
 
   const { dataLoading, registerDelete } = useFirebaseSync({
-    uid:        user?.uid,
-    monthKey:   currentMonthKey,
-    activities, settings,
+    uid:           user?.uid,
+    monthKey:      currentMonthKey,
+    activities,    settings,
     setActivities, setSettings,
-    localMode:  settings.localMode || !user,
+    localMode:     settings.localMode || !user,
+    onWriteResult: handleWriteResult,
   });
 
-  // syncStatus — går via mounted-ref så setSyncStatus aldrig anropas
-  // på en unmountad komponent.
-  const mountedRef  = useRef(true);
-  const syncTimerRef = useRef(null);
+  // syncStatus: sätt 'saving' direkt när data ändras, 'saved'/'error' kommer via handleWriteResult
   useEffect(() => {
-    mountedRef.current = true;
-    return () => { mountedRef.current = false; };
-  }, []);
-
-  useEffect(() => {
-    if (!user || settings.localMode) { setSyncStatus('local'); return; }
+    if (!user || settings.localMode) {
+      setSyncStatus('local');
+      return;
+    }
     setSyncStatus('saving');
-    clearTimeout(syncTimerRef.current);
-    syncTimerRef.current = setTimeout(() => {
-      if (mountedRef.current) setSyncStatus('saved');
-    }, 1600);
-    return () => clearTimeout(syncTimerRef.current);
   }, [activities, settings, user]);
 
+  // Tangentbordsgenvägar — använder refs så closure alltid är färsk
   useEffect(() => {
     const handle = e => {
       const tag = e.target.tagName;
       if (tag === 'INPUT' || tag === 'TEXTAREA') return;
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
         e.preventDefault();
-        if (e.shiftKey) { if (canRedo) redo(); } else { if (canUndo) undo(); }
+        if (e.shiftKey) { if (canRedoRef.current) redo(); }
+        else            { if (canUndoRef.current) undo(); }
       }
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'y') {
         e.preventDefault();
-        if (canRedo) redo();
+        if (canRedoRef.current) redo();
       }
     };
     window.addEventListener('keydown', handle);
     return () => window.removeEventListener('keydown', handle);
-  }, [undo, redo, canUndo, canRedo]);
+  }, [undo, redo]); // canUndo/canRedo läses via refs
 
   const updateActivity = useCallback((id, patch) => {
     pushHistory(activities.map(a => a.id === id ? { ...a, ...patch } : a));
@@ -162,6 +178,19 @@ export default function App() {
     <ToastProvider>
       <div className="min-h-screen flex flex-col bg-slate-50">
         <OfflineBanner isOnline={isOnline} />
+
+        {/* Banner för anonyma användare */}
+        {user?.isAnonymous && (
+          <div className="bg-amber-50 border-b border-amber-200 px-4 py-2 text-xs text-amber-800 flex items-center justify-between gap-2">
+            <span>Du använder gästläge — ditt arbete försvinner om du stänger webbläsaren.</span>
+            <button
+              onClick={() => setActiveTab('Inställningar')}
+              className="shrink-0 font-semibold underline underline-offset-2 hover:text-amber-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 rounded"
+            >
+              Skapa konto
+            </button>
+          </div>
+        )}
 
         <Header
           activeTab={activeTab} setActiveTab={setActiveTab}
@@ -204,7 +233,7 @@ export default function App() {
           </ErrorBoundary>
         </main>
 
-        {/* AssetManagerModal — rendreras inte om aktiviteten inte längre finns */}
+        {/* AssetManagerModal */}
         {assetModalFor && assetActivity && (
           <ErrorBoundary fallback={null}>
             <Suspense fallback={null}>
@@ -217,7 +246,7 @@ export default function App() {
           </ErrorBoundary>
         )}
 
-        {/* CropModal — rendreras inte om aktiviteten inte längre finns */}
+        {/* CropModal */}
         {cropModalFor && cropActivity && (
           <ErrorBoundary fallback={null}>
             <Suspense fallback={null}>

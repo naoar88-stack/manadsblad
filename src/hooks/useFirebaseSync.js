@@ -4,7 +4,17 @@ import { db, doc, getDoc, setDoc, onSnapshot, serverTimestamp } from '../lib/fir
 const DEBOUNCE_MS  = 1500;
 const MAX_RETRIES  = 3;
 
-export function useFirebaseSync({ uid, monthKey, activities, settings, setActivities, setSettings, localMode }) {
+/**
+ * useFirebaseSync
+ * Synkroniserar activities + settings mot Firestore.
+ *
+ * Returnerar:
+ *   dataLoading    — true tills första snapshot är klar
+ *   registerDelete — registrera id som ska filtreras bort vid nästa snapshot
+ *   onWriteResult  — callback(ok: boolean) anropas efter varje Firestore-skrivning
+ *                    Sätt via ref i App.jsx för att styra syncStatus.
+ */
+export function useFirebaseSync({ uid, monthKey, activities, settings, setActivities, setSettings, localMode, onWriteResult }) {
   const debounceActs     = useRef(null);
   const debounceSettings = useRef(null);
   const isRemoteUpdate   = useRef(false);
@@ -12,6 +22,10 @@ export function useFirebaseSync({ uid, monthKey, activities, settings, setActivi
   const latestActivities = useRef(activities);
   const latestSettings   = useRef(settings);
   const retryCount       = useRef(0);
+  const onWriteResultRef = useRef(onWriteResult);
+
+  // Håll ref uppdaterad utan att orsaka re-renders
+  useEffect(() => { onWriteResultRef.current = onWriteResult; }, [onWriteResult]);
 
   // dataLoading = true tills första snapshot kommit (per månad)
   const [dataLoading, setDataLoading] = useState(true);
@@ -86,8 +100,10 @@ export function useFirebaseSync({ uid, monthKey, activities, settings, setActivi
       }, { merge: true });
       pendingDeletes.current.clear();
       retryCount.current = 0;
+      onWriteResultRef.current?.(true);
     } catch (e) {
       console.error('[Firestore] Sparfel aktiviteter:', e);
+      onWriteResultRef.current?.(false);
       if (retryCount.current < MAX_RETRIES) {
         retryCount.current++;
         setTimeout(persistActivities, 1000 * retryCount.current);
@@ -103,8 +119,10 @@ export function useFirebaseSync({ uid, monthKey, activities, settings, setActivi
         ...latestSettings.current,
         updatedAt: serverTimestamp(),
       }, { merge: true });
+      onWriteResultRef.current?.(true);
     } catch (e) {
       console.error('[Firestore] Sparfel inställningar:', e);
+      onWriteResultRef.current?.(false);
     }
   }, [uid, localMode]);
 
