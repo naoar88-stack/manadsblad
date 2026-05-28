@@ -5,23 +5,23 @@ import { exportAsPNG, exportAsPDF, exportViaCloud, shareViaWebShare } from '../l
 export const EXPORT_ELEMENT_ID = 'export-canvas-root';
 
 export function useExport({ format = 'a4-portrait', cloudEnabled = true, yardName = 'manadsblad' }) {
-  const [exporting, setExporting] = useState(false);
-  const [exportError, setExportError] = useState('');
+  const [exporting, setExporting]       = useState(false);
+  const [exportError, setExportError]   = useState('');
   const [exportSuccess, setExportSuccess] = useState('');
 
   const filename = yardName.toLowerCase().replace(/\s+/g, '-');
 
-  const run = useCallback(async (fn) => {
+  const run = useCallback(async (fn, successMsg) => {
     setExporting(true);
     setExportError('');
     setExportSuccess('');
     try {
       await fn();
-      setExportSuccess('Export klar!');
-      setTimeout(() => setExportSuccess(''), 3000);
+      setExportSuccess(successMsg);
+      setTimeout(() => setExportSuccess(''), 3500);
     } catch (e) {
       console.error('[Export]', e);
-      setExportError(e.message || 'Okänt exportfel.');
+      setExportError(e.message || 'Okänt exportfel — försök igen.');
       setTimeout(() => setExportError(''), 5000);
     } finally {
       setExporting(false);
@@ -29,27 +29,39 @@ export function useExport({ format = 'a4-portrait', cloudEnabled = true, yardNam
   }, []);
 
   const downloadPNG = useCallback(
-    () => run(() => exportAsPNG(EXPORT_ELEMENT_ID, `${filename}.png`)),
-    [run, filename]
+    () => run(
+      () => exportAsPNG(EXPORT_ELEMENT_ID, `${filename}.png`),
+      `✓ PNG nedladdad — ${filename}.png`,
+    ),
+    [run, filename],
   );
 
   const downloadPDF = useCallback(
-    () => run(() => exportAsPDF(EXPORT_ELEMENT_ID, format, `${filename}.pdf`)),
-    [run, filename, format]
+    () => run(
+      () => exportAsPDF(EXPORT_ELEMENT_ID, format, `${filename}.pdf`),
+      `✓ PDF skapad — ${filename}.pdf`,
+    ),
+    [run, filename, format],
   );
 
   const cloudExport = useCallback(() => {
     if (!cloudEnabled) {
-      setExportError('Moln-export är inaktiverad i inställningarna.');
+      setExportError('Molnexport är inaktiverad i inställningarna.');
       return;
     }
     const html = document.getElementById(EXPORT_ELEMENT_ID)?.outerHTML ?? '';
-    return run(() => exportViaCloud(html, format, `${filename}.pdf`));
+    return run(
+      () => exportViaCloud(html, format, `${filename}.pdf`),
+      '✓ Uppladdad till molnet',
+    );
   }, [run, cloudEnabled, format, filename]);
 
   const webShare = useCallback(
-    () => run(() => shareViaWebShare(EXPORT_ELEMENT_ID)),
-    [run]
+    () => run(
+      () => shareViaWebShare(EXPORT_ELEMENT_ID),
+      '✓ Delning öppnad',
+    ),
+    [run],
   );
 
   return { exporting, exportError, exportSuccess, downloadPNG, downloadPDF, cloudExport, webShare };
