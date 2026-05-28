@@ -4,23 +4,34 @@
  * Signerad borttagning av bild från Cloudinary.
  */
 import crypto from 'crypto';
+import { validatePublicId, isRateLimited, getClientIp, handleCors } from './_lib/validate.js';
 
 export default async function handler(req, res) {
+  if (handleCors(req, res)) return;
+
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { publicId } = req.body || {};
-  if (!publicId || typeof publicId !== 'string') {
-    return res.status(400).json({ error: 'publicId saknas i body' });
+  // Rate limiting
+  const ip = getClientIp(req);
+  if (isRateLimited(ip)) {
+    return res.status(429).json({ error: 'För många förfrågningar. Försök igen om en stund.' });
   }
+
+  // Validera och sanera publicId — förhindrar path traversal / injection
+  const idResult = validatePublicId(req.body?.publicId);
+  if (!idResult.ok) {
+    return res.status(400).json({ error: idResult.error });
+  }
+  const publicId = idResult.value;
 
   const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
   const cloudKey = process.env.CLOUDINARY_API_KEY;
   const cloudSecret = process.env.CLOUDINARY_API_SECRET;
 
   if (!cloudName || !cloudKey || !cloudSecret) {
-    return res.status(500).json({ error: 'Miljövariabler saknas' });
+    return res.status(500).json({ error: 'Konfigurationsfel på servern' });
   }
 
   const timestamp = Math.floor(Date.now() / 1000);
@@ -29,7 +40,7 @@ export default async function handler(req, res) {
 
   const form = new URLSearchParams();
   form.append('public_id', publicId);
-  form.append('timestamp', timestamp);
+  form.append('timestamp', String(timestamp));
   form.append('api_key', cloudKey);
   form.append('signature', signature);
 
@@ -40,6 +51,7 @@ export default async function handler(req, res) {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: form.toString(),
+        signal: AbortSignal.timeout(10000),
       }
     );
 
@@ -47,8 +59,11 @@ export default async function handler(req, res) {
     if (data.result === 'ok' || data.result === 'not found') {
       return res.status(200).json({ ok: true });
     }
-    return res.status(500).json({ error: `Cloudinary svarade: ${data.result}` });
+    return res.status(502).json({ error: 'Kunde inte ta bort bilden' });
   } catch (err) {
-    return res.status(500).json({ error: err.message });
+    if (err.name === 'TimeoutError') {
+      return res.status(504).json({ error: 'Tidsgräns nådd vid bildborttagning' });
+    }
+    return res.status(500).json({ error: 'Bildborttagning misslyckades' });
   }
 }
