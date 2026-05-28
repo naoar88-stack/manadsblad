@@ -4,9 +4,28 @@ import { Undo2, Redo2, LogOut, Cloud, CloudOff, Loader2, Menu, X, User } from 'l
 const TABS = ['Schema', 'Studio', 'Inställningar'];
 
 const TAB_ICONS = {
-  Schema:       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>,
-  Studio:       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>,
-  Inställningar:<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>,
+  Schema: (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <rect x="3" y="4" width="18" height="18" rx="2"/>
+      <line x1="16" y1="2" x2="16" y2="6"/>
+      <line x1="8" y1="2" x2="8" y2="6"/>
+      <line x1="3" y1="10" x2="21" y2="10"/>
+    </svg>
+  ),
+  Studio: (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M12 19l7-7 3 3-7 7-3-3z"/>
+      <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/>
+      <path d="M2 2l7.586 7.586"/>
+      <circle cx="11" cy="11" r="2"/>
+    </svg>
+  ),
+  Inställningar: (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="3"/>
+      <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/>
+    </svg>
+  ),
 };
 
 function SyncBadge({ status }) {
@@ -24,6 +43,33 @@ function SyncBadge({ status }) {
     <span className="badge badge-green" role="status">
       <Cloud size={10} aria-hidden="true" /> Sparat
     </span>
+  );
+}
+
+/* ── Logotyp — ren SVG, ingen blob-gradient ─────────────── */
+function Logo() {
+  return (
+    <div className="flex items-center gap-2.5 shrink-0 select-none" aria-label="Månadsblad">
+      <div
+        className="w-8 h-8 rounded-xl flex items-center justify-center"
+        style={{
+          background: '#4f46e5',
+          boxShadow: '0 1px 3px rgba(79,70,229,0.30), 0 4px 10px rgba(79,70,229,0.16)',
+        }}
+        aria-hidden="true"
+      >
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="3" y="4" width="18" height="18" rx="2"/>
+          <line x1="16" y1="2" x2="16" y2="6"/>
+          <line x1="8" y1="2" x2="8" y2="6"/>
+          <line x1="3" y1="10" x2="21" y2="10"/>
+        </svg>
+      </div>
+      <div className="hidden sm:flex flex-col leading-none">
+        <span className="font-extrabold text-slate-900 text-sm tracking-tight">Månadsblad</span>
+        <span className="text-[10px] font-bold text-indigo-600" style={{ letterSpacing: '0.06em' }}>FRITIDSGÅRD</span>
+      </div>
+    </div>
   );
 }
 
@@ -85,29 +131,11 @@ export function Header({ activeTab, setActiveTab, canUndo, canRedo, onUndo, onRe
   const handleTabClick = useCallback((tab) => { setActiveTab(tab); closeMenu(); }, [setActiveTab, closeMenu]);
 
   return (
-    <header className="sticky top-0 z-40 glass border-b border-black/[0.07] shadow-xs">
+    <header className="sticky top-0 z-40 glass border-b border-black/[0.07]" style={{ boxShadow: '0 1px 0 rgba(15,23,42,0.06)' }}>
       <div className="max-w-screen-xl mx-auto px-4 sm:px-6">
         <div className="flex items-center h-14 gap-3">
 
-          {/* Logo */}
-          <div className="flex items-center gap-2.5 shrink-0 select-none" aria-label="Månadsblad">
-            <div
-              className="w-8 h-8 rounded-xl flex items-center justify-center shadow-sm"
-              style={{ background: 'linear-gradient(135deg, #4560eb 0%, #7c3aed 100%)' }}
-              aria-hidden="true"
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="3" y="4" width="18" height="18" rx="2"/>
-                <line x1="16" y1="2" x2="16" y2="6"/>
-                <line x1="8" y1="2" x2="8" y2="6"/>
-                <line x1="3" y1="10" x2="21" y2="10"/>
-              </svg>
-            </div>
-            <div className="hidden sm:flex flex-col leading-none">
-              <span className="font-800 text-slate-900 text-sm tracking-tight" style={{ fontWeight: 800 }}>Månadsblad</span>
-              <span className="text-[10px] font-700 text-brand-600" style={{ fontWeight: 700, letterSpacing: '0.04em' }}>FRITIDSGÅRD</span>
-            </div>
-          </div>
+          <Logo />
 
           {/* Nav — desktop */}
           <nav className="hidden sm:flex items-center gap-0.5 mx-auto bg-black/[0.04] rounded-2xl p-1" aria-label="Huvudnavigering">
@@ -119,8 +147,9 @@ export function Header({ activeTab, setActiveTab, canUndo, canRedo, onUndo, onRe
                 className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 ${
                   activeTab === tab
                     ? 'bg-white text-slate-900 shadow-sm'
-                    : 'text-slate-500 hover:text-slate-700 hover:bg-white/60'
+                    : 'text-slate-500 hover:text-slate-700 hover:bg-white/60 active:bg-white/80 active:scale-95'
                 }`}
+                style={{ transitionProperty: 'background, color, transform, box-shadow' }}
               >
                 {TAB_ICONS[tab]}
                 {tab}
@@ -141,7 +170,7 @@ export function Header({ activeTab, setActiveTab, canUndo, canRedo, onUndo, onRe
                 disabled={!canUndo}
                 aria-label="Ångra (Ctrl+Z)"
                 title="Ångra (Ctrl+Z)"
-                className="h-8 w-8 rounded-lg flex items-center justify-center text-slate-500 hover:bg-white hover:text-slate-900 hover:shadow-xs transition-all disabled:opacity-30 disabled:pointer-events-none"
+                className="h-8 w-8 rounded-lg flex items-center justify-center text-slate-500 hover:bg-white hover:text-slate-900 hover:shadow-sm active:scale-90 active:bg-slate-100 transition-all disabled:opacity-30 disabled:pointer-events-none"
               >
                 <Undo2 size={13} aria-hidden="true" />
               </button>
@@ -150,7 +179,7 @@ export function Header({ activeTab, setActiveTab, canUndo, canRedo, onUndo, onRe
                 disabled={!canRedo}
                 aria-label="Gör om (Ctrl+Y)"
                 title="Gör om (Ctrl+Y)"
-                className="h-8 w-8 rounded-lg flex items-center justify-center text-slate-500 hover:bg-white hover:text-slate-900 hover:shadow-xs transition-all disabled:opacity-30 disabled:pointer-events-none"
+                className="h-8 w-8 rounded-lg flex items-center justify-center text-slate-500 hover:bg-white hover:text-slate-900 hover:shadow-sm active:scale-90 active:bg-slate-100 transition-all disabled:opacity-30 disabled:pointer-events-none"
               >
                 <Redo2 size={13} aria-hidden="true" />
               </button>
@@ -166,7 +195,7 @@ export function Header({ activeTab, setActiveTab, canUndo, canRedo, onUndo, onRe
               onClick={onLogout}
               aria-label="Logga ut"
               title="Logga ut"
-              className="h-8 w-8 rounded-xl flex items-center justify-center text-slate-400 hover:text-red-500 hover:bg-red-50 transition-all"
+              className="h-8 w-8 rounded-xl flex items-center justify-center text-slate-400 hover:text-red-500 hover:bg-red-50 active:scale-90 active:bg-red-100 transition-all"
             >
               <LogOut size={14} aria-hidden="true" />
             </button>
@@ -177,12 +206,40 @@ export function Header({ activeTab, setActiveTab, canUndo, canRedo, onUndo, onRe
               aria-label={mobileOpen ? 'Stäng meny' : 'Öppna meny'}
               aria-expanded={mobileOpen}
               aria-controls="mobile-nav"
-              className="sm:hidden h-9 w-9 rounded-xl flex items-center justify-center text-slate-600 hover:bg-black/[0.06] transition-all"
+              className="sm:hidden h-9 w-9 rounded-xl flex items-center justify-center text-slate-600 hover:bg-black/[0.06] active:bg-black/[0.10] active:scale-90 transition-all"
             >
-              {mobileOpen ? <X size={17} aria-hidden="true" /> : <Menu size={17} aria-hidden="true" />}
+              <span
+                style={{
+                  display: 'grid',
+                  placeItems: 'center',
+                  transition: 'transform 200ms cubic-bezier(0.16,1,0.3,1)',
+                  transform: mobileOpen ? 'rotate(90deg)' : 'rotate(0deg)',
+                }}
+              >
+                {mobileOpen ? <X size={17} aria-hidden="true" /> : <Menu size={17} aria-hidden="true" />}
+              </span>
             </button>
           </div>
         </div>
+
+        {/* Mobile backdrop */}
+        {mobileOpen && (
+          <div
+            aria-hidden="true"
+            onClick={closeMenu}
+            style={{
+              position: 'fixed',
+              inset: '56px 0 0 0',
+              background: 'rgba(15,23,42,0.25)',
+              backdropFilter: 'blur(2px)',
+              WebkitBackdropFilter: 'blur(2px)',
+              zIndex: 30,
+              opacity: visible ? 1 : 0,
+              transition: 'opacity 200ms ease',
+              pointerEvents: visible ? 'auto' : 'none',
+            }}
+          />
+        )}
 
         {/* Mobile menu */}
         {mobileOpen && (
@@ -195,6 +252,8 @@ export function Header({ activeTab, setActiveTab, canUndo, canRedo, onUndo, onRe
               maxHeight: visible ? '320px' : '0',
               opacity:   visible ? 1 : 0,
               transition: 'max-height 220ms cubic-bezier(0.16,1,0.3,1), opacity 180ms ease',
+              position: 'relative',
+              zIndex: 40,
             }}
           >
             <div className="border-t border-black/[0.06] py-3 space-y-1">
@@ -203,19 +262,26 @@ export function Header({ activeTab, setActiveTab, canUndo, canRedo, onUndo, onRe
                   key={tab}
                   onClick={() => handleTabClick(tab)}
                   aria-current={activeTab === tab ? 'page' : undefined}
-                  className={`w-full text-left flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all ${
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all active:scale-[0.97] ${
                     activeTab === tab
-                      ? 'bg-slate-900 text-white'
+                      ? 'bg-indigo-50 text-indigo-700'
                       : 'text-slate-600 hover:bg-black/[0.04]'
                   }`}
                 >
                   {TAB_ICONS[tab]}
                   {tab}
+                  {activeTab === tab && (
+                    <span className="ml-auto w-1.5 h-1.5 rounded-full bg-indigo-500" aria-hidden="true" />
+                  )}
                 </button>
               ))}
-              <div className="pt-2 px-4 flex items-center justify-between">
+              <div className="pt-2 mt-2 border-t border-black/[0.06] px-4 pb-1 flex items-center justify-between">
                 <SyncBadge status={syncStatus} />
-                {isAnon && <span className="text-[11px] text-slate-400 font-medium">Anonymt konto</span>}
+                {isAnon && (
+                  <span className="flex items-center gap-1 text-[11px] font-semibold text-slate-400">
+                    <User size={10} aria-hidden="true" /> Anonymt
+                  </span>
+                )}
               </div>
             </div>
           </nav>

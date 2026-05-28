@@ -1,43 +1,77 @@
+import React from 'react';
+
 /**
  * EmptyState — generisk tom-tillstånds-komponent.
  * Props:
- *   icon      — Lucide-ikonelement (valfritt)
- *   title     — Rubrik (sträng)
- *   body      — Beskrivning (sträng, valfritt)
- *   action    — { label, onClick } (valfritt)
- *   className — extra Tailwind-klasser
+ *   icon      — emoji eller React-nod
+ *   title     — rubrik
+ *   message   — förklarande text
+ *   action    — { label, onClick } knappkonfiguration
+ *   compact   — boolean, smalare padding
  */
-import React from 'react';
-
-export function EmptyState({ icon, title, body, action, className = '' }) {
+export function EmptyState({ icon, title, message, action, compact = false }) {
   return (
     <div
-      className={`flex flex-col items-center justify-center text-center py-20 px-8 animate-in ${className}`}
+      className={`flex flex-col items-center text-center ${
+        compact ? 'py-8 px-4' : 'py-16 px-6'
+      }`}
       role="status"
+      aria-label={title}
     >
+      {/* Icon / illustration */}
       {icon && (
         <div
-          className="mb-5 w-16 h-16 rounded-2xl flex items-center justify-center"
+          className="mb-4 select-none"
           style={{
-            background: 'linear-gradient(135deg, #f0f4ff 0%, #e8ecff 100%)',
-            border: '1px solid rgba(91,120,246,0.15)',
+            fontSize: compact ? '2rem' : '2.75rem',
+            lineHeight: 1,
+            animation: 'emptyStateBounce 2.4s cubic-bezier(0.36,0.07,0.19,0.97) infinite',
+            display: 'inline-block',
           }}
+          aria-hidden="true"
         >
-          {React.cloneElement(icon, { className: 'w-7 h-7 text-brand-500', strokeWidth: 1.5 })}
+          {icon}
         </div>
       )}
-      <h3 className="text-base font-bold text-slate-800 mb-2">{title}</h3>
-      {body && (
-        <p className="text-sm text-slate-400 font-medium max-w-[280px] mb-7 leading-relaxed">{body}</p>
+
+      {/* Title */}
+      {title && (
+        <h3
+          className="font-bold text-slate-700 mb-1.5"
+          style={{ fontSize: compact ? '0.9375rem' : '1rem' }}
+        >
+          {title}
+        </h3>
       )}
+
+      {/* Message */}
+      {message && (
+        <p className="text-sm text-slate-400 max-w-[280px] leading-relaxed mb-5">
+          {message}
+        </p>
+      )}
+
+      {/* Action */}
       {action && (
         <button
           onClick={action.onClick}
-          className="btn-primary px-5 h-10 text-sm"
+          className="btn-primary px-5 text-sm"
+          style={{ minHeight: '40px' }}
         >
           {action.label}
         </button>
       )}
+
+      <style>{`
+        @keyframes emptyStateBounce {
+          0%, 100% { transform: translateY(0); }
+          40%       { transform: translateY(-6px); }
+          60%       { transform: translateY(-3px); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          @keyframes emptyStateBounce { 0%, 100% { transform: none; } }
+        }
+      `}</style>
     </div>
   );
 }

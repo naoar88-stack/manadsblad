@@ -11,7 +11,6 @@ export const BentoDayCard = memo(function BentoDayCard({ day, activities, onDrop
   };
 
   const handleDragLeave = (e) => {
-    // Ignorera om pekaren rör sig till ett barn-element
     if (!e.currentTarget.contains(e.relatedTarget)) {
       setIsOver(false);
     }
@@ -36,16 +35,13 @@ export const BentoDayCard = memo(function BentoDayCard({ day, activities, onDrop
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
       className={`relative min-h-[128px] p-4 rounded-2xl flex flex-col gap-2 transition-all duration-200 ${
-        isOver
-          ? 'drag-over'
-          : 'day-card'
+        isOver ? 'drag-over' : 'day-card'
       }`}
     >
       {/* Day header */}
       <div className="flex items-center justify-between mb-1">
         <span
-          className="text-base font-black text-slate-800 tabular-nums leading-none"
-          style={{ fontWeight: 800 }}
+          className="text-base font-extrabold text-slate-800 tabular-nums leading-none"
         >
           {day}
         </span>
@@ -61,36 +57,43 @@ export const BentoDayCard = memo(function BentoDayCard({ day, activities, onDrop
 
       {/* Activities */}
       <div className="flex flex-col gap-1.5 flex-grow">
-        {isEmpty && (
+        {isEmpty ? (
           <div
-            className="flex-1 flex items-center justify-center min-h-[56px] rounded-xl border-2 border-dashed transition-all"
-            style={{ borderColor: isOver ? 'rgba(91,120,246,0.4)' : 'rgba(15,23,42,0.08)' }}
+            className="flex-1 flex items-center justify-center min-h-[56px] rounded-xl border-2 border-dashed transition-all duration-200"
+            style={{
+              borderColor: isOver ? 'rgba(99,102,241,0.45)' : 'rgba(15,23,42,0.08)',
+              background: isOver ? 'rgba(99,102,241,0.04)' : 'transparent',
+            }}
             aria-hidden="true"
           >
-            <span className="text-xs text-slate-300 font-medium select-none">
-              {isOver ? 'Släpp här' : 'Dra aktivitet hit'}
+            <span
+              className="text-xs font-medium select-none transition-all duration-150"
+              style={{ color: isOver ? 'rgb(99,102,241)' : 'rgb(148,163,184)' }}
+            >
+              {isOver ? '✦ Släpp här' : 'Dra aktivitet hit'}
             </span>
           </div>
-        )}
-
-        {activities?.map((act) => (
-          <div
-            key={act.uniqueId}
-            className={`group activity-pill justify-between ${act.color} bg-opacity-50`}
-          >
-            <div className="flex items-center gap-1.5 truncate min-w-0">
-              <span className="text-sm leading-none flex-shrink-0">{act.icon}</span>
-              <span className="truncate text-xs font-semibold">{act.title}</span>
-            </div>
-            <button
-              onClick={() => onRemoveActivity(day, act.uniqueId)}
-              className="opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 ml-1 p-1 hover:bg-white/60 rounded-md transition-all flex-shrink-0"
-              aria-label={`Ta bort ${act.title}`}
+        ) : (
+          activities.map((act) => (
+            <div
+              key={act.uniqueId}
+              className={`group activity-pill justify-between ${act.color} bg-opacity-50`}
             >
-              <Trash2 className="w-3 h-3 text-slate-600" />
-            </button>
-          </div>
-        ))}
+              <div className="flex items-center gap-1.5 truncate min-w-0">
+                <span className="text-sm leading-none flex-shrink-0">{act.icon}</span>
+                <span className="truncate text-xs font-semibold">{act.title}</span>
+              </div>
+              <button
+                onClick={() => onRemoveActivity(day, act.uniqueId)}
+                className="opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 ml-1 p-1 hover:bg-white/60 active:bg-white/80 active:scale-90 rounded-md transition-all flex-shrink-0"
+                aria-label={`Ta bort ${act.title}`}
+                tabIndex={0}
+              >
+                <Trash2 size={12} aria-hidden="true" />
+              </button>
+            </div>
+          ))
+        )}
       </div>
     </div>
   );
