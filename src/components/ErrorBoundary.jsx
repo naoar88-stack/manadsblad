@@ -6,6 +6,10 @@ import { AlertTriangle, RefreshCw } from 'lucide-react';
  * Fångar JavaScript-fel i komponentträdet och visar ett
  * återhämtningsbart felmeddelande istället för vit skärm.
  *
+ * Chunk-fel (dynamiska importer som misslyckas efter ny deploy):
+ *   Identifieras via "Failed to fetch dynamically imported module" i felmeddelandet.
+ *   Sidan laddas om automatiskt EN gång (sessionStorage-flagga förhindrar loop).
+ *
  * Användning:
  *   <ErrorBoundary>
  *     <MinKomponent />
@@ -15,32 +19,58 @@ import { AlertTriangle, RefreshCw } from 'lucide-react';
  *     <MinKomponent />
  *   </ErrorBoundary>
  */
+
+const CHUNK_ERROR_PATTERNS = [
+  'Failed to fetch dynamically imported module',
+  'Importing a module script failed',
+  'error loading dynamically imported module',
+  'ChunkLoadError',
+];
+
+function isChunkError(error) {
+  const msg = error?.message || '';
+  return CHUNK_ERROR_PATTERNS.some(p => msg.includes(p));
+}
+
 export class ErrorBoundary extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { hasError: false, error: null };
+    this.state = { hasError: false, error: null, isChunkError: false };
   }
 
   static getDerivedStateFromError(error) {
-    return { hasError: true, error };
+    const chunkErr = isChunkError(error);
+
+    // Auto-reload vid chunk-fel — max en gång per session för att undvika loop
+    if (chunkErr && !sessionStorage.getItem('chunk_reload_attempted')) {
+      sessionStorage.setItem('chunk_reload_attempted', '1');
+      window.location.reload();
+      // Returnera state ändå — reload är async, render kan hinna köras
+    }
+
+    return { hasError: true, error, isChunkError: chunkErr };
   }
 
   componentDidCatch(error, info) {
-    // Logga till konsolen i dev; byt ut mot Sentry/Logtail i produktion
     console.error('[ErrorBoundary] Ohanterat fel:', error, info.componentStack);
   }
 
   handleReset = () => {
-    this.setState({ hasError: false, error: null });
+    this.setState({ hasError: false, error: null, isChunkError: false });
+  };
+
+  handleReload = () => {
+    sessionStorage.removeItem('chunk_reload_attempted');
+    window.location.reload();
   };
 
   render() {
     if (!this.state.hasError) return this.props.children;
 
-    // Anpassat fallback om props.fallback skickas in
     if (this.props.fallback) return this.props.fallback;
 
-    // Standard-felvy
+    const { isChunkError: isChunk, error } = this.state;
+
     return (
       <div
         role="alert"
@@ -73,7 +103,7 @@ export class ErrorBoundary extends React.Component {
 
         <div>
           <p style={{ fontWeight: 700, fontSize: 16, color: '#1e293b', marginBottom: 6 }}>
-            Något gick fel
+            {isChunk ? 'Ny version tillgänglig' : 'Något gick fel'}
           </p>
           <p
             style={{
@@ -83,12 +113,14 @@ export class ErrorBoundary extends React.Component {
               lineHeight: 1.6,
             }}
           >
-            {this.state.error?.message || 'Ett oväntat fel inträffade.'}
+            {isChunk
+              ? 'Appen har uppdaterats. Ladda om sidan för att fortsätta.'
+              : (error?.message || 'Ett oväntat fel inträffade.')}
           </p>
         </div>
 
         <button
-          onClick={this.handleReset}
+          onClick={isChunk ? this.handleReload : this.handleReset}
           style={{
             display: 'flex',
             alignItems: 'center',
@@ -104,7 +136,7 @@ export class ErrorBoundary extends React.Component {
           }}
         >
           <RefreshCw size={14} />
-          Försök igen
+          {isChunk ? 'Ladda om' : 'Försök igen'}
         </button>
       </div>
     );
