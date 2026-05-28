@@ -46,15 +46,19 @@ async function captureElement(elementId, scale = 2) {
 
   const prevTransform       = el.style.transform;
   const prevTransformOrigin = el.style.transformOrigin;
-  el.style.transform        = 'none';
-  el.style.transformOrigin  = 'top left';
 
-  // Vänta två frames så layouten hinner stabiliseras
-  await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
-
-  let canvas;
+  // Bug 10-fix: återställ transform i finally så UI aldrig lämnas i skadat tillstånd
   try {
-    canvas = await html2canvas(el, {
+    el.style.transform       = 'none';
+    el.style.transformOrigin = 'top left';
+
+    // Vänta två frames så layouten hinner stabiliseras
+    await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+
+    // Bug 9-fix: inline externa bilder innan html2canvas körs
+    await inlineImages(el);
+
+    return await html2canvas(el, {
       scale,
       useCORS:         true,
       allowTaint:      false,
@@ -64,11 +68,10 @@ async function captureElement(elementId, scale = 2) {
       logging:         false,
       imageTimeout:    8000,
       onclone: (_doc, clonedEl) => {
-        // Förbättra rendering och ersätt brutna bilder med en transparent placeholder
         clonedEl.querySelectorAll('img').forEach(img => {
           img.style.imageRendering = 'high-quality';
           img.onerror = () => {
-            img.style.visibility = 'hidden'; // Göm bruten bild utan att rubba layout
+            img.style.visibility = 'hidden';
           };
         });
       },
@@ -77,8 +80,6 @@ async function captureElement(elementId, scale = 2) {
     el.style.transform       = prevTransform;
     el.style.transformOrigin = prevTransformOrigin;
   }
-
-  return canvas;
 }
 
 export async function exportAsPNG(elementId, filename = 'manadsblad.png') {
@@ -89,9 +90,10 @@ export async function exportAsPNG(elementId, filename = 'manadsblad.png') {
   link.click();
 }
 
-export async function exportAsPDF(elementId, format = 'a4-portrait', filename = 'manadsblad.pdf') {
+export async function exportAsPDF(elementId, format = 'a4', filename = 'manadsblad.pdf') {
   const canvas = await captureElement(elementId, 2);
 
+  // Bug 11-fix: `format` skickas nu korrekt från useExport → rätt orientering/dimensioner
   const { orientation, format: pdfFormat } = getPdfPageDimensions(format);
   const pdf = new jsPDF({ orientation, unit: 'mm', format: pdfFormat, compress: true });
 
