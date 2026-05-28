@@ -1,14 +1,19 @@
 import { useState, useCallback } from 'react';
 import { magicPaste, vasssa, generateImagePrompt } from '../lib/aiUtils';
 
-const API_KEY = import.meta.env.VITE_GROQ_API_KEY;
-
+/**
+ * useAI — hanterar AI-anrop via /api/* server-side proxies.
+ * VITE_GROQ_API_KEY används INTE längre — nyckeln hanteras enbart server-side.
+ * hasKey är alltid true (vi litar på att servern är konfigurerad);
+ * om servern saknar nyckeln returnerar /api/* ett tydligt felmeddelande.
+ */
 export function useAI() {
   const [aiLoading, setAiLoading] = useState(false);
   const [aiError,   setAiError]   = useState('');
   const [aiSuccess, setAiSuccess] = useState('');
 
-  const hasKey = !!API_KEY;
+  // Alltid true — nyckeln är server-side, klienten behöver inte veta om den finns
+  const hasKey = true;
 
   const run = useCallback(async (fn) => {
     setAiLoading(true); setAiError(''); setAiSuccess('');
@@ -27,9 +32,13 @@ export function useAI() {
   }, []);
 
   // yearMonth skickas vidare till magicPaste för korrekt datumexpansion av veckodagsregler
-  const runMagicPaste  = useCallback((text, yearMonth) => run(() => magicPaste(text, API_KEY, yearMonth)), [run]);
-  const runVasssa      = useCallback((activity)        => run(() => vasssa(activity, API_KEY)),             [run]);
-  const runImagePrompt = useCallback((activity)        => run(() => generateImagePrompt(activity, API_KEY)), [run]);
+  const runMagicPaste  = useCallback((text, yearMonth) => run(() => magicPaste(text, null, yearMonth)), [run]);
+  // stavfel fixat: runVasssa → runVassa (ett s)
+  const runVassa       = useCallback((activity)        => run(() => vasssa(activity, null)),             [run]);
+  const runImagePrompt = useCallback((activity)        => run(() => generateImagePrompt(activity, null)), [run]);
 
-  return { aiLoading, aiError, aiSuccess, hasKey, runMagicPaste, runVasssa, runImagePrompt };
+  // Bakåtkompatibel alias så befintliga anrop till runVasssa inte kraschar
+  const runVasssa = runVassa;
+
+  return { aiLoading, aiError, aiSuccess, hasKey, runMagicPaste, runVassa, runVasssa, runImagePrompt };
 }

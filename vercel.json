@@ -6,6 +6,22 @@
     "api/export.js": {
       "memory": 1024,
       "maxDuration": 30
+    },
+    "api/generate-image.js": {
+      "memory": 512,
+      "maxDuration": 30
+    },
+    "api/magic-paste.js": {
+      "memory": 256,
+      "maxDuration": 25
+    },
+    "api/improve-text.js": {
+      "memory": 256,
+      "maxDuration": 15
+    },
+    "api/delete-image.js": {
+      "memory": 256,
+      "maxDuration": 10
     }
   },
   "headers": [

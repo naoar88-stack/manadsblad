@@ -4,17 +4,17 @@ import { useAI } from '../hooks/useAI';
 
 /**
  * Inline Vässa-knapp som visas bredvid aktivitetens titel i SchemaView.
- * Klick → Gemini förbättrar titel + beskrivning → anropar onUpdate.
+ * Klick → Groq förbättrar titel + beskrivning → anropar onUpdate.
+ * Anrop sker via /api/improve-text (server-side proxy — nyckeln exponeras aldrig).
  */
 export function VassaButton({ activity, onUpdate }) {
-  const { aiLoading, runVasssa, hasKey } = useAI();
+  // stavfel fixat: runVasssa (3s) → runVassa (1s)
+  const { aiLoading, runVassa } = useAI();
   const [done, setDone] = useState(false);
 
-  if (!hasKey) return null;
-
-  const handleVasssa = async (e) => {
+  const handleVassa = async (e) => {
     e.stopPropagation();
-    const result = await runVasssa(activity);
+    const result = await runVassa(activity);
     if (result) {
       onUpdate(result);
       setDone(true);
@@ -24,10 +24,11 @@ export function VassaButton({ activity, onUpdate }) {
 
   return (
     <button
-      onClick={handleVasssa}
+      onClick={handleVassa}
       disabled={aiLoading}
-      title="Vässa med Gemini AI"
+      title="Vässa med AI"
       aria-label={done ? 'Vassad!' : 'Vässa aktivitet med AI'}
+      aria-busy={aiLoading}
       className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-semibold
         border transition-all duration-150 active:scale-95
         disabled:opacity-60 disabled:pointer-events-none
