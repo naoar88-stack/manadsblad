@@ -1,0 +1,72 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // === STANDARD: ingen publik atkomst ===
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // === ANVANDARE ===
+    // Anvandare kan bara lasa och skriva sin egen data.
+    match /users/{userId} {
+      allow read, update: if request.auth != null
+                          && request.auth.uid == userId;
+      allow create: if request.auth != null
+                    && request.auth.uid == userId;
+    }
+
+    // === MANGADSBLAD (scheman) ===
+    // Anvandare kan bara skapa/lasa/uppdatera sina egna mangadsblad.
+    match /users/{userId}/sheets/{sheetId} {
+      allow read: if request.auth != null
+                  && request.auth.uid == userId;
+
+      allow create: if request.auth != null
+                    && request.auth.uid == userId
+                    // Obligatoriska falt maste finnas
+                    && request.resource.data.keys().hasAll(['title', 'month', 'year'])
+                    // title: strang, max 100 tecken
+                    && request.resource.data.title is string
+                    && request.resource.data.title.size() > 0
+                    && request.resource.data.title.size() <= 100
+                    // month: heltal 1-12
+                    && request.resource.data.month is int
+                    && request.resource.data.month >= 1
+                    && request.resource.data.month <= 12
+                    // year: rimligt intervall
+                    && request.resource.data.year is int
+                    && request.resource.data.year >= 2020
+                    && request.resource.data.year <= 2100;
+
+      allow update: if request.auth != null
+                    && request.auth.uid == userId
+                    // Skyddade falt far inte andras
+                    && !request.resource.data.diff(resource.data)
+                        .affectedKeys()
+                        .hasAny(['createdAt', 'userId']);
+
+      allow delete: if request.auth != null
+                    && request.auth.uid == userId;
+    }
+
+    // === AKTIVITETER ===
+    match /users/{userId}/sheets/{sheetId}/activities/{activityId} {
+      allow read, write: if request.auth != null
+                         && request.auth.uid == userId;
+    }
+
+    // === INSTALLNINGAR ===
+    match /users/{userId}/settings/{settingId} {
+      allow read, write: if request.auth != null
+                         && request.auth.uid == userId;
+    }
+
+    // === MALLAR (templates) ===
+    match /users/{userId}/templates/{templateId} {
+      allow read, write: if request.auth != null
+                         && request.auth.uid == userId;
+    }
+
+  }
+}
