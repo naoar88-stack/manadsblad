@@ -1,1 +1,69 @@
-aW1wb3J0IHsgdXNlU3RhdGUsIHVzZUVmZmVjdCwgdXNlUmVmLCB1c2VNZW1vLCB1c2VDYWxsYmFjayB9IGZyb20gJ3JlYWN0JzsKCmV4cG9ydCBmdW5jdGlvbiB1c2VTY2hlZHVsZShtb250aEtleSwgb3BlbkRheXMpIHsKICBjb25zdCBbYWN0aXZpdGllc01hcCwgc2V0QWN0aXZpdGllc01hcF0gPSB1c2VTdGF0ZSh7fSk7CiAgY29uc3QgW3RlbXBsYXRlcywgc2V0VGVtcGxhdGVzXSAgICAgICAgID0gdXNlU3RhdGUoW10pOwogIGNvbnN0IHByZXZNb250aEtleSA9IHVzZVJlZihtb250aEtleSk7CgogIHVzZUVmZmVjdCgoKSA9PiB7CiAgICBwcmV2TW9udGhLZXkuY3VycmVudCA9IG1vbnRoS2V5OwogICAgc2V0QWN0aXZpdGllc01hcChwcmV2ID0+IHsKICAgICAgaWYgKHByZXZbbW9udGhLZXldICE9PSB1bmRlZmluZWQpIHJldHVybiBwcmV2OwogICAgICByZXR1cm4geyAuLi5wcmV2LCBbbW9udGhLZXldOiBbXSB9OwogICAgfSk7CiAgfSwgW21vbnRoS2V5XSk7CgogIGNvbnN0IGFjdGl2aXRpZXMgPSBhY3Rpdml0aWVzTWFwW21vbnRoS2V5XSA/PyBbXTsKCiAgLy8gRklYOiB1c2VDYWxsYmFjayBtZWQgZnVua3Rpb25lbGwgdXBwZGF0ZXJpbmcg4oaSIGFsZHJpZyBzdGFsZSBjbG9zdXJlCiAgY29uc3Qgc2V0QWN0aXZpdGllcyA9IHVzZUNhbGxiYWNrKChuZXdBY3RzKSA9PiB7CiAgICBzZXRBY3Rpdml0aWVzTWFwKHByZXYgPT4gewogICAgICBjb25zdCBjdXJyZW50ID0gcHJldlttb250aEtleV0gPz8gW107CiAgICAgIGNvbnN0IHVwZGF0ZWQgPSB0eXBlb2YgbmV3QWN0cyA9PT0gJ2Z1bmN0aW9uJyA/IG5ld0FjdHMoY3VycmVudCkgOiBuZXdBY3RzOwogICAgICByZXR1cm4geyAuLi5wcmV2LCBbbW9udGhLZXldOiB1cGRhdGVkIH07CiAgICB9KTsKICB9LCBbbW9udGhLZXldKTsKCiAgLy8gTGFncmFyIGFrdGl2aXRldGVyIHVuZGVyIHLDpHR0IG3DpW5hZHNueWNrZWxuIChzcGlsbGRhZ2FyKQogIGNvbnN0IHNldEFjdGl2aXRpZXNHbG9iYWwgPSB1c2VDYWxsYmFjaygoYWN0cykgPT4gewogICAgc2V0QWN0aXZpdGllc01hcChwcmV2ID0+IHsKICAgICAgY29uc3QgbmV4dCA9IHsgLi4ucHJldiB9OwogICAgICBhY3RzLmZvckVhY2goYSA9PiB7CiAgICAgICAgY29uc3QgZCAgID0gYS5kYXRlIGluc3RhbmNlb2YgRGF0ZSA/IGEuZGF0ZSA6IG5ldyBEYXRlKGEuZGF0ZSk7CiAgICAgICAgY29uc3Qga2V5ID0gYCR7ZC5nZXRGdWxsWWVhcigpfS0ke1N0cmluZyhkLmdldE1vbnRoKCkgKyAxKS5wYWRTdGFydCgyLCcwJyl9YDsKICAgICAgICBpZiAoIW5leHRba2V5XSkgbmV4dFtrZXldID0gW107CiAgICAgICAgY29uc3QgZXhpc3RzID0gbmV4dFtrZXldLmZpbmRJbmRleCh4ID0+IHguaWQgPT09IGEuaWQpOwogICAgICAgIGlmIChleGlzdHMgPT09IC0xKSB7CiAgICAgICAgICBuZXh0W2tleV0gPSBbLi4ubmV4dFtrZXldLCBhXTsKICAgICAgICB9IGVsc2UgewogICAgICAgICAgbmV4dFtrZXldID0gbmV4dFtrZXldLm1hcCh4ID0+IHguaWQgPT09IGEuaWQgPyBhIDogeCk7CiAgICAgICAgfQogICAgICB9KTsKICAgICAgcmV0dXJuIG5leHQ7CiAgICB9KTsKICB9LCBbXSk7CgogIGNvbnN0IHNjaGVkdWxlID0gdXNlTWVtbygoKSA9PiB7CiAgICBjb25zdCBtYXAgPSB7fTsKICAgIGFjdGl2aXRpZXMuZm9yRWFjaChhID0+IHsKICAgICAgY29uc3QgZCA9IGEuZGF0ZSBpbnN0YW5jZW9mIERhdGUgPyBhLmRhdGUgOiBuZXcgRGF0ZShhLmRhdGUpOwogICAgICBtYXBbZC5nZXREYXRlKCldID0gYTsKICAgIH0pOwogICAgcmV0dXJuIG1hcDsKICB9LCBbYWN0aXZpdGllc10pOwoKICBjb25zdCBhZGRUZW1wbGF0ZSA9IHVzZUNhbGxiYWNrKCh0KSA9PiB7CiAgICBzZXRUZW1wbGF0ZXMocHJldiA9PiBbLi4ucHJldiwgeyAuLi50LCBpZDogY3J5cHRvLnJhbmRvbVVVSUQoKSwgY3JlYXRlZEF0OiBuZXcgRGF0ZSgpIH1dKTsKICB9LCBbXSk7CgogIHJldHVybiB7CiAgICBzY2hlZHVsZSwKICAgIGFjdGl2aXRpZXMsCiAgICBzZXRBY3Rpdml0aWVzLAogICAgc2V0QWN0aXZpdGllc0dsb2JhbCwKICAgIGFjdGl2aXRpZXNNYXAsCiAgICBzZXRBY3Rpdml0aWVzTWFwLAogICAgdGVtcGxhdGVzLAogICAgYWRkVGVtcGxhdGUsCiAgfTsKfQo=
+import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+
+export function useSchedule(monthKey, openDays) {
+  const [activitiesMap, setActivitiesMap] = useState({});
+  const [templates, setTemplates]         = useState([]);
+  const prevMonthKey = useRef(monthKey);
+
+  useEffect(() => {
+    prevMonthKey.current = monthKey;
+    setActivitiesMap(prev => {
+      if (prev[monthKey] !== undefined) return prev;
+      return { ...prev, [monthKey]: [] };
+    });
+  }, [monthKey]);
+
+  const activities = activitiesMap[monthKey] ?? [];
+
+  // FIX: useCallback med funktionell uppdatering → aldrig stale closure
+  const setActivities = useCallback((newActs) => {
+    setActivitiesMap(prev => {
+      const current = prev[monthKey] ?? [];
+      const updated = typeof newActs === 'function' ? newActs(current) : newActs;
+      return { ...prev, [monthKey]: updated };
+    });
+  }, [monthKey]);
+
+  // Lagrar aktiviteter under rätt månadsnyckeln (spilldagar)
+  const setActivitiesGlobal = useCallback((acts) => {
+    setActivitiesMap(prev => {
+      const next = { ...prev };
+      acts.forEach(a => {
+        const d   = a.date instanceof Date ? a.date : new Date(a.date);
+        const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2,'0')}`;
+        if (!next[key]) next[key] = [];
+        const exists = next[key].findIndex(x => x.id === a.id);
+        if (exists === -1) {
+          next[key] = [...next[key], a];
+        } else {
+          next[key] = next[key].map(x => x.id === a.id ? a : x);
+        }
+      });
+      return next;
+    });
+  }, []);
+
+  const schedule = useMemo(() => {
+    const map = {};
+    activities.forEach(a => {
+      const d = a.date instanceof Date ? a.date : new Date(a.date);
+      map[d.getDate()] = a;
+    });
+    return map;
+  }, [activities]);
+
+  const addTemplate = useCallback((t) => {
+    setTemplates(prev => [...prev, { ...t, id: crypto.randomUUID(), createdAt: new Date() }]);
+  }, []);
+
+  return {
+    schedule,
+    activities,
+    setActivities,
+    setActivitiesGlobal,
+    activitiesMap,
+    setActivitiesMap,
+    templates,
+    addTemplate,
+  };
+}
