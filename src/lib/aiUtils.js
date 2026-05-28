@@ -12,17 +12,14 @@ function parseYearMonth(yearMonth) {
     const n = new Date();
     return { year: n.getFullYear(), month: n.getMonth() + 1 };
   }
-  // Format "YYYY-MM"
   if (/^\d{4}-\d{2}$/.test(yearMonth.trim())) {
     const [y, m] = yearMonth.split('-').map(Number);
     return { year: y, month: m };
   }
-  // Format "Maj 2026" eller "maj 2026"
   const parts = yearMonth.trim().toLowerCase().split(/\s+/);
   const monthNum = MONTH_MAP[parts[0]];
   const yearNum  = parseInt(parts[1]);
   if (monthNum && yearNum) return { year: yearNum, month: monthNum };
-  // Fallback
   const n = new Date();
   return { year: n.getFullYear(), month: n.getMonth() + 1 };
 }
@@ -52,15 +49,13 @@ async function callGroq(prompt, apiKey) {
 
 /**
  * Magic Paste — returnerar array av aktiviteter med dateKey (YYYY-MM-DD).
- * Expanderar veckodagsregler ("alla onsdagar = matlagning") till ALLA matchande datum i månaden.
- * yearMonth kan vara "Maj 2026" eller "2026-05"
  */
 export async function magicPaste(rawText, apiKey, yearMonth) {
   const { year, month } = parseYearMonth(yearMonth);
 
   const WEEKDAY_SV = ['söndag','måndag','tisdag','onsdag','torsdag','fredag','lördag'];
   const allDates = [];
-  const daysInMonth = new Date(year, month, 0).getDate(); // month är 1-baserat, new Date(y,m,0) ger sista dagen i month-1
+  const daysInMonth = new Date(year, month, 0).getDate();
 
   for (let d = 1; d <= daysInMonth; d++) {
     const date = new Date(year, month - 1, d);
@@ -110,7 +105,7 @@ ${rawText}`;
     return parsed.filter(p =>
       p.dateKey &&
       /^\d{4}-\d{2}-\d{2}$/.test(p.dateKey) &&
-      validDates.has(p.dateKey)  // ← extra kontroll: bara datum som faktiskt finns i månaden
+      validDates.has(p.dateKey)
     );
   } catch {
     const match = raw.match(/\[.*\]/s);
@@ -135,4 +130,36 @@ export async function vasssa(activity, apiKey) {
 export async function generateImagePrompt(activity, apiKey) {
   const prompt = `Skapa ett kort bildprompt på engelska för en aktivitetsbild. Max 20 ord. Bara prompten:\n${activity.title}: ${activity.description}`;
   return await callGroq(prompt, apiKey);
+}
+
+/**
+ * Bug 14-fix: generateActivityImage — anropas av useAiActions.
+ * Postar till /api/generate-image (server-side Pollinations → Cloudinary)
+ * och returnerar { url, publicId }.
+ */
+export async function generateActivityImage(text) {
+  const res = await fetch('/api/generate-image', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ text: String(text).slice(0, 200) }),
+  });
+  const data = await res.json();
+  if (!res.ok || !data.url) {
+    throw new Error(data.error || `Bildgenerering misslyckades: ${res.status}`);
+  }
+  return { url: data.url, publicId: data.publicId };
+}
+
+/**
+ * Bug 14-fix: improveActivityText — anropas av useAiActions.
+ * Wrapper runt vasssa utan krav på ett fullt activity-objekt.
+ */
+export async function improveActivityText(text) {
+  const API_KEY = typeof import.meta !== 'undefined'
+    ? import.meta.env?.VITE_GROQ_API_KEY
+    : undefined;
+  return await callGroq(
+    `Förbättra denna aktivitetsbeskrivning för en fritidsgård. Gör den catchy och inbjudande. Max 100 tecken. Bara texten, inget annat:\n${text}`,
+    API_KEY,
+  );
 }
