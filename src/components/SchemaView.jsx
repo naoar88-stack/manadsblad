@@ -1,1 +1,436 @@
-aW1wb3J0IFJlYWN0LCB7IHVzZVN0YXRlLCB1c2VDYWxsYmFjaywgdXNlUmVmIH0gZnJvbSAncmVhY3QnOwppbXBvcnQgeyBmb3JtYXQsIGdldERheXNJbk1vbnRoLCBnZXREYXkgfSBmcm9tICdkYXRlLWZucyc7CmltcG9ydCB7IHN2IH0gZnJvbSAnZGF0ZS1mbnMvbG9jYWxlJzsKaW1wb3J0IHsKICBDaGV2cm9uTGVmdCwgQ2hldnJvblJpZ2h0LCBQbHVzLCBUcmFzaDIsIEltYWdlLCBXYW5kMiwgQ2hlY2ssIFgsCiAgR3JpcFZlcnRpY2FsLCBDaGV2cm9uVXAsIENoZXZyb25Eb3duLCBBbGFybUNsb2NrLCBNYXBQaW4sIFVzZXJzLAp9IGZyb20gJ2x1Y2lkZS1yZWFjdCc7CmltcG9ydCB7IHVzZVRvYXN0IH0gZnJvbSAnLi9Ub2FzdCc7CgpleHBvcnQgZnVuY3Rpb24gU2NoZW1hVmlldyh7CiAgeWVhciwgbW9udGgsIHByZXZNb250aCwgbmV4dE1vbnRoLAogIG9wZW5EYXlzLCBzZXRPcGVuRGF5cywKICBhY3Rpdml0aWVzLCB1cGRhdGVBY3Rpdml0eSwgcmVtb3ZlQWN0aXZpdHksCiAgcHVzaEhpc3Rvcnksb25PcGVuQXNzZXQsCn0pIHsKICBjb25zdCB0b2FzdCAgICAgICAgICAgID0gdXNlVG9hc3QoKTsKICBjb25zdCBbZHJhZ092ZXIsICBzZXREcmFnT3Zlcl0gICA9IHVzZVN0YXRlKG51bGwpOwogIGNvbnN0IFtkcmFnSXRlbSwgIHNldERyYWdJdGVtXSAgID0gdXNlU3RhdGUobnVsbCk7CiAgY29uc3QgW2ltcHJvdmluZ1RleHQsIHNldEltcHJvdmluZ1RleHRdID0gdXNlU3RhdGUoe30pOwogIGNvbnN0IGRyYWdDb3VudGVyICAgICAgPSB1c2VSZWYoMCk7CgogIGNvbnN0IGRheXNJbk1vbnRoID0gZ2V0RGF5c0luTW9udGgobmV3IERhdGUoeWVhciwgbW9udGgpKTsKICBjb25zdCBmaXJzdERheU9mV2VlayA9IGdldERheShuZXcgRGF0ZSh5ZWFyLCBtb250aCwgMSkpOwogIGNvbnN0IG1vbmRheUZpcnN0T2Zmc2V0ID0gKGZpcnN0RGF5T2ZXZWVrICsgNikgJSA3OwoKICBjb25zdCBtb250aE5hbWUgPSBmb3JtYXQobmV3IERhdGUoeWVhciwgbW9udGgpLCAnTU1NTSB5eXl5JywgeyBsb2NhbGU6IHN2IH0pOwoKICAvLyByZW1vdmVBY3Rpdml0eSBoYW50ZXJhcyBpIEFwcC5qc3ggKGNlbnRyYWxpc2VyYWQpCgogIC8vIOKUlOKUgCBBZGRhIG55IGFrdGl2aXRldCBww6UgZGFnCiAgY29uc3QgYWRkQWN0aXZpdHkgPSB1c2VDYWxsYmFjaygoZGF5KSA9PiB7CiAgICBjb25zdCBkYXRlID0gbmV3IERhdGUoeWVhciwgbW9udGgsIGRheSk7CiAgICBjb25zdCBuZXdBY3QgPSB7CiAgICAgIGlkOiBjcnlwdG8ucmFuZG9tVVVJRCgpLAogICAgICBkYXRlLAogICAgICB0aXRsZTogJycsCiAgICAgIHRpbWU6ICcnLAogICAgICBsb2NhdGlvbjogJycsCiAgICAgIG1heFBhcnRpY2lwYW50czogJycsCiAgICAgIGltYWdlOiAnJywKICAgIH07CiAgICBwdXNoSGlzdG9yeShbLi4uYWN0aXZpdGllcywgbmV3QWN0XSk7CiAgfSwgW2FjdGl2aXRpZXMsIHB1c2hIaXN0b3J5LCB5ZWFyLCBtb250aF0pOwoKICAvLyDilJTilIAgQUk6IEbDtnJiw6R0dHJhIHRleHQgdmlhIHPDpGtlciBiYWNrZW5kLXByb3h5CiAgY29uc3QgaW1wcm92ZVRleHQgPSB1c2VDYWxsYmFjayhhc3luYyAoaWQsIGN1cnJlbnRUaXRsZSkgPT4gewogICAgaWYgKCFjdXJyZW50VGl0bGU/LnRyaW0oKSkgcmV0dXJuOwogICAgc2V0SW1wcm92aW5nVGV4dChwID0+ICh7IC4uLnAsIFtpZF06IHRydWUgfSkpOwogICAgdHJ5IHsKICAgICAgY29uc3QgcmVzID0gYXdhaXQgZmV0Y2goJy9hcGkvaW1wcm92ZS10ZXh0JywgewogICAgICAgIG1ldGhvZDogJ1BPU1QnLAogICAgICAgIGhlYWRlcnM6IHsgJ0NvbnRlbnQtVHlwZSc6ICdhcHBsaWNhdGlvbi9qc29uJyB9LAogICAgICAgIGJvZHk6IEpTT04uc3RyaW5naWZ5KHsgdGV4dDogY3VycmVudFRpdGxlIH0pLAogICAgICB9KTsKICAgICAgY29uc3QgZGF0YSA9IGF3YWl0IHJlcy5qc29uKCk7CiAgICAgIGlmICghcmVzLm9rKSB0aHJvdyBuZXcgRXJyb3IoZGF0YS5lcnJvciB8fCBgU2VydmVyZmVsICR7cmVzLnN0YXR1c31gKTsKICAgICAgaWYgKGRhdGEucmVzdWx0KSB7CiAgICAgICAgdXBkYXRlQWN0aXZpdHkoaWQsIHsgdGl0bGU6IGRhdGEucmVzdWx0LnJlcGxhY2UoL15bIidgXXxbIidgXSQvZywgJycpLnRyaW0oKSB9KTsKICAgICAgICB0b2FzdD8uc3VjY2VzcygnVGl0ZWwgZsO2cmLDpHR0cmFkIG1lZCBBSSAg4pyTJyk7CiAgICAgIH0KICAgIH0gY2F0Y2ggKGUpIHsKICAgICAgY29uc29sZS5lcnJvcignaW1wcm92ZVRleHQ6JywgZSk7CiAgICAgIHRvYXN0Py5lcnJvcihlLm1lc3NhZ2UgfHwgJ0t1bmRlIGludGUgZsO2cmLDpHR0cmEgdGV4dGVuJyk7CiAgICB9CiAgICBzZXRJbXByb3ZpbmdUZXh0KHAgPT4gKHsgLi4ucCwgW2lkXTogZmFsc2UgfSkpOwogIH0sIFt1cGRhdGVBY3Rpdml0eSwgdG9hc3RdKTsKCiAgLy8g4pSU4pSAIERyYWcgJiBEcm9wIOKUgCBmbHl0dGEgYWt0aXZpdGV0ZXIgbWVsbGFuIGRhZ2FyCiAgY29uc3QgaGFuZGxlRHJhZ1N0YXJ0ID0gdXNlQ2FsbGJhY2soKGUsIGFjdGl2aXR5KSA9PiB7CiAgICBzZXREcmFnSXRlbShhY3Rpdml0eSk7CiAgICBlLmRhdGFUcmFuc2Zlci5lZmZlY3RBbGxvd2VkID0gJ21vdmUnOwogIH0sIFtdKTsKCiAgY29uc3QgaGFuZGxlRHJhZ0VudGVyID0gdXNlQ2FsbGJhY2soKGUsIGRheSkgPT4gewogICAgZS5wcmV2ZW50RGVmYXVsdCgpOwogICAgZHJhZ0NvdW50ZXIuY3VycmVudCsrOwogICAgc2V0RHJhZ092ZXIoZGF5KTsKICB9LCBbXSk7CgogIGNvbnN0IGhhbmRsZURyYWdMZWF2ZSA9IHVzZUNhbGxiYWNrKCgpID0+IHsKICAgIGRyYWdDb3VudGVyLmN1cnJlbnQtLTsKICAgIGlmIChkcmFnQ291bnRlci5jdXJyZW50ID09PSAwKSBzZXREcmFnT3ZlcihudWxsKTsKICB9LCBbXSk7CgogIGNvbnN0IGhhbmRsZURyb3AgPSB1c2VDYWxsYmFjaygoZSwgZGF5KSA9PiB7CiAgICBlLnByZXZlbnREZWZhdWx0KCk7CiAgICBkcmFnQ291bnRlci5jdXJyZW50ID0gMDsKICAgIHNldERyYWdPdmVyKG51bGwpOwogICAgaWYgKCFkcmFnSXRlbSkgcmV0dXJuOwogICAgY29uc3QgbmV3RGF0ZSA9IG5ldyBEYXRlKHllYXIsIG1vbnRoLCBkYXkpOwogICAgdXBkYXRlQWN0aXZpdHkoZHJhZ0l0ZW0uaWQsIHsgZGF0ZTogbmV3RGF0ZSB9KTsKICAgIHNldERyYWdJdGVtKG51bGwpOwogIH0sIFtkcmFnSXRlbSwgdXBkYXRlQWN0aXZpdHksIHllYXIsIG1vbnRoXSk7CgogIC8vIOKUlOKUgCBUb2dnbGEgb3BwZXQgZGFnCiAgY29uc3QgdG9nZ2xlT3BlbkRheSA9IHVzZUNhbGxiYWNrKChkYXlPZldlZWspID0+IHsKICAgIHNldE9wZW5EYXlzKHByZXYgPT4KICAgICAgcHJldi5pbmNsdWRlcyhkYXlPZldlZWspCiAgICAgICAgPyBwcmV2LmZpbHRlcihkID0+IGQgIT09IGRheU9mV2VlaykKICAgICAgICA6IFsuLi5wcmV2LCBkYXlPZldlZWtdLnNvcnQoKGEsIGIpID0+IGEgLSBiKQogICAgKTsKICB9LCBbc2V0T3BlbkRheXNdKTsKCiAgY29uc3Qgd2Vla2RheU5hbWVzID0gWydNw6VuJywgJ1RpcycsICdPbnMnLCAnVG9yJywgJ0ZyZScsICdMw7ZyJywgJ1PDtm4nXTsKCiAgLy8g4pSU4pSAIEJ5Z2cgZGFnZXIgbWVkIG9mZnNldCBmw7ZyIHblcmRhZ3NyYWQKICBjb25zdCBkYXlzID0gW107CiAgZm9yIChsZXQgaSA9IDA7IGkgPCBtb25kYXlGaXJzdE9mZnNldDsgaSsrKSB7CiAgICBkYXlzLnB1c2goeyBkYXk6IG51bGwsIGlzUGFkZGluZzogdHJ1ZSB9KTsKICB9CiAgZm9yIChsZXQgZCA9IDE7IGQgPD0gZGF5c0luTW9udGg7IGQrKykgewogICAgY29uc3QgZGF0ZSA9IG5ldyBEYXRlKHllYXIsIG1vbnRoLCBkKTsKICAgIGNvbnN0IGRheU9mV2VlayA9IChkYXRlLmdldERheSgpICsgNikgJSA3OyAvLyAwPU3DpW4sIDY9U8O2bgogICAgZGF5cy5wdXNoKHsKICAgICAgZGF5OiBkLAogICAgICBkYXRlLAogICAgICBkYXlPZldlZWssCiAgICAgIGlzT3Blbjogb3BlbkRheXMuaW5jbHVkZXMoZGF5T2ZXZWVrKSwKICAgICAgaXNQYWRkaW5nOiBmYWxzZSwKICAgIH0pOwogIH0KCiAgcmV0dXJuICgKICAgIDxkaXYgY2xhc3NOYW1lPSJtYXgtdy01eGwgbXgtYXV0byBweC00IHB5LTYiPgoKICAgICAgey8qIOKUlOKUgCBIZWFkZXIgbWVkIG3DpW5hZHNuYXZpZ2VyaW5nIG9jaCB2ZWNrb2RhZ3N0b2dnbGFyIOKUlOKUgCAqL30KICAgICAgPGRpdiBjbGFzc05hbWU9ImZsZXggaXRlbXMtY2VudGVyIGp1c3RpZnktYmV0d2VlbiBtYi04Ij4KICAgICAgICA8ZGl2IGNsYXNzTmFtZT0iZmxleCBpdGVtcy1jZW50ZXIgZ2FwLTQiPgogICAgICAgICAgPGJ1dHRvbgogICAgICAgICAgICBvbkNsaWNrPXtwcmV2TW9udGh9CiAgICAgICAgICAgIGNsYXNzTmFtZT0icC0yIGhvdmVyOmJnLXdoaXRlIHJvdW5kZWQtbGcgdHJhbnNpdGlvbi1jb2xvcnMgYm9yZGVyIGJvcmRlci1zbGF0ZS0yMDAgaG92ZXI6c2hhZG93LXNtIgogICAgICAgICAgICBhcmlhLWxhYmVsPSJGw7ZycmEgbcOlbmFkIgogICAgICAgICAgPgogICAgICAgICAgICA8Q2hldnJvbkxlZnQgY2xhc3NOYW1lPSJ3LTUgaC01IHRleHQtc2xhdGUtNjAwIiAvPgogICAgICAgICAgPC9idXR0b24+CiAgICAgICAgICA8aDEgY2xhc3NOYW1lPSJ0ZXh0LTJ4bCBmb250LWJvbGQgdGV4dC1zbGF0ZS04MDAgY2FwaXRhbGl6ZSI+CiAgICAgICAgICAgIHttb250aE5hbWV9CiAgICAgICAgICA8L2gxPgogICAgICAgICAgPGJ1dHRvbgogICAgICAgICAgICBvbkNsaWNrPXtuZXh0TW9udGh9CiAgICAgICAgICAgIGNsYXNzTmFtZT0icC0yIGhvdmVyOmJnLXdoaXRlIHJvdW5kZWQtbGcgdHJhbnNpdGlvbi1jb2xvcnMgYm9yZGVyIGJvcmRlci1zbGF0ZS0yMDAgaG92ZXI6c2hhZG93LXNtIgogICAgICAgICAgICBhcmlhLWxhYmVsPSJOw6RzdGEgbcOlbmFkIgogICAgICAgICAgPgogICAgICAgICAgICA8Q2hldnJvblJpZ2h0IGNsYXNzTmFtZT0idy01IGgtNSB0ZXh0LXNsYXRlLTYwMCIgLz4KICAgICAgICAgIDwvYnV0dG9uPgogICAgICAgIDwvZGl2PgoKICAgICAgICB7LyogVmVja29kYWdzdG9nZ2xhciAqL30KICAgICAgICA8ZGl2IGNsYXNzTmFtZT0iZmxleCBpdGVtcy1jZW50ZXIgZ2FwLTIiPgogICAgICAgICAgPHNwYW4gY2xhc3NOYW1lPSJ0ZXh0LXNtIHRleHQtc2xhdGUtNTAwIG1yLTIiPsOWcHBlbiBkYWdhcjo8L3NwYW4+CiAgICAgICAgICB7d2Vla2RheU5hbWVzLm1hcCgobmFtZSwgaSkgPT4gKAogICAgICAgICAgICA8YnV0dG9uCiAgICAgICAgICAgICAga2V5PXtpfQogICAgICAgICAgICAgIG9uQ2xpY2s9eygpID0+IHRvZ2dsZU9wZW5EYXkoaSl9CiAgICAgICAgICAgICAgY2xhc3NOYW1lPXtgcHgtMyBweS0xLjUgcm91bmRlZC1sZyB0ZXh0LXhzIGZvbnQtbWVkaXVtIHRyYW5zaXRpb24tY29sb3JzICR7CiAgICAgICAgICAgICAgICBvcGVuRGF5cy5pbmNsdWRlcyhpKQogICAgICAgICAgICAgICAgICA/ICdiZy1pbmRpZ28tNjAwIHRleHQtd2hpdGUgc2hhZG93LXNtJwogICAgICAgICAgICAgICAgICA6ICdiZy13aGl0ZSB0ZXh0LXNsYXRlLTUwMCBob3ZlcjpiZy1zbGF0ZS01MCBib3JkZXIgYm9yZGVyLXNsYXRlLTIwMCcKICAgICAgICAgICAgICB9YH0KICAgICAgICAgICAgPgogICAgICAgICAgICAgIHtuYW1lfQogICAgICAgICAgICA8L2J1dHRvbj4KICAgICAgICAgICkpfQogICAgICAgIDwvZGl2PgogICAgICA8L2Rpdj4KCiAgICAgIHsvKiDilJTilIAgS2FsZW5kZXJydXRuaW5nIOKUlOKUgCAqL30KICAgICAgPGRpdiBjbGFzc05hbWU9ImdyaWQgZ3JpZC1jb2xzLTcgZ2FwLTIiPgoKICAgICAgICB7LyogVmVja29kYWdzaHVydWRlbiAqL30KICAgICAgICB7d2Vla2RheU5hbWVzLm1hcCgobmFtZSkgPT4gKAogICAgICAgICAgPGRpdiBrZXk9e25hbWV9IGNsYXNzTmFtZT0idGV4dC1jZW50ZXIgdGV4dC14cyBmb250LXNlbWlib2xkIHRleHQtc2xhdGUtNDAwIHB5LTIgdXBwZXJjYXNlIHRyYWNraW5nLXdpZGVyIj4KICAgICAgICAgICAge25hbWV9CiAgICAgICAgICA8L2Rpdj4KICAgICAgICApKX0KCiAgICAgICAgey8qIERhZ2NlbGxlciAqL30KICAgICAgICB7ZGF5cy5tYXAoKHsgZGF5LCBkYXRlLCBkYXlPZldlZWssIGlzT3BlbiwgaXNQYWRkaW5nIH0sIGlkeCkgPT4gewogICAgICAgICAgaWYgKGlzUGFkZGluZykgcmV0dXJuIDxkaXYga2V5PXtgcGFkLSR7aWR4fWB9IGNsYXNzTmFtZT0icm91bmRlZC14bCIgLz47CgogICAgICAgICAgY29uc3QgZGF5QWN0aXZpdGllcyA9IGFjdGl2aXRpZXMuZmlsdGVyKGEgPT4gewogICAgICAgICAgICBjb25zdCBkID0gYS5kYXRlIGluc3RhbmNlb2YgRGF0ZSA/IGEuZGF0ZSA6IG5ldyBEYXRlKGEuZGF0ZSk7CiAgICAgICAgICAgIHJldHVybiBkLmdldERhdGUoKSA9PT0gZGF5ICYmIGQuZ2V0TW9udGgoKSA9PT0gbW9udGggJiYgZC5nZXRGdWxsWWVhcigpID09PSB5ZWFyOwogICAgICAgICAgfSk7CgogICAgICAgICAgY29uc3QgaXNUb2RheSA9IG5ldyBEYXRlKCkudG9EYXRlU3RyaW5nKCkgPT09IGRhdGUudG9EYXRlU3RyaW5nKCk7CgogICAgICAgICAgcmV0dXJuICgKICAgICAgICAgICAgPGRpdgogICAgICAgICAgICAgIGtleT17ZGF5fQogICAgICAgICAgICAgIGNsYXNzTmFtZT17YHJvdW5kZWQteGwgcC0yIGZsZXggZmxleC1jb2wgZ2FwLTEgbWluLWgtMjQgdHJhbnNpdGlvbi1hbGwgJHsKICAgICAgICAgICAgICAgIGRyYWdPdmVyID09PSBkYXkgPyAnYmctaW5kaWdvLTUwIGJvcmRlci0yIGJvcmRlci1pbmRpZ28tNDAwIHNoYWRvdy1tZCcgOgogICAgICAgICAgICAgICAgaXNPcGVuICAgICAgICAgICA/ICdiZy13aGl0ZSBib3JkZXIgYm9yZGVyLXNsYXRlLTIwMCBzaGFkb3ctc20nIDoKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAnYmctc2xhdGUtNTAvNjAgYm9yZGVyIGJvcmRlci1zbGF0ZS0xMDAnCiAgICAgICAgICAgICAgfWB9CiAgICAgICAgICAgICAgb25EcmFnT3Zlcj17ZSA9PiBlLnByZXZlbnREZWZhdWx0KCl9CiAgICAgICAgICAgICAgb25EcmFnRW50ZXI9e2UgPT4gaGFuZGxlRHJhZ0VudGVyKGUsIGRheSl9CiAgICAgICAgICAgICAgb25EcmFnTGVhdmU9e2hhbmRsZURyYWdMZWF2ZX0KICAgICAgICAgICAgICBvbkRyb3A9e2UgPT4gaGFuZGxlRHJvcChlLCBkYXkpfQogICAgICAgICAgICA+CiAgICAgICAgICAgICAgey8qIERhZ251bW1lciArIGxsw6RnZy1rbmFwcCAqL30KICAgICAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT0iZmxleCBpdGVtcy1jZW50ZXIganVzdGlmeS1iZXR3ZWVuIj4KICAgICAgICAgICAgICAgIDxzcGFuIGNsYXNzTmFtZT17YHRleHQteHMgZm9udC1zZW1pYm9sZCAke2lzVG9kYXkgPyAndGV4dC1pbmRpZ28tNjAwIGJnLWluZGlnby0xMDAgcHgtMiByb3VuZGVkLWZ1bGwnIDogaXNPcGVuID8gJ3RleHQtc2xhdGUtNzAwJyA6ICd0ZXh0LXNsYXRlLTMwMCd9YH0+CiAgICAgICAgICAgICAgICAgIHtkYXl9CiAgICAgICAgICAgICAgICA8L3NwYW4+CiAgICAgICAgICAgICAgICB7aXNPcGVuICYmICgKICAgICAgICAgICAgICAgICAgPGJ1dHRvbgogICAgICAgICAgICAgICAgICAgIG9uQ2xpY2s9eygpID0+IGFkZEFjdGl2aXR5KGRheSl9CiAgICAgICAgICAgICAgICAgICAgY2xhc3NOYW1lPSJ3LTUgaC01IGZsZXggaXRlbXMtY2VudGVyIGp1c3RpZnktY2VudGVyIHJvdW5kZWQtZnVsbCBiZy1pbmRpZ28tMTAwIGhvdmVyOmJnLWluZGlnby0yMDAgdGV4dC1pbmRpZ28tNjAwIHRyYW5zaXRpb24tY29sb3JzIgogICAgICAgICAgICAgICAgICAgIGFyaWEtbGFiZWw9IkzDpGdnIHRpbGwgYWt0aXZpdGV0IgogICAgICAgICAgICAgICAgICA+CiAgICAgICAgICAgICAgICAgICAgPFBsdXMgY2xhc3NOYW1lPSJ3LTMgaC0zIiAvPgogICAgICAgICAgICAgICAgICA8L2J1dHRvbj4KICAgICAgICAgICAgICAgICl9CiAgICAgICAgICAgICAgPC9kaXY+CgogICAgICAgICAgICAgIHsvKiBBa3Rpdml0ZXRza29ydCAqL30KICAgICAgICAgICAgICB7ZGF5QWN0aXZpdGllcy5tYXAoYWN0aXZpdHkgPT4gKAogICAgICAgICAgICAgICAgPEFjdGl2aXR5Q2FyZAogICAgICAgICAgICAgICAgICBrZXk9e2FjdGl2aXR5LmlkfQogICAgICAgICAgICAgICAgICBhY3Rpdml0eT17YWN0aXZpdHl9CiAgICAgICAgICAgICAgICAgIG9uVXBkYXRlPXtwYXRjaCA9PiB1cGRhdGVBY3Rpdml0eShhY3Rpdml0eS5pZCwgcGF0Y2gpfQogICAgICAgICAgICAgICAgICBvblJlbW92ZT17KCkgPT4gcmVtb3ZlQWN0aXZpdHkoYWN0aXZpdHkuaWQpfQogICAgICAgICAgICAgICAgICBvbkltcHJvdmU9eygpID0+IGltcHJvdmVUZXh0KGFjdGl2aXR5LmlkLCBhY3Rpdml0eS50aXRsZSl9CiAgICAgICAgICAgICAgICAgIGlzSW1wcm92aW5nPXtpbXByb3ZpbmdUZXh0W2FjdGl2aXR5LmlkXX0KICAgICAgICAgICAgICAgICAgb25EcmFnU3RhcnQ9e2UgPT4gaGFuZGxlRHJhZ1N0YXJ0KGUsIGFjdGl2aXR5KX0KICAgICAgICAgICAgICAgICAgb25PcGVuQXNzZXQ9e29uT3BlbkFzc2V0fQogICAgICAgICAgICAgICAgLz4KICAgICAgICAgICAgICApKX0KICAgICAgICAgICAgPC9kaXY+CiAgICAgICAgICApOwogICAgICAgIH0pfQogICAgICA8L2Rpdj4KICAgIDwvZGl2PgogICk7Cn0KCi8vIOKUlOKUgOKUlOKUgOKUlOKUgOKUlOKUgOKUlOKUgOKUlOKUgOKUlOKUgOKUlOKUgOKUlOKUgOKUlOKUgOKUlOKUgOKUlOKUgOKUlOKUgOKUlOKUgOKUlOKUgOKUlOKUgCBBY3Rpdml0eUNhcmQg4pSU4pSA4pSU4pSA4pSU4pSA4pSU4pSA4pSU4pSA4pSU4pSA4pSU4pSA4pSU4pSA4pSU4pSA4pSU4pSA4pSU4pSA4pSU4pSA4pSU4pSA4pSU4pSA4pSU4pSA4pSU4pSACmZ1bmN0aW9uIEFjdGl2aXR5Q2FyZCh7IGFjdGl2aXR5LCBvblVwZGF0ZSwgb25SZW1vdmUsIG9uSW1wcm92ZSwgaXNJbXByb3ZpbmcsIG9uRHJhZ1N0YXJ0LCBvbk9wZW5Bc3NldCB9KSB7CiAgY29uc3QgW2lzRXhwYW5kZWQsIHNldElzRXhwYW5kZWRdID0gdXNlU3RhdGUoZmFsc2UpOwogIGNvbnN0IFtzaG93RGVsZXRlQ29uZmlybSwgc2V0U2hvd0RlbGV0ZUNvbmZpcm1dID0gdXNlU3RhdGUoZmFsc2UpOwoKICByZXR1cm4gKAogICAgPGRpdgogICAgICBjbGFzc05hbWU9ImJnLWluZGlnby01MCBib3JkZXIgYm9yZGVyLWluZGlnby0xMDAgcm91bmRlZC1sZyBwLTIgZ3JvdXAgY3Vyc29yLWdyYWIgYWN0aXZlOmN1cnNvci1ncmFiYmluZyB0cmFuc2l0aW9uLWFsbCBob3Zlcjpib3JkZXItaW5kaWdvLTMwMCIKICAgICAgZHJhZ2dhYmxlCiAgICAgIG9uRHJhZ1N0YXJ0PXtvbkRyYWdTdGFydH0KICAgID4KICAgICAge3Nob3dEZWxldGVDb25maXJtID8gKAogICAgICAgIDxkaXYgY2xhc3NOYW1lPSJmbGV4IGZsZXgtY29sIGdhcC0xIj4KICAgICAgICAgIDxwIGNsYXNzTmFtZT0idGV4dC14cyB0ZXh0LXNsYXRlLTYwMCI+VGEgYm9ydD88L3A+CiAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT0iZmxleCBnYXAtMSI+CiAgICAgICAgICAgIDxidXR0b24gb25DbGljaz17b25SZW1vdmV9IGNsYXNzTmFtZT0iZmxleC0xIHB5LTAuNSByb3VuZGVkIGJnLXJlZC01MDAgdGV4dC13aGl0ZSB0ZXh0LXhzIGZvbnQtbWVkaXVtIGhvdmVyOmJnLXJlZC02MDAiPgogICAgICAgICAgICAgIDxDaGVjayBjbGFzc05hbWU9InctMyBoLTMgbXgtYXV0byIgLz4KICAgICAgICAgICAgPC9idXR0b24+CiAgICAgICAgICAgIDxidXR0b24gb25DbGljaz17KCkgPT4gc2V0U2hvd0RlbGV0ZUNvbmZpcm0oZmFsc2UpfSBjbGFzc05hbWU9ImZsZXgtMSBweS0wLjUgcm91bmRlZCBiZy1zbGF0ZS0yMDAgdGV4dC1zbGF0ZS03MDAgdGV4dC14cyBmb250LW1lZGl1bSBob3ZlcjpiZy1zbGF0ZS0zMDAiPgogICAgICAgICAgICAgIDxYIGNsYXNzTmFtZT0idy0zIGgtMyBteC1hdXRvIiAvPgogICAgICAgICAgICA8L2J1dHRvbj4KICAgICAgICAgIDwvZGl2PgogICAgICAgIDwvZGl2PgogICAgICApIDogKAogICAgICAgIDw+CiAgICAgICAgICB7LyogVGl0ZWxyYWQgKi99CiAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT0iZmxleCBpdGVtcy1zdGFydCBnYXAtMSI+CiAgICAgICAgICAgIDxHcmlwVmVydGljYWwgY2xhc3NOYW1lPSJ3LTMgaC0zIG10LTAuNSB0ZXh0LXNsYXRlLTMwMCBmbGV4LXNocmluay0wIiAvPgogICAgICAgICAgICA8aW5wdXQKICAgICAgICAgICAgICBjbGFzc05hbWU9ImZsZXgtMSB0ZXh0LXhzIGZvbnQtbWVkaXVtIHRleHQtc2xhdGUtNzAwIGJnLXRyYW5zcGFyZW50IG91dGxpbmUtbm9uZSBwbGFjZWhvbGRlcjp0ZXh0LXNsYXRlLTMwMCIKICAgICAgICAgICAgICB2YWx1ZT17YWN0aXZpdHkudGl0bGV9CiAgICAgICAgICAgICAgb25DaGFuZ2U9e2UgPT4gb25VcGRhdGUoeyB0aXRsZTogZS50YXJnZXQudmFsdWUgfSl9CiAgICAgICAgICAgICAgcGxhY2Vob2xkZXI9IkFrdGl2aXRldC4uLiIKICAgICAgICAgICAgLz4KICAgICAgICAgICAgPGRpdiBjbGFzc05hbWU9ImZsZXggZ2FwLTAuNSBvcGFjaXR5LTAgZ3JvdXAtaG92ZXI6b3BhY2l0eS0xMDAgdHJhbnNpdGlvbi1vcGFjaXR5IGZsZXgtc2hyaW5rLTAiPgogICAgICAgICAgICAgIDxidXR0b24KICAgICAgICAgICAgICAgIG9uQ2xpY2s9e29uSW1wcm92ZX0KICAgICAgICAgICAgICAgIGRpc2FibGVkPXtpc0ltcHJvdmluZ30KICAgICAgICAgICAgICAgIGNsYXNzTmFtZT0icC0wLjUgcm91bmRlZCBob3ZlcjpiZy1wdXJwbGUtMTAwIHRleHQtcHVycGxlLTUwMCBkaXNhYmxlZDpvcGFjaXR5LTUwIgogICAgICAgICAgICAgICAgYXJpYS1sYWJlbD0iRsO2cmLDpHR0cmEgbWVkIEFJIgogICAgICAgICAgICAgICAgdGl0bGU9IkbDtnJiw6R0dHJhIG1lZCBBSSIKICAgICAgICAgICAgICA+CiAgICAgICAgICAgICAgICB7aXNJbXByb3ZpbmcgPyAoCiAgICAgICAgICAgICAgICAgIDxzcGFuIGNsYXNzTmFtZT0idGV4dC14cyBhbmltYXRlLXB1bHNlIj7ihqI8L3NwYW4+CiAgICAgICAgICAgICAgICApIDogKAogICAgICAgICAgICAgICAgICA8V2FuZDIgY2xhc3NOYW1lPSJ3LTMgaC0zIiAvPgogICAgICAgICAgICAgICAgKX0KICAgICAgICAgICAgICA8L2J1dHRvbj4KICAgICAgICAgICAgICA8YnV0dG9uCiAgICAgICAgICAgICAgICBvbkNsaWNrPXsoKSA9PiBzZXRJc0V4cGFuZGVkKHYgPT4gIXYpfQogICAgICAgICAgICAgICAgY2xhc3NOYW1lPSJwLTAuNSByb3VuZGVkIGhvdmVyOmJnLXNsYXRlLTIwMCB0ZXh0LXNsYXRlLTQwMCIKICAgICAgICAgICAgICAgIGFyaWEtbGFiZWw9e2lzRXhwYW5kZWQgPyAnRsO2bGogaWhvcCcgOiAnRXhwYW5kZXJhJ30KICAgICAgICAgICAgICA+CiAgICAgICAgICAgICAgICB7aXNFeHBhbmRlZCA/IDxDaGV2cm9uVXAgY2xhc3NOYW1lPSJ3LTMgaC0zIiAvPiA6IDxDaGV2cm9uRG93biBjbGFzc05hbWU9InctMyBoLTMiIC8+fQogICAgICAgICAgICAgIDwvYnV0dG9uPgogICAgICAgICAgICAgIDxidXR0b24KICAgICAgICAgICAgICAgIG9uQ2xpY2s9eygpID0+IHNldFNob3dEZWxldGVDb25maXJtKHRydWUpfQogICAgICAgICAgICAgICAgY2xhc3NOYW1lPSJwLTAuNSByb3VuZGVkIGhvdmVyOmJnLXJlZC0xMDAgdGV4dC1yZWQtNDAwIgogICAgICAgICAgICAgICAgYXJpYS1sYWJlbD0iVGEgYm9ydCBha3Rpdml0ZXQiCiAgICAgICAgICAgICAgPgogICAgICAgICAgICAgICAgPFRyYXNoMiBjbGFzc05hbWU9InctMyBoLTMiIC8+CiAgICAgICAgICAgICAgPC9idXR0b24+CiAgICAgICAgICAgIDwvZGl2PgogICAgICAgICAgPC9kaXY+CgogICAgICAgICAgey8qIEV4cGFuZGVyYXQgaW5uZWjDpWxsICovfQogICAgICAgICAge2lzRXhwYW5kZWQgJiYgKAogICAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT0ibXQtMiBzcGFjZS15LTEuNSI+CiAgICAgICAgICAgICAge1svKiBUaWQgKi97CiAgICAgICAgICAgICAgICBpY29uOiA8QWxhcm1DbG9jayBjbGFzc05hbWU9InctMyBoLTMiIC8+LAogICAgICAgICAgICAgICAgcGxhY2Vob2xkZXI6ICdUaWQgKHQuZXguIDEwOjAwKScsCiAgICAgICAgICAgICAgICBmaWVsZDogJ3RpbWUnLAogICAgICAgICAgICAgIH0sIHsKICAgICAgICAgICAgICAgIGljb246IDxNYXBQaW4gY2xhc3NOYW1lPSJ3LTMgaC0zIiAvPiwKICAgICAgICAgICAgICAgIHBsYWNlaG9sZGVyOiAnUGxhdHMnLAogICAgICAgICAgICAgICAgZmllbGQ6ICdsb2NhdGlvbicsCiAgICAgICAgICAgICAgfSwgewogICAgICAgICAgICAgICAgaWNvbjogPFVzZXJzIGNsYXNzTmFtZT0idy0zIGgtMyIgLz4sCiAgICAgICAgICAgICAgICBwbGFjZWhvbGRlcjogJ01heC1kZWx0YWdhcmUnLAogICAgICAgICAgICAgICAgZmllbGQ6ICdtYXhQYXJ0aWNpcGFudHMnLAogICAgICAgICAgICAgIH1dLm1hcCgoeyBpY29uLCBwbGFjZWhvbGRlciwgZmllbGQgfSkgPT4gKAogICAgICAgICAgICAgICAgPGRpdiBrZXk9e2ZpZWxkfSBjbGFzc05hbWU9ImZsZXggaXRlbXMtY2VudGVyIGdhcC0xIj4KICAgICAgICAgICAgICAgICAgPHNwYW4gY2xhc3NOYW1lPSJ0ZXh0LXNsYXRlLTQwMCI+e2ljb259PC9zcGFuPgogICAgICAgICAgICAgICAgICA8aW5wdXQKICAgICAgICAgICAgICAgICAgICBjbGFzc05hbWU9ImZsZXgtMSB0ZXh0LXhzIHRleHQtc2xhdGUtNjAwIGJnLXRyYW5zcGFyZW50IG91dGxpbmUtbm9uZSBwbGFjZWhvbGRlcjp0ZXh0LXNsYXRlLTMwMCIKICAgICAgICAgICAgICAgICAgICB2YWx1ZT17YWN0aXZpdHlbZmllbGRdIHx8ICcnfQogICAgICAgICAgICAgICAgICAgIG9uQ2hhbmdlPXtlID0+IG9uVXBkYXRlKHsgW2ZpZWxkXTogZS50YXJnZXQudmFsdWUgfSl9CiAgICAgICAgICAgICAgICAgICAgcGxhY2Vob2xkZXI9e3BsYWNlaG9sZGVyfQogICAgICAgICAgICAgICAgICAvPgogICAgICAgICAgICAgICAgPC9kaXY+CiAgICAgICAgICAgICAgKSl9CgogICAgICAgICAgICAgIHsvKiBCaWxkc2VsZWt0b3IgKi99CiAgICAgICAgICAgICAgPGJ1dHRvbgogICAgICAgICAgICAgICAgb25DbGljaz17KCkgPT4gb25PcGVuQXNzZXQoYWN0aXZpdHkuaWQpfQogICAgICAgICAgICAgICAgY2xhc3NOYW1lPSJmbGV4IGl0ZW1zLWNlbnRlciBnYXAtMSB0ZXh0LXhzIHRleHQtaW5kaWdvLTUwMCBob3Zlcjp0ZXh0LWluZGlnby03MDAgdHJhbnNpdGlvbi1jb2xvcnMiCiAgICAgICAgICAgICAgPgogICAgICAgICAgICAgICAgPEltYWdlIGNsYXNzTmFtZT0idy0zIGgtMyIgLz4KICAgICAgICAgICAgICAgIDxzcGFuPnthY3Rpdml0eS5pbWFnZSA/ICdCeXQgYmlsZCcgOiAnTMOkZ2cgdGlsbCBiaWxkJ308L3NwYW4+CiAgICAgICAgICAgICAgPC9idXR0b24+CiAgICAgICAgICAgIDwvZGl2PgogICAgICAgICAgKX0KICAgICAgICA8Lz4KICAgICAgKX0KICAgIDwvZGl2PgogICk7Cn0K
+import React, { useState, useCallback, useRef } from 'react';
+import { format, getDaysInMonth, getDay } from 'date-fns';
+import { sv } from 'date-fns/locale';
+import {
+  ChevronLeft, ChevronRight, Plus, Trash2, Image, Wand2, Check, X,
+  GripVertical, ChevronUp, ChevronDown, AlarmClock, MapPin, Users, CalendarDays,
+} from 'lucide-react';
+import { useToast } from './Toast';
+import { EmptyState } from './EmptyState';
+
+export function SchemaView({
+  year, month, prevMonth, nextMonth,
+  openDays, setOpenDays,
+  activities, updateActivity, removeActivity,
+  pushHistory, onOpenAsset,
+}) {
+  const toast              = useToast();
+  const [dragOver,  setDragOver]  = useState(null);
+  const [dragItem,  setDragItem]  = useState(null);
+  const [improvingText, setImprovingText] = useState({});
+  const dragCounter      = useRef(0);
+
+  const daysInMonth = getDaysInMonth(new Date(year, month));
+  const firstDayOfWeek = getDay(new Date(year, month, 1));
+  const mondayFirstOffset = (firstDayOfWeek + 6) % 7;
+
+  const monthName = format(new Date(year, month), 'MMMM yyyy', { locale: sv });
+
+  // ─ Adda ny aktivitet på dag
+  const addActivity = useCallback((day) => {
+    const date = new Date(year, month, day);
+    const newAct = {
+      id: crypto.randomUUID(),
+      date,
+      title: '',
+      time: '',
+      location: '',
+      maxParticipants: '',
+      image: '',
+    };
+    pushHistory([...activities, newAct]);
+  }, [activities, pushHistory, year, month]);
+
+  // ─ AI: Förbättra text
+  const improveText = useCallback(async (id, currentTitle) => {
+    if (!currentTitle?.trim()) return;
+    setImprovingText(p => ({ ...p, [id]: true }));
+    try {
+      const res = await fetch('/api/improve-text', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: currentTitle }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || `Serverfel ${res.status}`);
+      if (data.result) {
+        updateActivity(id, { title: data.result.replace(/^["'`]|["'`]$/g, '').trim() });
+        toast?.success('Titel förbättrad med AI ✓');
+      }
+    } catch (e) {
+      console.error('improveText:', e);
+      toast?.error(e.message || 'Kunde inte förbättra texten');
+    }
+    setImprovingText(p => ({ ...p, [id]: false }));
+  }, [updateActivity, toast]);
+
+  // ─ Drag & Drop
+  const handleDragStart = useCallback((e, activity) => {
+    setDragItem(activity);
+    e.dataTransfer.effectAllowed = 'move';
+  }, []);
+
+  const handleDragEnter = useCallback((e, day) => {
+    e.preventDefault();
+    dragCounter.current++;
+    setDragOver(day);
+  }, []);
+
+  const handleDragLeave = useCallback(() => {
+    dragCounter.current--;
+    if (dragCounter.current === 0) setDragOver(null);
+  }, []);
+
+  const handleDrop = useCallback((e, day) => {
+    e.preventDefault();
+    dragCounter.current = 0;
+    setDragOver(null);
+    if (!dragItem) return;
+    const newDate = new Date(year, month, day);
+    updateActivity(dragItem.id, { date: newDate });
+    setDragItem(null);
+  }, [dragItem, updateActivity, year, month]);
+
+  // ─ Toggla öppet dag
+  const toggleOpenDay = useCallback((dayOfWeek) => {
+    setOpenDays(prev =>
+      prev.includes(dayOfWeek)
+        ? prev.filter(d => d !== dayOfWeek)
+        : [...prev, dayOfWeek].sort((a, b) => a - b)
+    );
+  }, [setOpenDays]);
+
+  const weekdayNames = ['Mån', 'Tis', 'Ons', 'Tor', 'Fre', 'Lör', 'Sön'];
+
+  // Bygg dagar med offset för veckodag
+  const days = [];
+  for (let i = 0; i < mondayFirstOffset; i++) {
+    days.push({ day: null, isPadding: true });
+  }
+  for (let d = 1; d <= daysInMonth; d++) {
+    const date = new Date(year, month, d);
+    const dayOfWeek = (date.getDay() + 6) % 7; // 0=Mån, 6=Sön
+    days.push({
+      day: d,
+      date,
+      dayOfWeek,
+      isOpen: openDays.includes(dayOfWeek),
+      isPadding: false,
+    });
+  }
+
+  // Räkna aktiviteter denna månad
+  const totalActivities = activities.filter(a => {
+    const d = a.date instanceof Date ? a.date : new Date(a.date);
+    return d.getMonth() === month && d.getFullYear() === year;
+  }).length;
+
+  // Öppna dagar denna månad
+  const openDaysThisMonth = days.filter(d => !d.isPadding && d.isOpen);
+
+  return (
+    <div className="max-w-5xl mx-auto px-4 py-6">
+
+      {/* Header med månadsnavigering och veckodagstogglar */}
+      <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center gap-4">
+          <button
+            onClick={prevMonth}
+            className="p-2 hover:bg-white rounded-lg transition-colors border border-slate-200 hover:shadow-sm"
+            aria-label="Förra månaden"
+          >
+            <ChevronLeft className="w-5 h-5 text-slate-600" />
+          </button>
+          <h1 className="text-2xl font-bold text-slate-800 capitalize">
+            {monthName}
+          </h1>
+          <button
+            onClick={nextMonth}
+            className="p-2 hover:bg-white rounded-lg transition-colors border border-slate-200 hover:shadow-sm"
+            aria-label="Nästa månad"
+          >
+            <ChevronRight className="w-5 h-5 text-slate-600" />
+          </button>
+        </div>
+
+        {/* Veckodagstogglar */}
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-slate-500 mr-2">Öppen dagar:</span>
+          {weekdayNames.map((name, i) => (
+            <button
+              key={i}
+              onClick={() => toggleOpenDay(i)}
+              aria-pressed={openDays.includes(i)}
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                openDays.includes(i)
+                  ? 'bg-indigo-600 text-white shadow-sm'
+                  : 'bg-white text-slate-500 hover:bg-slate-50 border border-slate-200'
+              }`}
+            >
+              {name}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Empty-state: inga öppna dagar valda */}
+      {openDays.length === 0 && (
+        <EmptyState
+          icon={<CalendarDays />}
+          title="Inga öppna dagar valda"
+          body="Välj vilka veckodagar fritidsgården är öppen med knapparna ovan."
+          className="my-8"
+        />
+      )}
+
+      {/* Kalenderrutnät */}
+      {openDays.length > 0 && (
+        <div className="grid grid-cols-7 gap-2">
+
+          {/* Veckodagshuvuden */}
+          {weekdayNames.map((name) => (
+            <div key={name} className="text-center text-xs font-semibold text-slate-400 py-2 uppercase tracking-wider">
+              {name}
+            </div>
+          ))}
+
+          {/* Dagceller */}
+          {days.map(({ day, date, dayOfWeek, isOpen, isPadding }, idx) => {
+            if (isPadding) return <div key={`pad-${idx}`} className="rounded-xl" />;
+
+            const dayActivities = activities.filter(a => {
+              const d = a.date instanceof Date ? a.date : new Date(a.date);
+              return d.getDate() === day && d.getMonth() === month && d.getFullYear() === year;
+            });
+
+            const isToday = new Date().toDateString() === date.toDateString();
+
+            return (
+              <div
+                key={day}
+                className={`rounded-xl p-2 flex flex-col gap-1 min-h-24 transition-all ${
+                  dragOver === day ? 'bg-indigo-50 border-2 border-indigo-400 shadow-md' :
+                  isOpen           ? 'bg-white border border-slate-200 shadow-sm' :
+                                     'bg-slate-50/60 border border-slate-100'
+                }`}
+                onDragOver={e => e.preventDefault()}
+                onDragEnter={e => handleDragEnter(e, day)}
+                onDragLeave={handleDragLeave}
+                onDrop={e => handleDrop(e, day)}
+              >
+                {/* Dagnummer + lägg-till-knapp */}
+                <div className="flex items-center justify-between">
+                  <span className={`text-xs font-semibold ${
+                    isToday ? 'text-indigo-600 bg-indigo-100 px-2 rounded-full'
+                    : isOpen ? 'text-slate-700'
+                    : 'text-slate-300'
+                  }`}>
+                    {day}
+                  </span>
+                  {isOpen && (
+                    <button
+                      onClick={() => addActivity(day)}
+                      className="w-5 h-5 flex items-center justify-center rounded-full bg-indigo-100 hover:bg-indigo-200 text-indigo-600 transition-colors"
+                      aria-label={`Lägg till aktivitet ${day} ${monthName}`}
+                    >
+                      <Plus className="w-3 h-3" />
+                    </button>
+                  )}
+                </div>
+
+                {/* Aktivitetskort */}
+                {dayActivities.map(activity => (
+                  <ActivityCard
+                    key={activity.id}
+                    activity={activity}
+                    onUpdate={patch => updateActivity(activity.id, patch)}
+                    onRemove={() => removeActivity(activity.id)}
+                    onImprove={() => improveText(activity.id, activity.title)}
+                    isImproving={improvingText[activity.id]}
+                    onDragStart={e => handleDragStart(e, activity)}
+                    onOpenAsset={onOpenAsset}
+                  />
+                ))}
+
+                {/* Empty-state per cell: öppen dag utan aktiviteter */}
+                {isOpen && dayActivities.length === 0 && (
+                  <button
+                    onClick={() => addActivity(day)}
+                    className="mt-auto text-xs text-slate-300 hover:text-indigo-400 transition-colors text-center py-1 rounded hover:bg-indigo-50 w-full"
+                    aria-label={`Lägg till aktivitet ${day} ${monthName}`}
+                  >
+                    + aktivitet
+                  </button>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Empty-state: öppna dagar finns men inga aktiviteter planerade */}
+      {openDays.length > 0 && totalActivities === 0 && openDaysThisMonth.length > 0 && (
+        <div className="mt-8 mb-4">
+          <EmptyState
+            icon={<CalendarDays />}
+            title="Inga aktiviteter planerade"
+            body={`Klicka på “+” i någon av de öppna dagarna för att lägga till din första aktivitet för ${monthName}.`}
+          />
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────── ActivityCard
+function ActivityCard({ activity, onUpdate, onRemove, onImprove, isImproving, onDragStart, onOpenAsset }) {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const titleRef = useRef(null);
+
+  // Keyboard: Enter expanderar, Delete/Backspace på tomt fält = bekräfta borttagning
+  const handleTitleKeyDown = useCallback((e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      setIsExpanded(v => !v);
+    }
+    if ((e.key === 'Delete' || e.key === 'Backspace') && !activity.title) {
+      setShowDeleteConfirm(true);
+    }
+  }, [activity.title]);
+
+  // Escape stänger delete-confirm
+  const handleKeyDown = useCallback((e) => {
+    if (e.key === 'Escape') setShowDeleteConfirm(false);
+  }, []);
+
+  return (
+    <div
+      className="bg-indigo-50 border border-indigo-100 rounded-lg p-2 group cursor-grab active:cursor-grabbing transition-all hover:border-indigo-300 hover:shadow-sm"
+      draggable
+      onDragStart={onDragStart}
+      onKeyDown={handleKeyDown}
+    >
+      {showDeleteConfirm ? (
+        <div className="flex flex-col gap-1">
+          <p className="text-xs text-slate-600">Ta bort?</p>
+          <div className="flex gap-1">
+            <button
+              onClick={onRemove}
+              className="flex-1 py-0.5 rounded bg-red-500 text-white text-xs font-medium hover:bg-red-600"
+              aria-label="Bekräfta borttagning"
+            >
+              <Check className="w-3 h-3 mx-auto" />
+            </button>
+            <button
+              onClick={() => setShowDeleteConfirm(false)}
+              className="flex-1 py-0.5 rounded bg-slate-200 text-slate-700 text-xs font-medium hover:bg-slate-300"
+              aria-label="Avbryt borttagning"
+            >
+              <X className="w-3 h-3 mx-auto" />
+            </button>
+          </div>
+        </div>
+      ) : (
+        <>
+          {/* Titelrad */}
+          <div className="flex items-start gap-1">
+            <GripVertical
+              className="w-3 h-3 mt-0.5 text-slate-300 flex-shrink-0"
+              aria-hidden="true"
+            />
+            <input
+              ref={titleRef}
+              className="flex-1 text-xs font-medium text-slate-700 bg-transparent outline-none placeholder:text-slate-300"
+              value={activity.title}
+              onChange={e => onUpdate({ title: e.target.value })}
+              onKeyDown={handleTitleKeyDown}
+              placeholder="Aktivitet..."
+              aria-label="Aktivitetens namn"
+            />
+            <div className="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
+              <button
+                onClick={onImprove}
+                disabled={isImproving}
+                className="p-0.5 rounded hover:bg-purple-100 text-purple-500 disabled:opacity-50"
+                aria-label="Förbättra med AI"
+                title="Förbättra med AI"
+              >
+                {isImproving ? (
+                  <span className="text-xs animate-pulse">♦</span>
+                ) : (
+                  <Wand2 className="w-3 h-3" />
+                )}
+              </button>
+              <button
+                onClick={() => setIsExpanded(v => !v)}
+                className="p-0.5 rounded hover:bg-slate-200 text-slate-400"
+                aria-label={isExpanded ? 'Följ ihop' : 'Expandera'}
+                aria-expanded={isExpanded}
+              >
+                {isExpanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+              </button>
+              <button
+                onClick={() => setShowDeleteConfirm(true)}
+                className="p-0.5 rounded hover:bg-red-100 text-red-400"
+                aria-label="Ta bort aktivitet"
+              >
+                <Trash2 className="w-3 h-3" />
+              </button>
+            </div>
+          </div>
+
+          {/* Expanderat innehåll */}
+          {isExpanded && (
+            <div className="mt-2 space-y-1.5">
+              {[{
+                icon: <AlarmClock className="w-3 h-3" />,
+                placeholder: 'Tid (t.ex. 10:00)',
+                field: 'time',
+              }, {
+                icon: <MapPin className="w-3 h-3" />,
+                placeholder: 'Plats',
+                field: 'location',
+              }, {
+                icon: <Users className="w-3 h-3" />,
+                placeholder: 'Max-deltagare',
+                field: 'maxParticipants',
+              }].map(({ icon, placeholder, field }) => (
+                <div key={field} className="flex items-center gap-1">
+                  <span className="text-slate-400" aria-hidden="true">{icon}</span>
+                  <input
+                    className="flex-1 text-xs text-slate-600 bg-transparent outline-none placeholder:text-slate-300"
+                    value={activity[field] || ''}
+                    onChange={e => onUpdate({ [field]: e.target.value })}
+                    placeholder={placeholder}
+                    aria-label={placeholder}
+                  />
+                </div>
+              ))}
+
+              {/* Bildselektör */}
+              <button
+                onClick={() => onOpenAsset(activity.id)}
+                className="flex items-center gap-1 text-xs text-indigo-500 hover:text-indigo-700 transition-colors"
+                aria-label={activity.image ? 'Byt aktivitetsbild' : 'Lägg till bild på aktivitet'}
+              >
+                <Image className="w-3 h-3" aria-hidden="true" />
+                <span>{activity.image ? 'Byt bild' : 'Lägg till bild'}</span>
+              </button>
+
+              {/* Miniatyrbild om satt */}
+              {activity.image && (
+                <img
+                  src={activity.image}
+                  alt={`Bild för ${activity.title || 'aktivitet'}`}
+                  className="w-full h-14 object-cover rounded-md mt-1"
+                  loading="lazy"
+                />
+              )}
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  );
+}
