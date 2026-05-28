@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
 import { Share2, Download } from 'lucide-react';
-import { exportAsImage } from '../lib/exportAsImage';
+import { exportAsPNG } from '../lib/exportUtils';
 
 export const ExportModal = ({ isOpen, onClose, schedule, monthLabel }) => {
   const previewRef = useRef(null);
@@ -8,11 +8,21 @@ export const ExportModal = ({ isOpen, onClose, schedule, monthLabel }) => {
   if (!isOpen) return null;
 
   const hasContent = Object.keys(schedule).length > 0;
-  const safeLabel = monthLabel || 'Månadsblad';
-  const fileName = `manadsblad-${safeLabel.toLowerCase().replace(/\s+/g, '-')}.png`;
+  const safeLabel  = monthLabel || 'M\u00e5nadsblad';
+  const fileName   = `manadsblad-${safeLabel.toLowerCase().replace(/\s+/g, '-')}.png`;
 
   const handleDownload = async () => {
-    await exportAsImage(previewRef.current, fileName);
+    const el = previewRef.current;
+    if (!el) return;
+    // Sätt temporärt id så exportAsPNG hittar elementet via getElementById
+    const tempId = '__export_modal_preview__';
+    const prevId = el.id;
+    if (!el.id) el.id = tempId;
+    try {
+      await exportAsPNG(el.id, fileName);
+    } finally {
+      el.id = prevId;
+    }
   };
 
   return (
@@ -25,9 +35,10 @@ export const ExportModal = ({ isOpen, onClose, schedule, monthLabel }) => {
           </h2>
           <button
             onClick={onClose}
+            aria-label="St\u00e4ng exportmodal"
             className="p-2 hover:bg-slate-200 rounded-full transition-colors"
           >
-            ✕
+            \u2715
           </button>
         </div>
 
@@ -70,7 +81,7 @@ export const ExportModal = ({ isOpen, onClose, schedule, monthLabel }) => {
 
               {!hasContent && (
                 <p className="text-white/80 text-sm font-medium">
-                  Lägg till några aktiviteter i kalendern för att skapa en exportbild.
+                  L\u00e4gg till n\u00e5gra aktiviteter i kalendern f\u00f6r att skapa en exportbild.
                 </p>
               )}
             </div>
@@ -79,7 +90,7 @@ export const ExportModal = ({ isOpen, onClose, schedule, monthLabel }) => {
           <div className="flex flex-col gap-4 max-w-xs">
             <h4 className="font-bold text-slate-800">Redo att publiceras!</h4>
             <p className="text-sm text-slate-600">
-              Klicka på knappen nedan för att ladda ner förhandsgranskningen som en PNG-bild.
+              Klicka p\u00e5 knappen nedan f\u00f6r att ladda ner f\u00f6rhandsgranskningen som en PNG-bild.
             </p>
             <p className="text-xs text-slate-400 font-mono">{fileName}</p>
 

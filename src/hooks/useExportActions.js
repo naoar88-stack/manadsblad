@@ -1,23 +1,43 @@
 import { useRef, useState } from 'react';
-import { exportAsPdf, exportAsPng, getExportFormatPreset } from '../lib/exportUtils';
+import { exportAsPNG, exportAsPDF } from '../lib/exportUtils';
 import { getMonthName } from '../lib/dateUtils';
+
+// Hjälpfunktion: mappa formatnycklar till korta filnamnssuffix
+function formatSuffix(format) {
+  const map = {
+    'a4-landscape':   'a4-liggande',
+    'a4-portrait':    'a4-stående',
+    'instagram-post': 'ig-post',
+    'instagram-story': 'ig-story',
+  };
+  return map[format] || format;
+}
 
 export function useExportActions(state) {
   const exportRef = useRef(null);
-  const [isExporting, setIsExporting] = useState(false);
-  const [exportError, setExportError] = useState('');
+  const [isExporting, setIsExporting]   = useState(false);
+  const [exportError, setExportError]   = useState('');
   const [exportSuccess, setExportSuccess] = useState('');
   const [lastExportType, setLastExportType] = useState('');
 
   const getBaseFilename = () => {
-    const month = getMonthName(state.selectedMonth).toLowerCase();
-    const title = state.headerTitle.toLowerCase().replace(/[^a-z0-9åäö]+/gi, '-').replace(/^-|-$/g, '');
-    const preset = getExportFormatPreset(state.selectedFormat);
-    return `${title || 'manadsblad'}-${month}-${state.selectedYear}-${preset.suffix}`;
+    const month = (typeof getMonthName === 'function'
+      ? getMonthName(state.selectedMonth)
+      : String(state.selectedMonth + 1).padStart(2, '0')
+    ).toLowerCase();
+    const title = (state.headerTitle || 'manadsblad')
+      .toLowerCase()
+      .replace(/[^a-z0-9åäö]+/gi, '-')
+      .replace(/^-|-$/g, '');
+    const suffix = formatSuffix(state.selectedFormat);
+    return `${title || 'manadsblad'}-${month}-${state.selectedYear}-${suffix}`;
   };
 
   const runExport = async (type, action) => {
-    if (!exportRef.current) return;
+    if (!exportRef.current) {
+      setExportError('Export-element är inte monterat.');
+      return;
+    }
     setIsExporting(true);
     setExportError('');
     setExportSuccess('');
@@ -25,9 +45,7 @@ export function useExportActions(state) {
     try {
       const filename = await action();
       setExportSuccess(`${type} exporterad: ${filename}`);
-      if (typeof window !== 'undefined') {
-        window.setTimeout(() => setExportSuccess(''), 3200);
-      }
+      window.setTimeout(() => setExportSuccess(''), 3200);
     } catch (error) {
       setExportError(error?.message || `Kunde inte exportera ${type}.`);
     } finally {
@@ -35,15 +53,32 @@ export function useExportActions(state) {
     }
   };
 
-  const downloadPng = async () => runExport('PNG', async () => {
+  const downloadPng = () => runExport('PNG', async () => {
     const filename = `${getBaseFilename()}.png`;
-    await exportAsPng(exportRef.current, filename);
+    // exportAsPNG tar ett element-id; vi sätter ett tillfälligt id om nödvändigt
+    const el = exportRef.current;
+    const tempId = '__export_ref_target__';
+    const prevId = el.id;
+    if (!el.id) el.id = tempId;
+    try {
+      await exportAsPNG(el.id, filename);
+    } finally {
+      el.id = prevId;
+    }
     return filename;
   });
 
-  const downloadPdf = async () => runExport('PDF', async () => {
+  const downloadPdf = () => runExport('PDF', async () => {
     const filename = `${getBaseFilename()}.pdf`;
-    await exportAsPdf(exportRef.current, state.selectedFormat, filename);
+    const el = exportRef.current;
+    const tempId = '__export_ref_target__';
+    const prevId = el.id;
+    if (!el.id) el.id = tempId;
+    try {
+      await exportAsPDF(el.id, state.selectedFormat, filename);
+    } finally {
+      el.id = prevId;
+    }
     return filename;
   });
 
