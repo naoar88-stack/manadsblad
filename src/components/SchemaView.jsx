@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { useToast } from './Toast';
 import { EmptyState } from './EmptyState';
+import { MagicPasteModal } from './MagicPasteModal';
 
 export function SchemaView({
   year, month, prevMonth, nextMonth,
@@ -18,10 +19,17 @@ export function SchemaView({
   const [dragOver,  setDragOver]  = useState(null);
   const [dragItem,  setDragItem]  = useState(null);
   const [improvingText, setImprovingText] = useState({});
+  const [showMagicPaste, setShowMagicPaste] = useState(false);
   const dragCounter = useRef(0);
 
   const monthName = useMemo(
     () => format(new Date(year, month), 'MMMM yyyy', { locale: sv }),
+    [year, month],
+  );
+
+  // yearMonth-sträng för MagicPasteModal (t.ex. "2026-06")
+  const yearMonth = useMemo(
+    () => `${year}-${String(month + 1).padStart(2, '0')}`,
     [year, month],
   );
 
@@ -70,6 +78,24 @@ export function SchemaView({
     };
     pushHistory([...activities, newAct]);
   }, [activities, pushHistory, year, month]);
+
+  // ─ Magic Paste: lägg till importerade aktiviteter
+  const handleMagicImport = useCallback((imported) => {
+    if (!imported?.length) return;
+    const newActs = imported.map(a => ({
+      id: crypto.randomUUID(),
+      date: a.date ?? new Date(year, month, 1).toISOString(),
+      title: a.title ?? '',
+      time: a.time ?? '',
+      location: a.location ?? '',
+      maxParticipants: a.maxParticipants ?? '',
+      image: a.image ?? '',
+      ...a,
+    }));
+    pushHistory([...activities, ...newActs]);
+    setShowMagicPaste(false);
+    toast?.success(`${newActs.length} aktivitet${newActs.length !== 1 ? 'er' : ''} importerade med Magic Paste ✓`);
+  }, [activities, pushHistory, year, month, toast]);
 
   // ─ AI: Förbättra text
   const improveText = useCallback(async (id, currentTitle) => {
@@ -159,6 +185,16 @@ export function SchemaView({
             aria-label="Nästa månad"
           >
             <ChevronRight className="w-5 h-5 text-slate-600" />
+          </button>
+
+          {/* Magic Paste-knapp */}
+          <button
+            onClick={() => setShowMagicPaste(true)}
+            className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold text-purple-700 bg-purple-50 hover:bg-purple-100 border border-purple-200 transition-colors"
+            aria-label="Öppna Magic Paste — importera aktiviteter med AI"
+          >
+            <Wand2 className="w-4 h-4" aria-hidden="true" />
+            Magic Paste
           </button>
         </div>
 
@@ -275,6 +311,15 @@ export function SchemaView({
             body={`Klicka på "+" i någon av de öppna dagarna för att lägga till din första aktivitet för ${monthName}.`}
           />
         </div>
+      )}
+
+      {/* Magic Paste Modal */}
+      {showMagicPaste && (
+        <MagicPasteModal
+          yearMonth={yearMonth}
+          onImport={handleMagicImport}
+          onClose={() => setShowMagicPaste(false)}
+        />
       )}
     </div>
   );
