@@ -183,20 +183,31 @@ export function StudioView({ activities, design, setDesign, settings, year, mont
   const paperHeight = design.format === 'A4 Liggande' ? 540 : 990;
 
   // ── contentScale: krymper innehållet om det svämmar över ──
+  // Använder double-RAF för att säkerställa att DOM-layout är stabil
+  // innan vi mäter, vilket förhindrar NaN-scale vid första render.
   const contentRef = useRef(null);
   const [contentScale, setContentScale] = useState(1);
 
   useEffect(() => {
     const el = contentRef.current;
     if (!el) return;
-    // Mät tillgänglig vs faktisk höjd
-    const available = el.clientHeight;
-    const actual    = el.scrollHeight;
-    if (actual > available && available > 0) {
-      setContentScale(available / actual);
-    } else {
-      setContentScale(1);
-    }
+
+    let rafId;
+    // Första RAF: React har committat DOM
+    // Andra RAF: webbläsaren har utfört reflow och layout är stabil
+    rafId = requestAnimationFrame(() => {
+      rafId = requestAnimationFrame(() => {
+        const available = el.clientHeight;
+        const actual    = el.scrollHeight;
+        if (available > 0 && actual > available) {
+          setContentScale(available / actual);
+        } else if (available > 0) {
+          setContentScale(1);
+        }
+      });
+    });
+
+    return () => cancelAnimationFrame(rafId);
   }, [activities, design]);
 
   const layoutTheme = useMemo(() => {
@@ -384,87 +395,75 @@ export function StudioView({ activities, design, setDesign, settings, year, mont
             <div className="grid grid-cols-2 gap-2">
               {LAYOUTS.map(l => (
                 <button key={l.id} onClick={() => setDesign(d => ({ ...d, layout: l.id }))}
-                  className={`rounded-xl p-3 text-left border transition ${design.layout === l.id ? 'border-slate-900 bg-slate-50 shadow-sm' : 'border-slate-200 hover:border-slate-300'}`}>
-                  <div className={`h-6 rounded-lg bg-gradient-to-r ${l.gradient} mb-2`} />
-                  <div className="text-xs font-bold text-slate-800">{l.name}</div>
-                  <div className="text-xs text-slate-400 mt-0.5 leading-tight">{l.desc}</div>
+                  className={`rounded-xl p-3 text-left border transition ${design.layout === l.id ? 'border-slate-900 bg-slate-900 text-white' : 'border-slate-200 hover:border-slate-300 bg-white'}`}>
+                  <div className={`h-8 rounded-lg mb-2 bg-gradient-to-br ${l.gradient}`} />
+                  <div className="text-xs font-bold">{l.name}</div>
+                  <div className={`text-xs mt-0.5 ${design.layout === l.id ? 'text-slate-300' : 'text-slate-400'}`}>{l.desc}</div>
                 </button>
               ))}
             </div>
           </Section>
 
           <Section title="Format">
-            <div className="grid grid-cols-2 gap-1.5">
+            <div className="grid grid-cols-2 gap-2">
               {FORMATS.map(f => <Tile key={f} label={f} active={design.format === f} onClick={() => setDesign(d => ({ ...d, format: f }))} />)}
             </div>
           </Section>
 
-          <Section title="Vy">
-            <div className="grid grid-cols-2 gap-1.5">
+          <Section title="Visningsläge">
+            <div className="grid grid-cols-2 gap-2">
               <Tile label="Rutnät" active={design.viewMode !== 'weekly'} onClick={() => setDesign(d => ({ ...d, viewMode: 'grid' }))} />
               <Tile label="Per vecka" active={design.viewMode === 'weekly'} onClick={() => setDesign(d => ({ ...d, viewMode: 'weekly' }))} />
             </div>
           </Section>
 
-          {design.viewMode === 'weekly' && (
-            <Section title="Veckofärger">
-              <div className="space-y-2">
-                {['week1','week2','week3','week4'].map((key, i) => (
-                  <div key={key} className="flex items-center gap-3">
-                    <span className="text-xs text-slate-500 w-14">Vecka {i + 1}</span>
-                    <input type="color" value={(design.colors || {})[key] || WEEK_COLORS[i]}
-                      onChange={e => setDesign(d => ({ ...d, colors: { ...(d.colors || {}), [key]: e.target.value } }))}
-                      className="w-8 h-8 rounded-lg border border-slate-200 cursor-pointer p-0.5" />
-                    <span className="text-xs text-slate-400">{(design.colors || {})[key] || WEEK_COLORS[i]}</span>
-                  </div>
-                ))}
-              </div>
-            </Section>
-          )}
-
-          <Section title="Typografi">
-            <div className="grid grid-cols-1 gap-1">
+          <Section title="Typsnitt">
+            <div className="grid grid-cols-1 gap-1.5">
               {FONTS.map(f => <Tile key={f} label={f} active={design.font === f} onClick={() => setDesign(d => ({ ...d, font: f }))} />)}
             </div>
           </Section>
 
-          <Section title="Färgschema" defaultOpen={false}>
-            <div className="grid grid-cols-1 gap-1">
-              {SCHEMES.map(s => <Tile key={s} label={s} active={design.scheme === s} onClick={() => setDesign(d => ({ ...d, scheme: s }))} />)}
-            </div>
-          </Section>
-
           <Section title="Bakgrund" defaultOpen={false}>
-            <div className="grid grid-cols-2 gap-1">
+            <div className="grid grid-cols-2 gap-2">
               {BACKGROUNDS.map(b => <Tile key={b} label={b} active={design.background === b} onClick={() => setDesign(d => ({ ...d, background: b }))} />)}
             </div>
           </Section>
 
-          <Section title="Mallar" defaultOpen={false}>
-            <button onClick={() => addTemplate?.(design)}
-              className="w-full py-2 rounded-xl bg-slate-900 text-white text-xs font-bold hover:bg-slate-700 transition">
-              Spara nuvarande som mall
-            </button>
-            {(templates || []).map(t => (
-              <div key={t.id} className="flex items-center justify-between p-2 rounded-xl bg-slate-50 border border-slate-100">
-                <span className="text-xs font-semibold text-slate-700">{t.name}</span>
-                <button onClick={() => setDesign(t.design)}
-                  className="text-xs text-indigo-600 hover:text-indigo-800 font-semibold">Använd</button>
-              </div>
-            ))}
-          </Section>
-
-          <Section title="Community" defaultOpen={false}>
-            {COMMUNITY_TEMPLATES.map(t => (
-              <div key={t.id} className="p-3 rounded-xl bg-slate-50 border border-slate-100 space-y-1">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-slate-800">{t.title}</span>
-                  {t.public && <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-semibold">Publik</span>}
+          {design.viewMode === 'weekly' && (
+            <Section title="Veckofärger" defaultOpen={false}>
+              {['week1','week2','week3','week4'].map((wk, i) => (
+                <div key={wk} className="flex items-center gap-3">
+                  <span className="text-xs text-slate-500 w-14">Vecka {i+1}</span>
+                  <div className="flex gap-1.5 flex-wrap">
+                    {WEEK_COLORS.map(c => (
+                      <button key={c} onClick={() => setDesign(d => ({ ...d, colors: { ...(d.colors||{}), [wk]: c } }))}
+                        style={{ background: c, width:20, height:20, borderRadius:'50%', border: (design.colors?.[wk] || WEEK_COLORS[i]) === c ? '2px solid #0f172a' : '2px solid transparent' }} />
+                    ))}
+                  </div>
                 </div>
-                <div className="text-xs text-slate-400">{t.author} · {t.uses} användningar</div>
-                <button className="text-xs text-indigo-600 hover:text-indigo-800 font-semibold">Använd mall</button>
+              ))}
+            </Section>
+          )}
+
+          <Section title="Spara mall" defaultOpen={false}>
+            <button
+              onClick={() => {
+                const name = prompt('Namn på mallen?');
+                if (name?.trim()) addTemplate?.({ name: name.trim(), design: { ...design } });
+              }}
+              className="w-full py-2.5 rounded-xl bg-slate-900 text-white text-xs font-bold hover:bg-slate-700 transition">
+              Spara nuvarande design
+            </button>
+            {templates?.length > 0 && (
+              <div className="space-y-1.5 mt-2">
+                {templates.map(t => (
+                  <button key={t.id} onClick={() => setDesign(t.design)}
+                    className="w-full text-left px-3 py-2 rounded-lg border border-slate-200 hover:bg-slate-50 text-xs font-medium text-slate-700 transition">
+                    {t.name}
+                  </button>
+                ))}
               </div>
-            ))}
+            )}
           </Section>
 
         </div>
