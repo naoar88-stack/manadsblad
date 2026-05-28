@@ -1,7 +1,5 @@
 /**
  * EmptyState — generisk tom-tillstånds-komponent.
- * Används i SchemaView (inga aktiviteter) och överallt annars.
- *
  * Props:
  *   icon      — Lucide-ikonelement (valfritt)
  *   title     — Rubrik (sträng)
@@ -14,20 +12,28 @@ import React from 'react';
 export function EmptyState({ icon, title, body, action, className = '' }) {
   return (
     <div
-      className={`flex flex-col items-center justify-center text-center py-16 px-8 ${className}`}
+      className={`flex flex-col items-center justify-center text-center py-20 px-8 animate-in ${className}`}
       role="status"
     >
       {icon && (
-        <div className="mb-5 w-14 h-14 rounded-2xl bg-indigo-50 flex items-center justify-center text-indigo-400">
-          {React.cloneElement(icon, { className: 'w-7 h-7', strokeWidth: 1.5 })}
+        <div
+          className="mb-5 w-16 h-16 rounded-2xl flex items-center justify-center"
+          style={{
+            background: 'linear-gradient(135deg, #f0f4ff 0%, #e8ecff 100%)',
+            border: '1px solid rgba(91,120,246,0.15)',
+          }}
+        >
+          {React.cloneElement(icon, { className: 'w-7 h-7 text-brand-500', strokeWidth: 1.5 })}
         </div>
       )}
-      <h3 className="text-base font-semibold text-slate-700 mb-1">{title}</h3>
-      {body && <p className="text-sm text-slate-400 max-w-xs mb-6">{body}</p>}
+      <h3 className="text-base font-bold text-slate-800 mb-2">{title}</h3>
+      {body && (
+        <p className="text-sm text-slate-400 font-medium max-w-[280px] mb-7 leading-relaxed">{body}</p>
+      )}
       {action && (
         <button
           onClick={action.onClick}
-          className="px-4 py-2 bg-indigo-600 text-white text-sm font-semibold rounded-xl hover:bg-indigo-700 transition-colors shadow-sm"
+          className="btn-primary px-5 h-10 text-sm"
         >
           {action.label}
         </button>

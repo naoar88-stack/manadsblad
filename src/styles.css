@@ -1,110 +1,104 @@
+/* styles.css — legacy variables kept for backward compat, now delegating to index.css tokens */
 :root {
-  --bg: #f9f9f9; /* Uppdaterad bakgrundsfärg för bättre kontrast */
-  --panel: #ffffff;
-  --panel-muted: #f5f5f5;
-  --text: #333333; /* Mjukare och mer neutral textfärg */
-  --muted: #888888;
-  --primary: #007bff; /* Modern, klar blå för primär färg */
-  --primary-hover: #0056b3; /* Mörkare blå för hover-effekt */
-  --danger: #ff4d4f; /* Kontrast för varningar */
-  --radius: 10px; /* Mindre rundning för en mer modern look */
-  --shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Mjukare skuggor */
-  font-family: 'Roboto', sans-serif; /* Modernare och mer elegant typsnitt */
+  --bg:           #f8f9fc;
+  --panel:        #ffffff;
+  --panel-muted:  #f1f3f9;
+  --text:         #0f172a;
+  --muted:        #64748b;
+  --primary:      #4560eb;
+  --primary-hover:#3a4fd6;
+  --danger:       #dc2626;
+  --radius:       1rem;
+  --shadow:       0 2px 8px rgba(15,23,42,0.08);
+  font-family: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
 }
 
 body {
   margin: 0;
   background-color: var(--bg);
   color: var(--text);
-  font-family: var(--font-family);
+  font-family: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
 }
 
-/* Knappar med hover-effekter */
 .btn {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
   background: var(--primary);
   color: #ffffff;
   border: none;
-  border-radius: var(--radius);
-  padding: 10px 16px;
-  font-size: 1rem;
+  border-radius: 1.25rem;
+  padding: 0.65rem 1.25rem;
+  font-size: 0.875rem;
+  font-weight: 650;
   cursor: pointer;
-  box-shadow: var(--shadow);
-  transition: background 0.3s, transform 0.2s;
+  box-shadow: 0 1px 3px rgba(69,96,235,0.3);
+  transition: background 200ms, transform 150ms, box-shadow 200ms;
+  min-height: 44px;
 }
 
 .btn:hover {
   background: var(--primary-hover);
-  transform: scale(1.02);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(69,96,235,0.28);
 }
 
-.btn:active {
-  transform: scale(0.98);
-}
+.btn:active { transform: translateY(0) scale(0.99); }
 
-/* Panels och kort */
 .panel {
-  border-radius: var(--radius);
+  border-radius: 1.25rem;
   background: var(--panel);
   box-shadow: var(--shadow);
-  padding: 20px;
+  padding: 1.5rem;
 }
 
 .day-card {
-  border: 1px solid var(--panel-muted);
-  border-radius: var(--radius);
-  padding: 20px;
-  box-shadow: var(--shadow);
+  border: 1px solid rgba(15,23,42,0.08);
+  border-radius: 1.25rem;
+  padding: 1rem;
+  background: var(--panel);
+  box-shadow: 0 1px 3px rgba(15,23,42,0.05);
+  transition: box-shadow 200ms, transform 200ms;
 }
 
-/* Typografi för rubriker och text */
+.day-card:hover {
+  background: var(--panel);
+  box-shadow: 0 6px 20px rgba(15,23,42,0.09);
+  transform: translateY(-1px);
+}
+
 h1, h2, h3 {
   color: var(--text);
-  margin-bottom: 1rem;
+  margin-bottom: 0.75rem;
   line-height: 1.2;
-  font-weight: bold;
+  font-weight: 700;
 }
 
-h1 {
-  font-size: 2.2rem;
-}
+h1 { font-size: 1.75rem; }
+h2 { font-size: 1.4rem; }
+h3 { font-size: 1.15rem; }
 
-h2 {
-  font-size: 1.8rem;
-}
-
-h3 {
-  font-size: 1.4rem;
-}
-
-/* Responsiv justering av layout */
 .app-shell {
-  display: grid;
-  grid-template-columns: 280px 1fr;
-  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
   background: var(--bg);
 }
 
 @media (max-width: 980px) {
-  .app-shell {
-    grid-template-columns: 1fr;
-  }
+  h1 { font-size: 1.5rem; }
 }
 
-/* Hover-effekt för interaktiva element */
 .status-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
+  margin-bottom: 0.75rem;
 }
 
 .calendar-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 24px;
-}
-
-.day-card:hover {
-  background: var(--panel-muted);
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1rem;
 }
