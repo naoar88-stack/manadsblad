@@ -1,15 +1,24 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import { exportAsPNG, exportAsPDF, exportViaCloud, shareViaWebShare } from '../lib/exportUtils';
 
-// ID som sätts på export-canvasets DOM-element
 export const EXPORT_ELEMENT_ID = 'export-canvas-root';
 
 export function useExport({ format = 'a4-portrait', cloudEnabled = true, yardName = 'manadsblad' }) {
-  const [exporting, setExporting]       = useState(false);
-  const [exportError, setExportError]   = useState('');
-  const [exportSuccess, setExportSuccess] = useState('');
+  const [exporting,      setExporting]      = useState(false);
+  const [exportError,    setExportError]    = useState('');
+  const [exportSuccess,  setExportSuccess]  = useState('');
 
-  const filename = yardName.toLowerCase().replace(/\s+/g, '-');
+  // Guard mot state-uppdateringar efter unmount
+  const isMounted = useRef(true);
+  useEffect(() => {
+    isMounted.current = true;
+    return () => { isMounted.current = false; };
+  }, []);
+
+  const filename = useMemo(
+    () => yardName.toLowerCase().replace(/\s+/g, '-'),
+    [yardName],
+  );
 
   const run = useCallback(async (fn, successMsg) => {
     setExporting(true);
@@ -17,14 +26,18 @@ export function useExport({ format = 'a4-portrait', cloudEnabled = true, yardNam
     setExportSuccess('');
     try {
       await fn();
+      if (!isMounted.current) return;
       setExportSuccess(successMsg);
-      setTimeout(() => setExportSuccess(''), 3500);
+      const t = setTimeout(() => { if (isMounted.current) setExportSuccess(''); }, 3500);
+      return () => clearTimeout(t);
     } catch (e) {
       console.error('[Export]', e);
+      if (!isMounted.current) return;
       setExportError(e.message || 'Okänt exportfel — försök igen.');
-      setTimeout(() => setExportError(''), 5000);
+      const t = setTimeout(() => { if (isMounted.current) setExportError(''); }, 5000);
+      return () => clearTimeout(t);
     } finally {
-      setExporting(false);
+      if (isMounted.current) setExporting(false);
     }
   }, []);
 

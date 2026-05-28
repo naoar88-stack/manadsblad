@@ -20,7 +20,6 @@ const CropModal         = lazy(() => import('./components/CropModal').then(m => 
 
 const toMonthKey = (y, m) => `${y}-${String(m + 1).padStart(2, '0')}`;
 
-/** Fullskärms-spinner med korrekt ARIA */
 const Spinner = () => (
   <div
     className="flex items-center justify-center min-h-screen bg-slate-50"
@@ -44,24 +43,19 @@ const DEFAULT_DESIGN = {
 };
 
 const DEFAULT_SETTINGS = {
-  // Organisationsinfo
-  yardName:        'Fritidsgårdarna',
-  address:         '',
-  websiteUrl:      '',
-  footerText:      'Välkommen till en trygg och kreativ mötesplats.',
-  qrLink:          'https://fritidsgard.se',
-  // Logotyp
-  logoUrl:         '',
-  // Visning
-  showQr:          false,
+  yardName:          'Fritidsgårdarna',
+  address:           '',
+  websiteUrl:        '',
+  footerText:        'Välkommen till en trygg och kreativ mötesplats.',
+  qrLink:            'https://fritidsgard.se',
+  logoUrl:           '',
+  showQr:            false,
   showStockholmLogo: true,
-  // Export & synk
-  cloudExport:     true,
-  localMode:       false,
-  // Kalender
-  closeOnHolidays: true,
-  fillCalendar:    true,
-  groupWeeks:      false,
+  cloudExport:       true,
+  localMode:         false,
+  closeOnHolidays:   true,
+  fillCalendar:      true,
+  groupWeeks:        false,
 };
 
 export default function App() {
@@ -84,7 +78,6 @@ export default function App() {
   const { activities, setActivities, templates, addTemplate } = useSchedule(currentMonthKey, openDays);
   const { pushHistory, undo, redo, resetHistory, canUndo, canRedo } = useHistory(activities, setActivities);
 
-  // Refs för canUndo/canRedo — undviker stale closures i keyboard-handler
   const canUndoRef = useRef(canUndo);
   const canRedoRef = useRef(canRedo);
   useEffect(() => { canUndoRef.current = canUndo; }, [canUndo]);
@@ -96,7 +89,6 @@ export default function App() {
     return () => { mountedRef.current = false; };
   }, []);
 
-  // Callback som useFirebaseSync anropar med faktiskt skriv-resultat
   const handleWriteResult = useCallback((ok) => {
     if (!mountedRef.current) return;
     setSyncStatus(ok ? 'saved' : 'error');
@@ -119,16 +111,19 @@ export default function App() {
     onWriteResult: handleWriteResult,
   });
 
-  // syncStatus: sätt 'saving' direkt när data ändras, 'saved'/'error' kommer via handleWriteResult
+  // syncStatus: sätt 'saving' vid faktisk dataändring (jämför längd + JSON för att undvika onödigt flimmer)
+  const activitiesJsonRef = useRef('');
   useEffect(() => {
     if (!user || settings.localMode) {
       setSyncStatus('local');
       return;
     }
+    const json = JSON.stringify(activities);
+    if (json === activitiesJsonRef.current) return; // ingen faktisk ändring
+    activitiesJsonRef.current = json;
     setSyncStatus('saving');
-  }, [activities, settings, user]);
+  }, [activities, settings.localMode, user]);
 
-  // Tangentbordsgenvägar — använder refs så closure alltid är färsk
   useEffect(() => {
     const handle = e => {
       const tag = e.target.tagName;
@@ -145,7 +140,7 @@ export default function App() {
     };
     window.addEventListener('keydown', handle);
     return () => window.removeEventListener('keydown', handle);
-  }, [undo, redo]); // canUndo/canRedo läses via refs
+  }, [undo, redo]);
 
   const updateActivity = useCallback((id, patch) => {
     pushHistory(activities.map(a => a.id === id ? { ...a, ...patch } : a));
@@ -163,7 +158,19 @@ export default function App() {
     setMonth(m => { if (m === 11) { setYear(y => y + 1); return 0; } return m + 1; });
   }, []);
 
-  // Null-guards: om aktiviteten tagits bort medan modalen var öppen — stäng modalen.
+  // Stabila callbacks för modal-handlers — inline arrows skulle bryta memo på barn-komponenter
+  const handleOpenAsset = useCallback((id) => setAssetModalFor(id), []);
+  const handleCloseAsset = useCallback(() => setAssetModalFor(null), []);
+  const handleSelectAsset = useCallback((img) => {
+    setAssetModalFor(prev => { updateActivity(prev, { image: img }); return null; });
+  }, [updateActivity]);
+
+  const handleOpenCrop  = useCallback((id) => setCropModalFor(id), []);
+  const handleCloseCrop = useCallback(() => setCropModalFor(null), []);
+  const handleSaveCrop  = useCallback((img) => {
+    setCropModalFor(prev => { updateActivity(prev, { image: img }); return null; });
+  }, [updateActivity]);
+
   const assetActivity = assetModalFor ? activities.find(a => a.id === assetModalFor) ?? null : null;
   const cropActivity  = cropModalFor  ? activities.find(a => a.id === cropModalFor)  ?? null : null;
 
@@ -179,7 +186,6 @@ export default function App() {
       <div className="min-h-screen flex flex-col bg-slate-50">
         <OfflineBanner isOnline={isOnline} />
 
-        {/* Banner för anonyma användare */}
         {user?.isAnonymous && (
           <div className="bg-amber-50 border-b border-amber-200 px-4 py-2 text-xs text-amber-800 flex items-center justify-between gap-2">
             <span>Du använder gästläge — ditt arbete försvinner om du stänger webbläsaren.</span>
@@ -212,7 +218,7 @@ export default function App() {
                       updateActivity={updateActivity}
                       removeActivity={removeActivity}
                       pushHistory={pushHistory}
-                      onOpenAsset={id => setAssetModalFor(id)}
+                      onOpenAsset={handleOpenAsset}
                     />
               )}
               {activeTab === 'Studio' && (
@@ -222,7 +228,7 @@ export default function App() {
                       activities={activities} design={design} setDesign={setDesign}
                       settings={settings} year={year} month={month}
                       zoom={studioZoom} setZoom={setStudioZoom}
-                      onCrop={id => setCropModalFor(id)}
+                      onCrop={handleOpenCrop}
                       templates={templates} addTemplate={addTemplate}
                     />
               )}
@@ -233,27 +239,25 @@ export default function App() {
           </ErrorBoundary>
         </main>
 
-        {/* AssetManagerModal */}
         {assetModalFor && assetActivity && (
           <ErrorBoundary fallback={null}>
             <Suspense fallback={null}>
               <AssetManagerModal
                 activity={assetActivity}
-                onSelect={img => { updateActivity(assetModalFor, { image: img }); setAssetModalFor(null); }}
-                onClose={() => setAssetModalFor(null)}
+                onSelect={handleSelectAsset}
+                onClose={handleCloseAsset}
               />
             </Suspense>
           </ErrorBoundary>
         )}
 
-        {/* CropModal */}
         {cropModalFor && cropActivity && (
           <ErrorBoundary fallback={null}>
             <Suspense fallback={null}>
               <CropModal
                 activity={cropActivity}
-                onSave={img => { updateActivity(cropModalFor, { image: img }); setCropModalFor(null); }}
-                onClose={() => setCropModalFor(null)}
+                onSave={handleSaveCrop}
+                onClose={handleCloseCrop}
               />
             </Suspense>
           </ErrorBoundary>
