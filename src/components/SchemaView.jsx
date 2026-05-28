@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef, useMemo } from 'react';
+import React, { useState, useCallback, useRef, useMemo, memo } from 'react';
 import { format, getDaysInMonth, getDay } from 'date-fns';
 import { sv } from 'date-fns/locale';
 import {
