@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { X, Check, RotateCcw } from 'lucide-react';
 
 function RangeRow({ label, value, min, max, step = 1, unit = '', onChange }) {
@@ -10,7 +10,8 @@ function RangeRow({ label, value, min, max, step = 1, unit = '', onChange }) {
       </div>
       <input type="range" min={min} max={max} step={step} value={value}
         onChange={e => onChange(Number(e.target.value))}
-        className="w-full accent-indigo-500 h-2 cursor-pointer" />
+        className="w-full accent-indigo-500 h-2 cursor-pointer"
+        aria-label={label} />
     </div>
   );
 }
@@ -19,23 +20,45 @@ const DEFAULT_CROP = { x: 50, y: 50, zoom: 1 };
 
 export function CropModal({ activity, onSave, onClose }) {
   const [crop, setCrop] = useState(activity?.crop ?? DEFAULT_CROP);
+  const closeRef = useRef(null);
+
+  // Fokus på stäng-knapp vid öppning
+  useEffect(() => { closeRef.current?.focus(); }, []);
+
+  // Escape-tangenten stänger modalen
+  useEffect(() => {
+    const onKey = (e) => { if (e.key === 'Escape') onClose(); };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [onClose]);
+
   if (!activity) return null;
 
   const reset = () => setCrop(DEFAULT_CROP);
   const isDefault = crop.x === 50 && crop.y === 50 && crop.zoom === 1;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
-      onClick={e => e.target === e.currentTarget && onClose()}>
-      <div className="modal-enter bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden border border-slate-100">
-
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+      onClick={e => e.target === e.currentTarget && onClose()}
+      aria-hidden="true"
+    >
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label="Bildjustering"
+        className="modal-enter bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden border border-slate-100"
+      >
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
           <div>
             <h2 className="font-black text-slate-900 text-base">Bildjustering</h2>
             <p className="text-xs text-slate-400 mt-0.5 font-medium truncate max-w-[240px]">{activity.title}</p>
           </div>
-          <button onClick={onClose}
+          <button
+            ref={closeRef}
+            onClick={onClose}
+            aria-label="Stäng bildjustering"
             className="h-9 w-9 rounded-xl bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-600 transition">
             <X size={16} />
           </button>

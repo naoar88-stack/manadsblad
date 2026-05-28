@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Sparkles, X, Loader2, AlertCircle, CheckCircle2, Wand2, ClipboardPaste } from 'lucide-react';
 import { useAI } from '../hooks/useAI';
 
@@ -12,6 +12,15 @@ const EXAMPLES = [
 export function MagicPasteModal({ onImport, onClose, yearMonth }) {
   const [text, setText] = useState('');
   const { aiLoading, aiError, aiSuccess, hasKey, runMagicPaste } = useAI();
+  const closeRef = useRef(null);
+
+  useEffect(() => { closeRef.current?.focus(); }, []);
+
+  useEffect(() => {
+    const onKey = (e) => { if (e.key === 'Escape') onClose(); };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [onClose]);
 
   const handlePaste = async () => {
     if (!text.trim()) return;
@@ -27,11 +36,18 @@ export function MagicPasteModal({ onImport, onClose, yearMonth }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
-      onClick={e => e.target === e.currentTarget && onClose()}>
-      <div className="modal-enter w-full max-w-lg rounded-3xl overflow-hidden shadow-2xl"
-        style={{ background: 'linear-gradient(160deg, #1e1b4b 0%, #312e81 40%, #1e1b4b 100%)', border: '1px solid rgba(139,92,246,0.3)' }}>
-
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+      onClick={e => e.target === e.currentTarget && onClose()}
+      aria-hidden="true"
+    >
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label="Magic Paste — importera aktiviteter med AI"
+        className="modal-enter w-full max-w-lg rounded-3xl overflow-hidden shadow-2xl"
+        style={{ background: 'linear-gradient(160deg, #1e1b4b 0%, #312e81 40%, #1e1b4b 100%)', border: '1px solid rgba(139,92,246,0.3)' }}
+      >
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-5" style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
           <div className="flex items-center gap-3">
@@ -43,7 +59,10 @@ export function MagicPasteModal({ onImport, onClose, yearMonth }) {
               <p className="text-xs text-purple-300/80 font-medium mt-0.5">AI analyserar och skapar aktiviteter</p>
             </div>
           </div>
-          <button onClick={onClose}
+          <button
+            ref={closeRef}
+            onClick={onClose}
+            aria-label="Stäng Magic Paste"
             className="h-9 w-9 rounded-xl flex items-center justify-center text-slate-400 hover:text-white transition"
             style={{ background: 'rgba(255,255,255,0.06)' }}>
             <X size={16} />
@@ -52,8 +71,6 @@ export function MagicPasteModal({ onImport, onClose, yearMonth }) {
 
         {/* Body */}
         <div className="px-6 py-5 space-y-4">
-
-          {/* Info-banner */}
           <div className="rounded-2xl px-4 py-3 text-xs text-purple-200 leading-relaxed"
             style={{ background: 'rgba(139,92,246,0.12)', border: '1px solid rgba(139,92,246,0.2)' }}>
             Klistra in text från e-post, dokument eller anteckningar.{' '}
@@ -61,7 +78,6 @@ export function MagicPasteModal({ onImport, onClose, yearMonth }) {
             {yearMonth ? ` för ${yearMonth}` : ''}.
           </div>
 
-          {/* Saknad API-nyckel */}
           {!hasKey && (
             <div className="rounded-2xl px-4 py-3 text-xs text-amber-300 flex items-start gap-2.5"
               style={{ background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.2)' }}>
@@ -73,12 +89,12 @@ export function MagicPasteModal({ onImport, onClose, yearMonth }) {
             </div>
           )}
 
-          {/* Textarea */}
           <div className="relative">
             <textarea
               value={text}
               onChange={e => setText(e.target.value)}
               placeholder={`Klistra in text här…\n\nExempel:\n${EXAMPLES.join('\n')}`}
+              aria-label="Text att analysera"
               className="w-full h-48 rounded-2xl px-4 py-3.5 text-sm resize-none outline-none text-slate-100 placeholder:text-slate-500 leading-relaxed"
               style={{
                 background: 'rgba(255,255,255,0.05)',
@@ -89,7 +105,6 @@ export function MagicPasteModal({ onImport, onClose, yearMonth }) {
               onFocus={e => e.target.style.borderColor = 'rgba(139,92,246,0.6)'}
               onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.10)'}
             />
-            {/* Klistra från urklipp */}
             {!text && (
               <button onClick={handlePasteFromClipboard}
                 className="absolute bottom-3 right-3 flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-purple-300 hover:text-white transition"
@@ -99,6 +114,7 @@ export function MagicPasteModal({ onImport, onClose, yearMonth }) {
             )}
             {text && (
               <button onClick={() => setText('')}
+                aria-label="Rensa text"
                 className="absolute top-3 right-3 h-6 w-6 rounded-lg flex items-center justify-center text-slate-500 hover:text-slate-300 transition"
                 style={{ background: 'rgba(255,255,255,0.08)' }}>
                 <X size={12} />
@@ -106,7 +122,6 @@ export function MagicPasteModal({ onImport, onClose, yearMonth }) {
             )}
           </div>
 
-          {/* Exempel-snabbval */}
           <div className="space-y-1.5">
             <p className="text-[10px] font-bold text-purple-400/70 uppercase tracking-widest">Exempelrader — klicka för att lägga till</p>
             <div className="flex flex-wrap gap-1.5">
@@ -121,7 +136,6 @@ export function MagicPasteModal({ onImport, onClose, yearMonth }) {
             </div>
           </div>
 
-          {/* Error / success */}
           {aiError && (
             <div className="rounded-2xl px-4 py-3 text-sm text-rose-300 flex items-center gap-2.5"
               style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)' }}>
@@ -135,7 +149,6 @@ export function MagicPasteModal({ onImport, onClose, yearMonth }) {
             </div>
           )}
 
-          {/* Actions */}
           <div className="flex gap-3 pt-1">
             <button onClick={onClose}
               className="flex-1 py-3 rounded-2xl text-slate-300 hover:text-white font-semibold text-sm transition"
