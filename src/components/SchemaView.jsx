@@ -3,11 +3,12 @@ import { format, getDaysInMonth, getDay } from 'date-fns';
 import { sv } from 'date-fns/locale';
 import {
   ChevronLeft, ChevronRight, Plus, Trash2, Image, Wand2, Check, X,
-  GripVertical, ChevronUp, ChevronDown, AlarmClock, MapPin, Users, CalendarDays,
+  GripVertical, ChevronUp, ChevronDown, AlarmClock, MapPin, Users, CalendarDays, Smile,
 } from 'lucide-react';
 import { useToast } from './Toast';
 import { EmptyState } from './EmptyState';
 import { MagicPasteModal } from './MagicPasteModal';
+import { IconPicker, ACTIVITY_ICONS } from './IconPicker';
 
 export function SchemaView({
   year, month, prevMonth, nextMonth,
@@ -27,13 +28,11 @@ export function SchemaView({
     [year, month],
   );
 
-  // yearMonth-sträng för MagicPasteModal (t.ex. "2026-06")
   const yearMonth = useMemo(
     () => `${year}-${String(month + 1).padStart(2, '0')}`,
     [year, month],
   );
 
-  // Bygg dagar-array en gång per år/månad
   const days = useMemo(() => {
     const daysInMonth      = getDaysInMonth(new Date(year, month));
     const firstDayOfWeek   = getDay(new Date(year, month, 1));
@@ -42,13 +41,12 @@ export function SchemaView({
     for (let i = 0; i < mondayFirstOffset; i++) arr.push({ day: null, isPadding: true });
     for (let d = 1; d <= daysInMonth; d++) {
       const date      = new Date(year, month, d);
-      const dayOfWeek = (date.getDay() + 6) % 7; // 0=Mån, 6=Sön
+      const dayOfWeek = (date.getDay() + 6) % 7;
       arr.push({ day: d, date, dayOfWeek, isPadding: false });
     }
     return arr;
   }, [year, month]);
 
-  // Aktiviteter per dag — ett enda filter-pass för hela månaden
   const activitiesByDay = useMemo(() => {
     const map = {};
     for (const a of activities) {
@@ -64,7 +62,6 @@ export function SchemaView({
   const totalActivities    = useMemo(() => Object.values(activitiesByDay).reduce((s, a) => s + a.length, 0), [activitiesByDay]);
   const openDaysThisMonth  = useMemo(() => days.filter(d => !d.isPadding && openDays.includes(d.dayOfWeek)), [days, openDays]);
 
-  // ─ Adda ny aktivitet på dag
   const addActivity = useCallback((day) => {
     const date = new Date(year, month, day).toISOString();
     const newAct = {
@@ -75,11 +72,11 @@ export function SchemaView({
       location: '',
       maxParticipants: '',
       image: '',
+      icon: null,
     };
     pushHistory([...activities, newAct]);
   }, [activities, pushHistory, year, month]);
 
-  // ─ Magic Paste: lägg till importerade aktiviteter
   const handleMagicImport = useCallback((imported) => {
     if (!imported?.length) return;
     const newActs = imported.map(a => ({
@@ -90,6 +87,7 @@ export function SchemaView({
       location: a.location ?? '',
       maxParticipants: a.maxParticipants ?? '',
       image: a.image ?? '',
+      icon: a.icon ?? null,
       ...a,
     }));
     pushHistory([...activities, ...newActs]);
@@ -97,7 +95,6 @@ export function SchemaView({
     toast?.success(`${newActs.length} aktivitet${newActs.length !== 1 ? 'er' : ''} importerade med Magic Paste ✓`);
   }, [activities, pushHistory, year, month, toast]);
 
-  // ─ AI: Förbättra text
   const improveText = useCallback(async (id, currentTitle) => {
     if (!currentTitle?.trim()) return;
     setImprovingText(p => ({ ...p, [id]: true }));
@@ -121,7 +118,6 @@ export function SchemaView({
     }
   }, [updateActivity, toast]);
 
-  // ─ Drag & Drop
   const handleDragStart = useCallback((e, activity) => {
     setDragItem(activity);
     e.dataTransfer.effectAllowed = 'move';
@@ -154,7 +150,6 @@ export function SchemaView({
     setDragItem(null);
   }, [dragItem, updateActivity, year, month]);
 
-  // ─ Toggla öppet dag
   const toggleOpenDay = useCallback((dayOfWeek) => {
     setOpenDays(prev =>
       prev.includes(dayOfWeek)
@@ -187,7 +182,6 @@ export function SchemaView({
             <ChevronRight className="w-5 h-5 text-slate-600" />
           </button>
 
-          {/* Magic Paste-knapp */}
           <button
             onClick={() => setShowMagicPaste(true)}
             className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold text-purple-700 bg-purple-50 hover:bg-purple-100 border border-purple-200 transition-colors"
@@ -198,7 +192,6 @@ export function SchemaView({
           </button>
         </div>
 
-        {/* Veckodagstogglar */}
         <div className="flex items-center gap-2">
           <span className="text-sm text-slate-500 mr-2">Öppen dagar:</span>
           {weekdayNames.map((name, i) => (
@@ -313,7 +306,6 @@ export function SchemaView({
         </div>
       )}
 
-      {/* Magic Paste Modal */}
       {showMagicPaste && (
         <MagicPasteModal
           yearMonth={yearMonth}
@@ -332,7 +324,9 @@ const ActivityCard = memo(function ActivityCard({
 }) {
   const [isExpanded,        setIsExpanded]        = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const titleRef = useRef(null);
+  const [showIconPicker,    setShowIconPicker]    = useState(false);
+  const titleRef    = useRef(null);
+  const iconBtnRef  = useRef(null);
 
   const handleTitleKeyDown = useCallback((e) => {
     if (e.key === 'Enter') { e.preventDefault(); setIsExpanded(v => !v); }
@@ -342,6 +336,11 @@ const ActivityCard = memo(function ActivityCard({
   const handleKeyDown = useCallback((e) => {
     if (e.key === 'Escape') setShowDeleteConfirm(false);
   }, []);
+
+  // Hitta ikon-definitionen för valt id
+  const selectedIconDef = activity.icon
+    ? ACTIVITY_ICONS.find(ic => ic.id === activity.icon)
+    : null;
 
   return (
     <div
@@ -373,8 +372,20 @@ const ActivityCard = memo(function ActivityCard({
         </div>
       ) : (
         <>
+          {/* ── Titelrad ── */}
           <div className="flex items-start gap-1">
             <GripVertical className="w-3 h-3 mt-0.5 text-slate-300 flex-shrink-0" aria-hidden="true" />
+
+            {/* Ikon-chip (visas om ikon är vald) */}
+            {selectedIconDef && (
+              <span
+                className="flex items-center gap-0.5 bg-indigo-100 text-indigo-600 rounded-full px-1.5 py-0.5 text-xs font-semibold flex-shrink-0 mt-0.5"
+                title={selectedIconDef.label}
+              >
+                <selectedIconDef.Icon size={10} aria-hidden="true" />
+              </span>
+            )}
+
             <input
               ref={titleRef}
               className="flex-1 text-xs font-medium text-slate-700 bg-transparent outline-none placeholder:text-slate-300"
@@ -414,6 +425,7 @@ const ActivityCard = memo(function ActivityCard({
             </div>
           </div>
 
+          {/* ── Expanderat läge ── */}
           {isExpanded && (
             <div className="mt-2 space-y-1.5">
               {[{
@@ -441,6 +453,7 @@ const ActivityCard = memo(function ActivityCard({
                 </div>
               ))}
 
+              {/* Bild-knapp */}
               <button
                 onClick={() => onOpenAsset(activity.id)}
                 className="flex items-center gap-1 text-xs text-indigo-500 hover:text-indigo-700 transition-colors"
@@ -458,6 +471,46 @@ const ActivityCard = memo(function ActivityCard({
                   loading="lazy"
                 />
               )}
+
+              {/* ── Ikon-väljare ── */}
+              <div className="relative">
+                <button
+                  ref={iconBtnRef}
+                  onClick={() => setShowIconPicker(v => !v)}
+                  aria-expanded={showIconPicker}
+                  aria-label={selectedIconDef ? `Ikon: ${selectedIconDef.label} — ändra` : 'Välj ikon'}
+                  className="flex items-center gap-1.5 text-xs text-indigo-500 hover:text-indigo-700 transition-colors"
+                >
+                  {selectedIconDef
+                    ? (
+                      <>
+                        <selectedIconDef.Icon size={12} aria-hidden="true" />
+                        <span className="font-medium">{selectedIconDef.label}</span>
+                        <button
+                          onClick={e => { e.stopPropagation(); onUpdate({ icon: null }); }}
+                          aria-label="Rensa ikon"
+                          className="ml-0.5 text-slate-400 hover:text-red-500 transition-colors"
+                        >
+                          <X size={10} />
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <Smile size={12} aria-hidden="true" />
+                        <span>Välj ikon</span>
+                      </>
+                    )
+                  }
+                </button>
+
+                {showIconPicker && (
+                  <IconPicker
+                    value={activity.icon ?? null}
+                    onChange={(id) => onUpdate({ icon: id })}
+                    onClose={() => setShowIconPicker(false)}
+                  />
+                )}
+              </div>
             </div>
           )}
         </>

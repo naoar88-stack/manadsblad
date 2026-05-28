@@ -4,6 +4,7 @@ import {
   Loader2, CheckCircle2, AlertCircle, ChevronDown, CalendarX2, Save,
 } from 'lucide-react';
 import { useExport, EXPORT_ELEMENT_ID } from '../hooks/useExport';
+import { ACTIVITY_ICONS } from './IconPicker';
 
 const MONTH_SV    = ['Januari','Februari','Mars','April','Maj','Juni','Juli','Augusti','September','Oktober','November','December'];
 const WEEKDAY_SV  = ['Sön','Mån','Tis','Ons','Tor','Fre','Lör'];
@@ -20,6 +21,12 @@ const SCHEMES     = ['Per vecka','Pedagogiska färgkoder','Eget per kategori'];
 const FONTS       = ['Inter','Poppins','Nunito','Montserrat','DM Sans'];
 const BACKGROUNDS = ['Rutnat','Dots','Soft Glow','Ingen'];
 const WEEK_COLORS = ['#4f46e5','#0ea5e9','#22c55e','#f97316','#e11d48','#7c3aed'];
+
+// Slå upp ikon-komponent från id
+function getIconComponent(iconId) {
+  if (!iconId) return null;
+  return ACTIVITY_ICONS.find(ic => ic.id === iconId) ?? null;
+}
 
 function toDate(d) {
   if (!d) return new Date();
@@ -40,7 +47,6 @@ function formatDayHeader(d) {
   return `${WEEKDAY_FULL[date.getDay()].toUpperCase()} ${date.getDate()}/${date.getMonth()+1}`;
 }
 
-// ── Kollapsibel sektion i sidopanelen ──
 function Section({ title, children, defaultOpen = true }) {
   const [open, setOpen] = useState(defaultOpen);
   return (
@@ -106,22 +112,34 @@ function WeeklyLayout({ activities, design, settings, year, month, layoutTheme, 
               {days.map(day => (
                 <div key={day.date.toISOString()} style={{ padding:'6px 8px', borderRight:`1px solid ${color}18` }}>
                   <div style={{ fontSize:7, fontWeight:800, color, marginBottom:4, letterSpacing:'0.05em' }}>{formatDayHeader(day.date)}</div>
-                  {day.activities.map(a => (
-                    <div key={a.id} style={{ marginBottom:4, background:'rgba(255,255,255,0.9)', borderRadius:6, overflow:'hidden', boxShadow:'0 1px 3px rgba(0,0,0,0.06)' }}>
-                      {a.image && <img src={a.image} alt={a.title} style={{ width:'100%', height:36, objectFit:'cover', display:'block' }} />}
-                      <div style={{ padding:'3px 5px' }}>
-                        <div style={{ fontSize:7, fontWeight:700, color: layoutTheme.text, lineHeight:1.3 }}>{a.title}</div>
-                        {a.description && <div style={{ fontSize:6, color: layoutTheme.muted, marginTop:1 }}>{a.description}</div>}
-                        {(a.badges?.signup || a.badges?.cost || a.badges?.trip) && (
-                          <div style={{ display:'flex', gap:2, marginTop:2, flexWrap:'wrap' }}>
-                            {a.badges?.signup && <span style={{ fontSize:5.5, fontWeight:700, background:'#dcfce7', color:'#166534', padding:'1px 3px', borderRadius:3 }}>Anmälan</span>}
-                            {a.badges?.cost   && <span style={{ fontSize:5.5, fontWeight:700, background:'#fef9c3', color:'#854d0e', padding:'1px 3px', borderRadius:3 }}>Kostnad</span>}
-                            {a.badges?.trip   && <span style={{ fontSize:5.5, fontWeight:700, background:'#dbeafe', color:'#1e40af', padding:'1px 3px', borderRadius:3 }}>Utflykt</span>}
+                  {day.activities.map(a => {
+                    const iconDef = getIconComponent(a.icon);
+                    return (
+                      <div key={a.id} style={{ marginBottom:4, background:'rgba(255,255,255,0.9)', borderRadius:6, overflow:'hidden', boxShadow:'0 1px 3px rgba(0,0,0,0.06)' }}>
+                        {a.image && <img src={a.image} alt={a.title} style={{ width:'100%', height:36, objectFit:'cover', display:'block' }} />}
+                        <div style={{ padding:'3px 5px' }}>
+                          <div style={{ display:'flex', alignItems:'center', gap:3, fontSize:7, fontWeight:700, color: layoutTheme.text, lineHeight:1.3 }}>
+                            {iconDef && (
+                              <iconDef.Icon
+                                size={8}
+                                aria-hidden="true"
+                                style={{ color: layoutTheme.accent, flexShrink:0 }}
+                              />
+                            )}
+                            {a.title}
                           </div>
-                        )}
+                          {a.description && <div style={{ fontSize:6, color: layoutTheme.muted, marginTop:1 }}>{a.description}</div>}
+                          {(a.badges?.signup || a.badges?.cost || a.badges?.trip) && (
+                            <div style={{ display:'flex', gap:2, marginTop:2, flexWrap:'wrap' }}>
+                              {a.badges?.signup && <span style={{ fontSize:5.5, fontWeight:700, background:'#dcfce7', color:'#166534', padding:'1px 3px', borderRadius:3 }}>Anmälan</span>}
+                              {a.badges?.cost   && <span style={{ fontSize:5.5, fontWeight:700, background:'#fef9c3', color:'#854d0e', padding:'1px 3px', borderRadius:3 }}>Kostnad</span>}
+                              {a.badges?.trip   && <span style={{ fontSize:5.5, fontWeight:700, background:'#dbeafe', color:'#1e40af', padding:'1px 3px', borderRadius:3 }}>Utflykt</span>}
+                            </div>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                   {day.activities.length === 0 && <div style={{ fontSize:7, color:'#cbd5e1', fontStyle:'italic' }}>—</div>}
                 </div>
               ))}
@@ -136,41 +154,53 @@ function WeeklyLayout({ activities, design, settings, year, month, layoutTheme, 
 function GridLayout({ activities, design, settings, layoutTheme, previewCols, onCrop }) {
   return (
     <div style={{ display:'grid', gridTemplateColumns:`repeat(${previewCols}, 1fr)`, gap:8, padding:12 }}>
-      {activities.map(a => (
-        <div key={a.id} style={{ background:'rgba(255,255,255,0.85)', borderRadius:10, overflow:'hidden', boxShadow:'0 1px 4px rgba(0,0,0,0.07)' }}>
-          {a.image && (
-            <div style={{ position:'relative' }}>
-              <img src={a.image} alt={a.title} style={{ width:'100%', height:64, objectFit:'cover', display:'block' }} />
-              <button
-                onClick={() => onCrop?.(a.id)}
-                aria-label={`Justera bild för ${a.title}`}
-                style={{ position:'absolute', top:4, right:4, opacity:0, transition:'opacity 0.15s',
-                  background:'rgba(255,255,255,0.9)', borderRadius:6, padding:'2px 6px',
-                  fontSize:8, fontWeight:700, color:'#0f172a', border:'none', cursor:'pointer' }}
-                onMouseEnter={e => e.currentTarget.style.opacity=1}
-                onMouseLeave={e => e.currentTarget.style.opacity=0}
-              >
-                Justera
-              </button>
+      {activities.map(a => {
+        const iconDef = getIconComponent(a.icon);
+        return (
+          <div key={a.id} style={{ background:'rgba(255,255,255,0.85)', borderRadius:10, overflow:'hidden', boxShadow:'0 1px 4px rgba(0,0,0,0.07)' }}>
+            {a.image && (
+              <div style={{ position:'relative' }}>
+                <img src={a.image} alt={a.title} style={{ width:'100%', height:64, objectFit:'cover', display:'block' }} />
+                <button
+                  onClick={() => onCrop?.(a.id)}
+                  aria-label={`Justera bild för ${a.title}`}
+                  style={{ position:'absolute', top:4, right:4, opacity:0, transition:'opacity 0.15s',
+                    background:'rgba(255,255,255,0.9)', borderRadius:6, padding:'2px 6px',
+                    fontSize:8, fontWeight:700, color:'#0f172a', border:'none', cursor:'pointer' }}
+                  onMouseEnter={e => e.currentTarget.style.opacity=1}
+                  onMouseLeave={e => e.currentTarget.style.opacity=0}
+                >
+                  Justera
+                </button>
+              </div>
+            )}
+            <div style={{ padding:'6px 8px' }}>
+              <div style={{ display:'flex', gap:3, marginBottom:3, flexWrap:'wrap' }}>
+                {a.badges?.signup && <span style={{ fontSize:6, fontWeight:700, background:'#dcfce7', color:'#166534', padding:'1px 4px', borderRadius:3 }}>Anmälan</span>}
+                {a.badges?.cost   && <span style={{ fontSize:6, fontWeight:700, background:'#fef9c3', color:'#854d0e', padding:'1px 4px', borderRadius:3 }}>Kostnad</span>}
+                {a.badges?.trip   && <span style={{ fontSize:6, fontWeight:700, background:'#dbeafe', color:'#1e40af', padding:'1px 4px', borderRadius:3 }}>Utflykt</span>}
+              </div>
+              <div style={{ fontSize:7.5, color: layoutTheme.muted, marginBottom:2 }}>{formatDate(a.date)} · {a.ageGroup}</div>
+              {/* Titel med valfri ikon */}
+              <div style={{ display:'flex', alignItems:'center', gap:4 }}>
+                {iconDef && (
+                  <iconDef.Icon
+                    size={10}
+                    aria-hidden="true"
+                    style={{ color: layoutTheme.accent, flexShrink:0 }}
+                  />
+                )}
+                <div style={{ fontSize:9, fontWeight:700, color: layoutTheme.text, lineHeight:1.3 }}>{a.title}</div>
+              </div>
+              <div style={{ fontSize:7.5, color: layoutTheme.muted, marginTop:2, lineHeight:1.4 }}>{a.description}</div>
             </div>
-          )}
-          <div style={{ padding:'6px 8px' }}>
-            <div style={{ display:'flex', gap:3, marginBottom:3, flexWrap:'wrap' }}>
-              {a.badges?.signup && <span style={{ fontSize:6, fontWeight:700, background:'#dcfce7', color:'#166534', padding:'1px 4px', borderRadius:3 }}>Anmälan</span>}
-              {a.badges?.cost   && <span style={{ fontSize:6, fontWeight:700, background:'#fef9c3', color:'#854d0e', padding:'1px 4px', borderRadius:3 }}>Kostnad</span>}
-              {a.badges?.trip   && <span style={{ fontSize:6, fontWeight:700, background:'#dbeafe', color:'#1e40af', padding:'1px 4px', borderRadius:3 }}>Utflykt</span>}
-            </div>
-            <div style={{ fontSize:7.5, color: layoutTheme.muted, marginBottom:2 }}>{formatDate(a.date)} · {a.ageGroup}</div>
-            <div style={{ fontSize:9, fontWeight:700, color: layoutTheme.text, lineHeight:1.3 }}>{a.title}</div>
-            <div style={{ fontSize:7.5, color: layoutTheme.muted, marginTop:2, lineHeight:1.4 }}>{a.description}</div>
           </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }
 
-// ── Empty-state för tom canvas ──
 function CanvasEmptyState({ layoutTheme }) {
   return (
     <div style={{
@@ -215,7 +245,6 @@ export function StudioView({ activities, design, setDesign, settings, year, mont
   const paperWidth  = design.format === 'A4 Liggande' ? 842 : 595;
   const paperHeight = design.format === 'A4 Liggande' ? 540 : 990;
 
-  // ── contentScale: kräymper innehållet om det svämmar över ──
   const contentRef = useRef(null);
   const [contentScale, setContentScale] = useState(1);
 
@@ -276,7 +305,6 @@ export function StudioView({ activities, design, setDesign, settings, year, mont
   return (
     <div style={{ display:'flex', height:'100%', background:'#f1f5f9', overflow:'hidden' }}>
 
-      {/* ── FÖRHANDSGRANSKNING ── */}
       <div style={{ flex:1, display:'flex', flexDirection:'column', overflow:'hidden' }}>
 
         {/* Topbar */}
@@ -303,47 +331,25 @@ export function StudioView({ activities, design, setDesign, settings, year, mont
 
           <div style={{ flex:1 }} />
 
-          {/* Status-indikatorer */}
           <div aria-live="polite" style={{ display:'flex', alignItems:'center', gap:6 }}>
             {exporting   && <span style={{ display:'flex', alignItems:'center', gap:6, fontSize:12, color:'#64748b' }}><Loader2 size={14} className="animate-spin" aria-hidden="true" /> Exporterar…</span>}
             {exportSuccess && <span style={{ display:'flex', alignItems:'center', gap:6, fontSize:12, color:'#16a34a' }} role="status"><CheckCircle2 size={14} aria-hidden="true" /> {exportSuccess}</span>}
             {exportError   && <span style={{ display:'flex', alignItems:'center', gap:6, fontSize:12, color:'#dc2626' }} role="alert"><AlertCircle size={14} aria-hidden="true" /> {exportError}</span>}
           </div>
 
-          {/* Export-knappar — disabled under pågående export */}
-          <button
-            onClick={downloadPNG}
-            disabled={exporting || !hasActivities}
-            aria-label="Ladda ner som PNG"
-            style={{ ...topbarBtnBase, border:'none', background:'#0f172a', color:'#fff', ...disabledStyle }}
-          >
+          <button onClick={downloadPNG} disabled={exporting || !hasActivities} aria-label="Ladda ner som PNG" style={{ ...topbarBtnBase, border:'none', background:'#0f172a', color:'#fff', ...disabledStyle }}>
             <Download size={13} aria-hidden="true" /> PNG
           </button>
-          <button
-            onClick={downloadPDF}
-            disabled={exporting || !hasActivities}
-            aria-label="Ladda ner som PDF"
-            style={{ ...topbarBtnBase, border:'1px solid #e2e8f0', background:'#fff', color:'#0f172a', ...disabledStyle }}
-          >
+          <button onClick={downloadPDF} disabled={exporting || !hasActivities} aria-label="Ladda ner som PDF" style={{ ...topbarBtnBase, border:'1px solid #e2e8f0', background:'#fff', color:'#0f172a', ...disabledStyle }}>
             <Download size={13} aria-hidden="true" /> PDF
           </button>
           {settings.cloudExport && (
-            <button
-              onClick={cloudExport}
-              disabled={exporting || !hasActivities}
-              aria-label="Exportera till molnet"
-              style={{ ...topbarBtnBase, border:'1px solid #e2e8f0', background:'#fff', color:'#0f172a', ...disabledStyle }}
-            >
+            <button onClick={cloudExport} disabled={exporting || !hasActivities} aria-label="Exportera till molnet" style={{ ...topbarBtnBase, border:'1px solid #e2e8f0', background:'#fff', color:'#0f172a', ...disabledStyle }}>
               <Cloud size={13} aria-hidden="true" /> Moln
             </button>
           )}
           {typeof navigator !== 'undefined' && navigator.share && (
-            <button
-              onClick={webShare}
-              disabled={exporting || !hasActivities}
-              aria-label="Dela månadsblad"
-              style={{ ...topbarBtnBase, border:'1px solid #e2e8f0', background:'#fff', color:'#0f172a', ...disabledStyle }}
-            >
+            <button onClick={webShare} disabled={exporting || !hasActivities} aria-label="Dela månadsblad" style={{ ...topbarBtnBase, border:'1px solid #e2e8f0', background:'#fff', color:'#0f172a', ...disabledStyle }}>
               <Share2 size={13} aria-hidden="true" /> Dela
             </button>
           )}
@@ -357,7 +363,7 @@ export function StudioView({ activities, design, setDesign, settings, year, mont
           </button>
         </div>
 
-        {/* Canvas-area */}
+        {/* Canvas */}
         <div style={{ flex:1, overflow:'auto', display:'flex', justifyContent:'center', padding:40 }}>
           <div
             id={EXPORT_ELEMENT_ID}
@@ -377,7 +383,6 @@ export function StudioView({ activities, design, setDesign, settings, year, mont
             }}
             aria-label="Förhandsgranskning av månadsblad"
           >
-            {/* ── HEADER ── */}
             <div style={{ background: layoutTheme.headerBg, padding: '14px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
               {headerLogo}
               <div style={{ textAlign:'center' }}>
@@ -393,7 +398,6 @@ export function StudioView({ activities, design, setDesign, settings, year, mont
               </div>
             </div>
 
-            {/* ── INNEHÅLL ── */}
             <div ref={contentRef} style={{ flex: 1, minHeight: 0, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
               {!hasActivities ? (
                 <CanvasEmptyState layoutTheme={layoutTheme} />
@@ -428,7 +432,6 @@ export function StudioView({ activities, design, setDesign, settings, year, mont
               )}
             </div>
 
-            {/* ── FOOTER ── */}
             <div style={{ background: layoutTheme.headerBg, padding: '8px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
               <span style={{ fontSize:8, color: isLight ? (layoutTheme.headerBg === '#e2e8f0' ? '#94a3b8' : 'rgba(255,255,255,0.6)') : '#475569' }}>
                 {settings.address || ''}
@@ -448,7 +451,7 @@ export function StudioView({ activities, design, setDesign, settings, year, mont
         </div>
       </div>
 
-      {/* ── SIDOPANEL ── */}
+      {/* Sidopanel */}
       {showSide && (
         <div style={{ width:300, background:'#fff', borderLeft:'1px solid #e2e8f0', overflowY:'auto', flexShrink:0, display:'flex', flexDirection:'column' }}>
 
