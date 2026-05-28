@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef, useCallback, useState } from 'react';
 import { db, doc, getDoc, setDoc, onSnapshot, serverTimestamp } from '../lib/firebase';
 
 const DEBOUNCE_MS  = 1500;
@@ -13,26 +13,28 @@ export function useFirebaseSync({ uid, monthKey, activities, settings, setActivi
   const latestSettings   = useRef(settings);
   const retryCount       = useRef(0);
 
+  // dataLoading = true tills första snapshot kommit (per månad)
+  const [dataLoading, setDataLoading] = useState(true);
+
   useEffect(() => { latestActivities.current = activities; }, [activities]);
   useEffect(() => { latestSettings.current   = settings;   }, [settings]);
 
-  // ── Prenumerera på Firestore och ladda inställningar ──
   useEffect(() => {
-    if (!db || !uid || localMode) return;
+    if (!db || !uid || localMode) {
+      setDataLoading(false);
+      return;
+    }
 
-    // Capture monthKey i closuren.
-    // stale = true när cleanup körs (dvs. månaden har bytt).
-    // onSnapshot-callbacks kollar denna flagga före alla state-uppdateringar
-    // så ett svar från en gammal subscription aldrig kan skriva över
-    // data för den nya månaden.
+    // Återställ laddningsstatus vid månadsbyte
+    setDataLoading(true);
+
     let stale = false;
 
     const planRef     = doc(db, 'users', uid, 'plans', monthKey);
     const settingsRef = doc(db, 'users', uid, 'meta', 'settings');
 
-    // Hämta inställningar en gång vid mount
     getDoc(settingsRef).then(snap => {
-      if (stale) return; // Månaden har bytts sedan anropet startades
+      if (stale) return;
       if (snap.exists()) {
         isRemoteUpdate.current = true;
         setSettings(prev => ({ ...prev, ...snap.data() }));
@@ -40,36 +42,37 @@ export function useFirebaseSync({ uid, monthKey, activities, settings, setActivi
       }
     }).catch(e => console.warn('[Firestore] Kunde inte hämta inställningar:', e));
 
-    // Lyssna på aktiviteter i realtid
     const unsub = onSnapshot(planRef, snap => {
-      if (stale) return; // Gamla subscription svarar efter månadsbyte → ignorera
-      if (!snap.exists()) return;
-      const data = snap.data();
-      if (!data?.activities) return;
+      if (stale) return;
 
-      // Filtrera bort lokalt raderade aktiviteter
-      const filtered = data.activities.filter(a => !pendingDeletes.current.has(a.id));
-      isRemoteUpdate.current = true;
-      setActivities(filtered.map(a => ({
-        ...a,
-        date: a.date ? new Date(a.date) : new Date(),
-      })));
-      isRemoteUpdate.current = false;
+      if (snap.exists()) {
+        const data = snap.data();
+        if (data?.activities) {
+          const filtered = data.activities.filter(a => !pendingDeletes.current.has(a.id));
+          isRemoteUpdate.current = true;
+          setActivities(filtered.map(a => ({
+            ...a,
+            date: a.date ? new Date(a.date) : new Date(),
+          })));
+          isRemoteUpdate.current = false;
+        }
+      }
+
+      // Första snapshot klar — oavsett om det fanns data
+      setDataLoading(false);
     }, err => {
       if (stale) return;
       console.error('[Firestore] Snapshot-fel:', err);
+      setDataLoading(false); // Visa UI ändå vid fel
     });
 
     return () => {
-      stale = true;  // Markera alla pendända callbacks som föråldrade
-      unsub();       // Avsluta Firestore-subscription
-      // Avbryt eventuellt pendände debounce-skrivningar för gamla månaden
-      // så vi inte råkar spara fel månads data
+      stale = true;
+      unsub();
       clearTimeout(debounceActs.current);
     };
   }, [uid, monthKey, localMode]); // eslint-disable-line
 
-  // Sparfunktion med retry-logik
   const persistActivities = useCallback(async () => {
     if (!db || !uid || localMode || isRemoteUpdate.current) return;
     try {
@@ -85,7 +88,6 @@ export function useFirebaseSync({ uid, monthKey, activities, settings, setActivi
       retryCount.current = 0;
     } catch (e) {
       console.error('[Firestore] Sparfel aktiviteter:', e);
-      // Exponentiell backoff vid fel
       if (retryCount.current < MAX_RETRIES) {
         retryCount.current++;
         setTimeout(persistActivities, 1000 * retryCount.current);
@@ -106,7 +108,6 @@ export function useFirebaseSync({ uid, monthKey, activities, settings, setActivi
     }
   }, [uid, localMode]);
 
-  // Debounced writes – triggas av state-ändringar
   useEffect(() => {
     if (isRemoteUpdate.current) return;
     clearTimeout(debounceActs.current);
@@ -122,6 +123,7 @@ export function useFirebaseSync({ uid, monthKey, activities, settings, setActivi
   }, [settings, persistSettings]);
 
   return {
+    dataLoading,
     registerDelete: useCallback((id) => { pendingDeletes.current.add(id); }, []),
   };
 }

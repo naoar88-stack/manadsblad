@@ -4,10 +4,13 @@ import { useAuth }          from './hooks/useAuth';
 import { useSchedule }      from './hooks/useSchedule';
 import { useHistory }       from './hooks/useHistory';
 import { useFirebaseSync }  from './hooks/useFirebaseSync';
+import { useOnlineStatus }  from './hooks/useOnlineStatus';
 import { LoginScreen }      from './components/LoginScreen';
 import { Header }           from './components/Header';
 import { ToastProvider }    from './components/Toast';
 import { ErrorBoundary }    from './components/ErrorBoundary';
+import { SkeletonLoader }   from './components/SkeletonLoader';
+import { OfflineBanner }    from './components/OfflineBanner';
 
 const SchemaView        = lazy(() => import('./components/SchemaView').then(m => ({ default: m.SchemaView })));
 const StudioView        = lazy(() => import('./components/StudioView').then(m => ({ default: m.StudioView })));
@@ -17,6 +20,7 @@ const CropModal         = lazy(() => import('./components/CropModal').then(m => 
 
 const toMonthKey = (y, m) => `${y}-${String(m + 1).padStart(2, '0')}`;
 
+/** Spinner för auth-loading och lazy-Suspense */
 const Spinner = () => (
   <div className="flex items-center justify-center min-h-screen bg-slate-50">
     <div className="flex flex-col items-center gap-4">
@@ -61,13 +65,12 @@ export default function App() {
   const [settings, setSettings] = useState(DEFAULT_SETTINGS);
 
   const { user, loading: authLoading, loginAnon, loginEmail, registerEmail, logout } = useAuth();
+  const { isOnline } = useOnlineStatus();
   const currentMonthKey = toMonthKey(year, month);
 
   const { activities, setActivities, templates, addTemplate } = useSchedule(currentMonthKey, openDays);
   const { pushHistory, undo, redo, resetHistory, canUndo, canRedo } = useHistory(activities, setActivities);
 
-  // Rensa undo/redo-stacken när månaden byter.
-  // Utan detta kan undo/redo applicera aktivitetsstater från en annan månad.
   const prevMonthKeyRef = useRef(currentMonthKey);
   useEffect(() => {
     if (prevMonthKeyRef.current !== currentMonthKey) {
@@ -76,7 +79,7 @@ export default function App() {
     }
   }, [currentMonthKey, resetHistory]);
 
-  const { registerDelete } = useFirebaseSync({
+  const { dataLoading, registerDelete } = useFirebaseSync({
     uid:        user?.uid,
     monthKey:   currentMonthKey,
     activities, settings,
@@ -84,7 +87,6 @@ export default function App() {
     localMode:  settings.localMode || !user,
   });
 
-  // Sync-status indikator
   const syncTimer = useRef(null);
   useEffect(() => {
     if (!user || settings.localMode) { setSyncStatus('local'); return; }
@@ -94,7 +96,6 @@ export default function App() {
     return () => clearTimeout(syncTimer.current);
   }, [activities, settings, user]);
 
-  // Tangentbordsgenvägar: Ctrl+Z / Ctrl+Y
   useEffect(() => {
     const handle = e => {
       const tag = e.target.tagName;
@@ -112,12 +113,10 @@ export default function App() {
     return () => window.removeEventListener('keydown', handle);
   }, [undo, redo, canUndo, canRedo]);
 
-  // updateActivity – omedelbar push för alla fälttyper
   const updateActivity = useCallback((id, patch) => {
     pushHistory(activities.map(a => a.id === id ? { ...a, ...patch } : a));
   }, [activities, pushHistory]);
 
-  // Radera aktivitet – registrerar ID i pendingDeletes så Firestore inte skriver tillbaka
   const removeActivity = useCallback((id) => {
     registerDelete?.(id);
     pushHistory(activities.filter(a => a.id !== id));
@@ -140,35 +139,43 @@ export default function App() {
   return (
     <ToastProvider>
       <div className="min-h-screen flex flex-col bg-slate-50">
+        {/* Offline-banner: glider ned utan att rubba layout */}
+        <OfflineBanner isOnline={isOnline} />
+
         <Header
           activeTab={activeTab} setActiveTab={setActiveTab}
           syncStatus={syncStatus} canUndo={canUndo} canRedo={canRedo}
           onUndo={undo} onRedo={redo} user={user} onLogout={logout}
         />
+
         <main className="flex-1">
-          {/* ErrorBoundary runt Suspense: om en vy kraschar visas felvy istället för vit skärm */}
           <ErrorBoundary>
             <Suspense fallback={<Spinner />}>
               {activeTab === 'Schema' && (
-                <SchemaView
-                  year={year} month={month}
-                  prevMonth={prevMonth} nextMonth={nextMonth}
-                  openDays={openDays} setOpenDays={setOpenDays}
-                  activities={activities}
-                  updateActivity={updateActivity}
-                  removeActivity={removeActivity}
-                  pushHistory={pushHistory}
-                  onOpenAsset={id => setAssetModalFor(id)}
-                />
+                // Visa skeleton-loader tills Firebase-data är klar
+                dataLoading
+                  ? <SkeletonLoader />
+                  : <SchemaView
+                      year={year} month={month}
+                      prevMonth={prevMonth} nextMonth={nextMonth}
+                      openDays={openDays} setOpenDays={setOpenDays}
+                      activities={activities}
+                      updateActivity={updateActivity}
+                      removeActivity={removeActivity}
+                      pushHistory={pushHistory}
+                      onOpenAsset={id => setAssetModalFor(id)}
+                    />
               )}
               {activeTab === 'Studio' && (
-                <StudioView
-                  activities={activities} design={design} setDesign={setDesign}
-                  settings={settings} year={year} month={month}
-                  zoom={studioZoom} setZoom={setStudioZoom}
-                  onCrop={id => setCropModalFor(id)}
-                  templates={templates} addTemplate={addTemplate}
-                />
+                dataLoading
+                  ? <SkeletonLoader />
+                  : <StudioView
+                      activities={activities} design={design} setDesign={setDesign}
+                      settings={settings} year={year} month={month}
+                      zoom={studioZoom} setZoom={setStudioZoom}
+                      onCrop={id => setCropModalFor(id)}
+                      templates={templates} addTemplate={addTemplate}
+                    />
               )}
               {activeTab === 'Inställningar' && (
                 <SettingsView settings={settings} setSettings={setSettings} user={user} onLogout={logout} />
@@ -177,7 +184,6 @@ export default function App() {
           </ErrorBoundary>
         </main>
 
-        {/* Modal: Bildhanterare */}
         {assetModalFor && (
           <ErrorBoundary fallback={null}>
             <Suspense fallback={null}>
@@ -190,7 +196,6 @@ export default function App() {
           </ErrorBoundary>
         )}
 
-        {/* Modal: Bildbeskärning */}
         {cropModalFor && (
           <ErrorBoundary fallback={null}>
             <Suspense fallback={null}>

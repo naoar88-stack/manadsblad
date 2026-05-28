@@ -2,163 +2,136 @@
 @tailwind components;
 @tailwind utilities;
 
-*, *::before, *::after { box-sizing: border-box; }
-
-html {
-  font-family: 'Inter', sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-/* ── Mobilresponsiv kalender ── */
-@media (max-width: 639px) {
-  /* Kalender: komprimera till 1 dag = 1 rad istället för 7-kolumnersgrid */
-  .calendar-mobile-stack .grid-cols-7 {
-    display: flex;
-    flex-direction: column;
-  }
-  .calendar-mobile-stack .day-cell {
-    min-height: 72px;
-    border-right: none !important;
-    border-bottom: 1px solid rgba(241,245,249,1) !important;
-  }
-  /* Dölj stängda dagar på mobil */
-  .calendar-mobile-stack .day-cell--closed {
-    display: none;
-  }
-  /* Veckodagsrubriker på mobil */
-  .calendar-header-mobile {
-    display: none;
-  }
-  /* Datumrad på mobil visar veckodag + datum */
-  .day-cell .day-label-mobile {
-    display: flex;
-  }
-  .day-cell .day-label-desktop {
-    display: none;
-  }
-}
-@media (min-width: 640px) {
-  .day-cell .day-label-mobile  { display: none; }
-  .day-cell .day-label-desktop { display: flex; }
-}
-body {
-  min-height: 100dvh;
-  background:
-    radial-gradient(ellipse 80% 60% at 10% 0%, rgba(99,102,241,0.10) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 50% at 90% 100%, rgba(168,85,247,0.08) 0%, transparent 55%),
-    radial-gradient(ellipse 70% 70% at 50% 50%, rgba(248,250,252,1) 0%, #f1f5f9 100%);
-  background-attachment: fixed;
+/* ============================================================
+   SKELETON LOADER
+   ============================================================ */
+@keyframes skeleton-shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position:  400px 0; }
 }
 
-.glass {
-  background: rgba(255,255,255,0.80);
-  backdrop-filter: blur(20px) saturate(1.6);
-  -webkit-backdrop-filter: blur(20px) saturate(1.6);
-  border: 1px solid rgba(255,255,255,0.55);
+.skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    #e2e8f0 25%,
+    #f1f5f9 50%,
+    #e2e8f0 75%
+  );
+  background-size: 400px 100%;
+  animation: skeleton-shimmer 1.4s ease-in-out infinite;
 }
 
-.ai-glow {
-  box-shadow: 0 0 0 1px rgba(139,92,246,0.3), 0 4px 20px rgba(139,92,246,0.25), 0 1px 3px rgba(0,0,0,0.1);
-}
-.ai-glow:hover {
-  box-shadow: 0 0 0 1px rgba(139,92,246,0.5), 0 8px 32px rgba(139,92,246,0.35);
-}
-
-@keyframes fadeSlideUp {
-  from { opacity: 0; transform: translateY(8px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-.day-cell {
-  animation: fadeSlideUp 0.35s ease both;
-}
-
-.btn-primary {
-  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
-  box-shadow: 0 2px 8px rgba(15,23,42,0.25), 0 1px 2px rgba(0,0,0,0.1);
-  transition: box-shadow 0.15s ease, transform 0.15s ease, filter 0.15s ease;
-}
-.btn-primary:hover {
-  filter: brightness(1.12);
-  box-shadow: 0 6px 20px rgba(15,23,42,0.30);
-  transform: translateY(-1px);
-}
-
-.btn-ai {
-  background: linear-gradient(135deg, #7c3aed 0%, #a855f7 50%, #ec4899 100%);
-  box-shadow: 0 2px 12px rgba(139,92,246,0.40), 0 1px 3px rgba(0,0,0,0.1);
-  transition: box-shadow 0.15s ease, transform 0.15s ease, filter 0.15s ease;
-}
-.btn-ai:hover {
-  filter: brightness(1.1);
-  box-shadow: 0 6px 24px rgba(139,92,246,0.55);
-  transform: translateY(-1px);
-}
-
-@keyframes toastIn {
-  from { opacity: 0; transform: translateY(12px) scale(0.96); }
-  to   { opacity: 1; transform: translateY(0) scale(1); }
-}
-@keyframes toastOut {
-  from { opacity: 1; transform: translateY(0) scale(1); }
-  to   { opacity: 0; transform: translateY(-8px) scale(0.96); }
-}
-.toast-enter { animation: toastIn 0.25s cubic-bezier(0.34,1.56,0.64,1) both; }
-.toast-exit  { animation: toastOut 0.2s ease both; }
-
-@keyframes zoomIn {
-  from { opacity: 0; transform: scale(0.94) translateY(8px); }
-  to   { opacity: 1; transform: scale(1) translateY(0); }
-}
-.modal-enter { animation: zoomIn 0.22s cubic-bezier(0.34,1.56,0.64,1) both; }
-
-::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(148,163,184,0.4); border-radius: 99px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(148,163,184,0.7); }
-
-:focus-visible {
-  outline: 2px solid rgba(99,102,241,0.6);
-  outline-offset: 2px;
-  border-radius: 6px;
-}
-
-@media (max-width: 639px) {
-  .day-cell { min-height: 80px; padding: 0.375rem; }
-}
-
-@media print {
-  body { background: white !important; }
-  header, .no-print { display: none !important; }
-}
-/* ── Mobilresponsiv kalender ── */
-@media (max-width: 639px) {
-  /* Kalender: komprimera till 1 dag = 1 rad istället för 7-kolumnersgrid */
-  .calendar-mobile-stack .grid-cols-7 {
-    display: flex;
-    flex-direction: column;
-  }
-  .calendar-mobile-stack .day-cell {
-    min-height: 72px;
-    border-right: none !important;
-    border-bottom: 1px solid rgba(241,245,249,1) !important;
-  }
-  /* Dölj stängda dagar på mobil */
-  .calendar-mobile-stack .day-cell--closed {
-    display: none;
-  }
-  /* Veckodagsrubriker på mobil */
-  .calendar-header-mobile {
-    display: none;
-  }
-  /* Datumrad på mobil visar veckodag + datum */
-  .day-cell .day-label-mobile {
-    display: flex;
-  }
-  .day-cell .day-label-desktop {
-    display: none;
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-shimmer {
+    animation: none;
+    background: #e2e8f0;
   }
 }
-@media (min-width: 640px) {
-  .day-cell .day-label-mobile  { display: none; }
-  .day-cell .day-label-desktop { display: flex; }
+
+.skeleton-layout {
+  padding: 1.5rem 1rem;
+  max-width: 960px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.skeleton-month-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.skeleton-month-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.skeleton-week {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.skeleton-week-label {
+  margin-bottom: 0.25rem;
+}
+
+.skeleton-days {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 0.75rem;
+}
+
+.skeleton-card {
+  background: white;
+  border-radius: 0.75rem;
+  padding: 1rem;
+  border: 1px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-height: 140px;
+}
+
+.skeleton-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.skeleton-image-placeholder {
+  margin-top: auto;
+  height: 56px;
+  border-radius: 0.5rem;
+  background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
+  background-size: 400px 100%;
+  animation: skeleton-shimmer 1.4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-image-placeholder {
+    animation: none;
+    background: #e2e8f0;
+  }
+}
+
+/* ============================================================
+   OFFLINE BANNER
+   ============================================================ */
+.offline-banner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: #ef4444;
+  color: white;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  padding: 0.4rem 1rem;
+  max-height: 40px;
+  overflow: hidden;
+  transition:
+    max-height 300ms ease,
+    padding    300ms ease,
+    opacity    300ms ease;
+  opacity: 1;
+}
+
+.offline-banner--hidden {
+  max-height: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Safe-area för iPhone notch (kompenseras av offline-banner) */
+@supports (padding-top: env(safe-area-inset-top)) {
+  .offline-banner {
+    padding-top: calc(0.4rem + env(safe-area-inset-top));
+  }
 }
