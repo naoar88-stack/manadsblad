@@ -64,7 +64,17 @@ export default function App() {
   const currentMonthKey = toMonthKey(year, month);
 
   const { activities, setActivities, templates, addTemplate } = useSchedule(currentMonthKey, openDays);
-  const { pushHistory, undo, redo, canUndo, canRedo } = useHistory(activities, setActivities);
+  const { pushHistory, undo, redo, resetHistory, canUndo, canRedo } = useHistory(activities, setActivities);
+
+  // Rensa undo/redo-stacken när månaden byter.
+  // Utan detta kan undo/redo applicera aktivitetsstater från en annan månad.
+  const prevMonthKeyRef = useRef(currentMonthKey);
+  useEffect(() => {
+    if (prevMonthKeyRef.current !== currentMonthKey) {
+      resetHistory();
+      prevMonthKeyRef.current = currentMonthKey;
+    }
+  }, [currentMonthKey, resetHistory]);
 
   const { registerDelete } = useFirebaseSync({
     uid:        user?.uid,

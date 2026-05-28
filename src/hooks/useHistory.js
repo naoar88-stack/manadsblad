@@ -1,1 +1,59 @@
-aW1wb3J0IHsgdXNlU3RhdGUsIHVzZUNhbGxiYWNrLCB1c2VSZWYsIHVzZUVmZmVjdCB9IGZyb20gJ3JlYWN0JzsKCmNvbnN0IE1BWF9ISVNUT1JZID0gNTA7CgpleHBvcnQgZnVuY3Rpb24gdXNlSGlzdG9yeShjdXJyZW50LCBzZXRDdXJyZW50KSB7CiAgY29uc3QgW3Bhc3QsICAgc2V0UGFzdF0gICA9IHVzZVN0YXRlKFtdKTsKICBjb25zdCBbZnV0dXJlLCBzZXRGdXR1cmVdID0gdXNlU3RhdGUoW10pOwoKICAvLyBSZWYgaMOlbGxlciBhbGx0aWQgc2VuYXN0ZSB2w6RyZGUg4oaSIGluZ2Egc3RhbGUgY2xvc3VyZXMKICBjb25zdCBsYXRlc3RDdXJyZW50ID0gdXNlUmVmKGN1cnJlbnQpOwogIHVzZUVmZmVjdCgoKSA9PiB7IGxhdGVzdEN1cnJlbnQuY3VycmVudCA9IGN1cnJlbnQ7IH0sIFtjdXJyZW50XSk7CgogIGNvbnN0IHB1c2hIaXN0b3J5ID0gdXNlQ2FsbGJhY2soKG5leHQpID0+IHsKICAgIHNldFBhc3QocCA9PiB7CiAgICAgIGNvbnN0IHRyaW1tZWQgPSBwLmxlbmd0aCA+PSBNQVhfSElTVE9SWSA/IHAuc2xpY2UoMSkgOiBwOwogICAgICByZXR1cm4gWy4uLnRyaW1tZWQsIGxhdGVzdEN1cnJlbnQuY3VycmVudF07CiAgICB9KTsKICAgIHNldEZ1dHVyZShbXSk7CiAgICBzZXRDdXJyZW50KG5leHQpOwogIH0sIFtzZXRDdXJyZW50XSk7CgogIGNvbnN0IHVuZG8gPSB1c2VDYWxsYmFjaygoKSA9PiB7CiAgICBzZXRQYXN0KHAgPT4gewogICAgICBpZiAoIXAubGVuZ3RoKSByZXR1cm4gcDsKICAgICAgY29uc3QgcHJldmlvdXMgPSBwW3AubGVuZ3RoIC0gMV07CiAgICAgIHNldEZ1dHVyZShmID0+IFtsYXRlc3RDdXJyZW50LmN1cnJlbnQsIC4uLmZdKTsKICAgICAgc2V0Q3VycmVudChwcmV2aW91cyk7CiAgICAgIHJldHVybiBwLnNsaWNlKDAsIC0xKTsKICAgIH0pOwogIH0sIFtzZXRDdXJyZW50XSk7CgogIGNvbnN0IHJlZG8gPSB1c2VDYWxsYmFjaygoKSA9PiB7CiAgICBzZXRGdXR1cmUoZiA9PiB7CiAgICAgIGlmICghZi5sZW5ndGgpIHJldHVybiBmOwogICAgICBjb25zdCBuZXh0ID0gZlswXTsKICAgICAgc2V0UGFzdChwID0+IFsuLi5wLCBsYXRlc3RDdXJyZW50LmN1cnJlbnRdKTsKICAgICAgc2V0Q3VycmVudChuZXh0KTsKICAgICAgcmV0dXJuIGYuc2xpY2UoMSk7CiAgICB9KTsKICB9LCBbc2V0Q3VycmVudF0pOwoKICByZXR1cm4gewogICAgcHVzaEhpc3RvcnksCiAgICB1bmRvLAogICAgcmVkbywKICAgIGNhblVuZG86IHBhc3QubGVuZ3RoID4gMCwKICAgIGNhblJlZG86IGZ1dHVyZS5sZW5ndGggPiAwLAogICAgaGlzdG9yeVNpemU6IHBhc3QubGVuZ3RoLAogICAgZnV0dXJlU2l6ZTogZnV0dXJlLmxlbmd0aCwKICB9Owp9Cg==
+import { useState, useCallback, useRef, useEffect } from 'react';
+
+const MAX_HISTORY = 50;
+
+export function useHistory(current, setCurrent) {
+  const [past,   setPast]   = useState([]);
+  const [future, setFuture] = useState([]);
+
+  // Ref håller alltid senaste värde → inga stale closures
+  const latestCurrent = useRef(current);
+  useEffect(() => { latestCurrent.current = current; }, [current]);
+
+  const pushHistory = useCallback((next) => {
+    setPast(p => {
+      const trimmed = p.length >= MAX_HISTORY ? p.slice(1) : p;
+      return [...trimmed, latestCurrent.current];
+    });
+    setFuture([]);
+    setCurrent(next);
+  }, [setCurrent]);
+
+  const undo = useCallback(() => {
+    setPast(p => {
+      if (!p.length) return p;
+      const previous = p[p.length - 1];
+      setFuture(f => [latestCurrent.current, ...f]);
+      setCurrent(previous);
+      return p.slice(0, -1);
+    });
+  }, [setCurrent]);
+
+  const redo = useCallback(() => {
+    setFuture(f => {
+      if (!f.length) return f;
+      const next = f[0];
+      setPast(p => [...p, latestCurrent.current]);
+      setCurrent(next);
+      return f.slice(1);
+    });
+  }, [setCurrent]);
+
+  // Rensar hela historiken – anropas vid månadsbyten så att
+  // undo/redo aldrig kan applicera aktiviteter från fel månad.
+  const resetHistory = useCallback(() => {
+    setPast([]);
+    setFuture([]);
+  }, []);
+
+  return {
+    pushHistory,
+    undo,
+    redo,
+    resetHistory,
+    canUndo:     past.length > 0,
+    canRedo:     future.length > 0,
+    historySize: past.length,
+    futureSize:  future.length,
+  };
+}
