@@ -1,1 +1,198 @@
-aW1wb3J0IFJlYWN0LCB7IHVzZVN0YXRlLCB1c2VDYWxsYmFjaywgdXNlRWZmZWN0LCB1c2VSZWYsIGxhenksIFN1c3BlbnNlIH0gZnJvbSAncmVhY3QnOwppbXBvcnQgeyBMb2FkZXIyIH0gZnJvbSAnbHVjaWRlLXJlYWN0JzsKaW1wb3J0IHsgdXNlQXV0aCB9ICAgICAgICAgZnJvbSAnLi9ob29rcy91c2VBdXRoJzsKaW1wb3J0IHsgdXNlU2NoZWR1bGUgfSAgICAgZnJvbSAnLi9ob29rcy91c2VTY2hlZHVsZSc7CmltcG9ydCB7IHVzZUhpc3RvcnkgfSAgICAgIGZyb20gJy4vaG9va3MvdXNlSGlzdG9yeSc7CmltcG9ydCB7IHVzZUZpcmViYXNlU3luYyB9IGZyb20gJy4vaG9va3MvdXNlRmlyZWJhc2VTeW5jJzsKaW1wb3J0IHsgTG9naW5TY3JlZW4gfSAgICAgZnJvbSAnLi9jb21wb25lbnRzL0xvZ2luU2NyZWVuJzsKaW1wb3J0IHsgSGVhZGVyIH0gICAgICAgICAgZnJvbSAnLi9jb21wb25lbnRzL0hlYWRlcic7CmltcG9ydCB7IFRvYXN0UHJvdmlkZXIgfSAgIGZyb20gJy4vY29tcG9uZW50cy9Ub2FzdCc7Cgpjb25zdCBTY2hlbWFWaWV3ICAgICAgICA9IGxhenkoKCkgPT4gaW1wb3J0KCcuL2NvbXBvbmVudHMvU2NoZW1hVmlldycpLnRoZW4obSA9PiAoeyBkZWZhdWx0OiBtLlNjaGVtYVZpZXcgfSkpKTsKY29uc3QgU3R1ZGlvVmlldyAgICAgICAgPSBsYXp5KCgpID0+IGltcG9ydCgnLi9jb21wb25lbnRzL1N0dWRpb1ZpZXcnKS50aGVuKG0gPT4gKHsgZGVmYXVsdDogbS5TdHVkaW9WaWV3IH0pKSk7CmNvbnN0IFNldHRpbmdzVmlldyAgICAgID0gbGF6eSgoKSA9PiBpbXBvcnQoJy4vY29tcG9uZW50cy9TZXR0aW5nc1ZpZXcnKS50aGVuKG0gPT4gKHsgZGVmYXVsdDogbS5TZXR0aW5nc1ZpZXcgfSkpKTsKY29uc3QgQXNzZXRNYW5hZ2VyTW9kYWwgPSBsYXp5KCgpID0+IGltcG9ydCgnLi9jb21wb25lbnRzL0Fzc2V0TWFuYWdlck1vZGFsJykudGhlbihtID0+ICh7IGRlZmF1bHQ6IG0uQXNzZXRNYW5hZ2VyTW9kYWwgfSkpKTsKY29uc3QgQ3JvcE1vZGFsICAgICAgICAgPSBsYXp5KCgpID0+IGltcG9ydCgnLi9jb21wb25lbnRzL0Nyb3BNb2RhbCcpLnRoZW4obSA9PiAoeyBkZWZhdWx0OiBtLkNyb3BNb2RhbCB9KSkpOwoKY29uc3QgdG9Nb250aEtleSA9ICh5LCBtKSA9PiBgJHt5fS0ke1N0cmluZyhtICsgMSkucGFkU3RhcnQoMiwgJzAnKX1gOwoKY29uc3QgU3Bpbm5lciA9ICgpID0+ICgKICA8ZGl2IGNsYXNzTmFtZT0iZmxleCBpdGVtcy1jZW50ZXIganVzdGlmeS1jZW50ZXIgbWluLWgtc2NyZWVuIGJnLXNsYXRlLTUwIj4KICAgIDxkaXYgY2xhc3NOYW1lPSJmbGV4IGZsZXgtY29sIGl0ZW1zLWNlbnRlciBnYXAtNCI+CiAgICAgIDxkaXYgY2xhc3NOYW1lPSJ3LTEyIGgtMTIgYmctd2hpdGUgcm91bmRlZC0yeGwgc2hhZG93LWxnIGZsZXggaXRlbXMtY2VudGVyIGp1c3RpZnktY2VudGVyIGJvcmRlciBib3JkZXItc2xhdGUtMTAwIj4KICAgICAgICA8TG9hZGVyMiBjbGFzc05hbWU9InctNiBoLTYgdGV4dC1pbmRpZ28tNjAwIGFuaW1hdGUtc3BpbiIgLz4KICAgICAgPC9kaXY+CiAgICAgIDxwIGNsYXNzTmFtZT0idGV4dC1zbSBmb250LXNlbWlib2xkIHRleHQtc2xhdGUtNDAwIGFuaW1hdGUtcHVsc2UgdHJhY2tpbmctd2lkZSI+TGFkZGFy4oCmPC9wPgogICAgPC9kaXY+CiAgPC9kaXY+Cik7Cgpjb25zdCBERUZBVUxUX0RFU0lHTiA9IHsKICBsYXlvdXQ6ICdsaXZlbHknLCBmb3JtYXQ6ICdBNCcsIGNvbG9yU2NoZW1lOiAnUGVyIHZlY2thJywKICBmb250OiAnSW50ZXInLCBiYWNrZ3JvdW5kOiAnUnV0bmF0JywgYmFja2dyb3VuZE9wYWNpdHk6IDI4LCBiYWNrZ3JvdW5kSW1hZ2U6ICcnLAogIGNvbG9yczogeyB3ZWVrMTogJyM0ZjQ2ZTUnLCB3ZWVrMjogJyMwZWE1ZTknLCB3ZWVrMzogJyMyMmM1NWUnLCB3ZWVrNDogJyNmOTczMTYnIH0sCn07Cgpjb25zdCBERUZBVUxUX1NFVFRJTkdTID0gewogIHlhcmROYW1lOiAgICAgICAgICAnRnJpdGlkc2fDpXJkZW5lcm5hJywKICBmb290ZXJUZXh0OiAgICAgICAgJ1bDpGxrb21tZW4gdGlsbCBlbiB0cnlnZyBvY2gga3JlYXRpdiBtw7Z0ZXNwbGF0cy4nLAogIHFyTGluazogICAgICAgICAgICAnaHR0cHM6Ly9mcml0aWRzZ2FyZC5zZScsCiAgY2xvdWRFeHBvcnQ6ICAgICAgIHRydWUsCiAgbG9jYWxNb2RlOiAgICAgICAgIGZhbHNlLAogIGNsb3NlT25Ib2xpZGF5czogICB0cnVlLAogIGZpbGxDYWxlbmRhcjogICAgICB0cnVlLAogIGdyb3VwV2Vla3M6ICAgICAgICBmYWxzZSwKICBzaG93U3RvY2tob2xtTG9nbzogdHJ1ZSwKICB5YXJkTG9nbzogICAgICAgICAgJycsCn07CgpleHBvcnQgZGVmYXVsdCBmdW5jdGlvbiBBcHAoKSB7CiAgY29uc3QgdG9kYXkgPSBuZXcgRGF0ZSgpOwogIGNvbnN0IFt5ZWFyLCAgc2V0WWVhcl0gID0gdXNlU3RhdGUodG9kYXkuZ2V0RnVsbFllYXIoKSk7CiAgY29uc3QgW21vbnRoLCBzZXRNb250aF0gPSB1c2VTdGF0ZSh0b2RheS5nZXRNb250aCgpKTsKICBjb25zdCBbYWN0aXZlVGFiLCBzZXRBY3RpdmVUYWJdICAgPSB1c2VTdGF0ZSgnU2NoZW1hJyk7CiAgY29uc3QgW29wZW5EYXlzLCBzZXRPcGVuRGF5c10gICAgID0gdXNlU3RhdGUoWzMsIDQsIDVdKTsKICBjb25zdCBbc3luY1N0YXR1cywgc2V0U3luY1N0YXR1c10gPSB1c2VTdGF0ZSgnc2F2ZWQnKTsKICBjb25zdCBbc3R1ZGlvWm9vbSwgc2V0U3R1ZGlvWm9vbV0gPSB1c2VTdGF0ZSgwLjgyKTsKICBjb25zdCBbYXNzZXRNb2RhbEZvciwgc2V0QXNzZXRNb2RhbEZvcl0gPSB1c2VTdGF0ZShudWxsKTsKICBjb25zdCBbY3JvcE1vZGFsRm9yLCAgc2V0Q3JvcE1vZGFsRm9yXSAgPSB1c2VTdGF0ZShudWxsKTsKICBjb25zdCBbZGVzaWduLCAgIHNldERlc2lnbl0gICA9IHVzZVN0YXRlKERFRkFVTFRfREVTSUdOKTsKICBjb25zdCBbc2V0dGluZ3MsIHNldFNldHRpbmdzXSA9IHVzZVN0YXRlKERFRkFVTFRfU0VUVElOR1MpOwoKICBjb25zdCB7IHVzZXIsIGxvYWRpbmc6IGF1dGhMb2FkaW5nLCBsb2dpbkFub24sIGxvZ2luRW1haWwsIHJlZ2lzdGVyRW1haWwsIGxvZ291dCB9ID0gdXNlQXV0aCgpOwogIGNvbnN0IGN1cnJlbnRNb250aEtleSA9IHRvTW9udGhLZXkoeWVhciwgbW9udGgpOwoKICBjb25zdCB7IGFjdGl2aXRpZXMsIHNldEFjdGl2aXRpZXMsIHRlbXBsYXRlcywgYWRkVGVtcGxhdGUgfSA9IHVzZVNjaGVkdWxlKGN1cnJlbnRNb250aEtleSwgb3BlbkRheXMpOwogIGNvbnN0IHsgcHVzaEhpc3RvcnksIHVuZG8sIHJlZG8sIGNhblVuZG8sIGNhblJlZG8gfSA9IHVzZUhpc3RvcnkoYWN0aXZpdGllcywgc2V0QWN0aXZpdGllcyk7CgogIGNvbnN0IHsgcmVnaXN0ZXJEZWxldGUgfSA9IHVzZUZpcmViYXNlU3luYyh7CiAgICB1aWQ6ICAgICAgICB1c2VyPy51aWQsCiAgICBtb250aEtleTogICBjdXJyZW50TW9udGhLZXksCiAgICBhY3Rpdml0aWVzLCBzZXR0aW5ncywKICAgIHNldEFjdGl2aXRpZXMsIHNldFNldHRpbmdzLAogICAgbG9jYWxNb2RlOiAgc2V0dGluZ3MubG9jYWxNb2RlIHx8ICF1c2VyLAogIH0pOwoKICAvLyBTeW5jLXN0YXR1cyBpbmRpa2F0b3IKICBjb25zdCBzeW5jVGltZXIgPSB1c2VSZWYobnVsbCk7CiAgdXNlRWZmZWN0KCgpID0+IHsKICAgIGlmICghdXNlciB8fCBzZXR0aW5ncy5sb2NhbE1vZGUpIHsgc2V0U3luY1N0YXR1cygnbG9jYWwnKTsgcmV0dXJuOyB9CiAgICBzZXRTeW5jU3RhdHVzKCdzYXZpbmcnKTsKICAgIGNsZWFyVGltZW91dChzeW5jVGltZXIuY3VycmVudCk7CiAgICBzeW5jVGltZXIuY3VycmVudCA9IHNldFRpbWVvdXQoKCkgPT4gc2V0U3luY1N0YXR1cygnc2F2ZWQnKSwgMTYwMCk7CiAgICByZXR1cm4gKCkgPT4gY2xlYXJUaW1lb3V0KHN5bmNUaW1lci5jdXJyZW50KTsKICB9LCBbYWN0aXZpdGllcywgc2V0dGluZ3MsIHVzZXJdKTsKCiAgLy8gVGFuZ2VudGJvcmRzZ2VudsOkZ2FyOiBDdHJsK1ogLyBDdHJsK1kKICB1c2VFZmZlY3QoKCkgPT4gewogICAgY29uc3QgaGFuZGxlID0gZSA9PiB7CiAgICAgIGNvbnN0IHRhZyA9IGUudGFyZ2V0LnRhZ05hbWU7CiAgICAgIGlmICh0YWcgPT09ICdJTlBVVCcgfHwgdGFnID09PSAnVEVYVEFSRUEnKSByZXR1cm47CiAgICAgIGlmICgoZS5jdHJsS2V5IHx8IGUubWV0YUtleSkgJiYgZS5rZXkudG9Mb3dlckNhc2UoKSA9PT0gJ3onKSB7CiAgICAgICAgZS5wcmV2ZW50RGVmYXVsdCgpOwogICAgICAgIGlmIChlLnNoaWZ0S2V5KSB7IGlmIChjYW5SZWRvKSByZWRvKCk7IH0gZWxzZSB7IGlmIChjYW5VbmRvKSB1bmRvKCk7IH0KICAgICAgfQogICAgICBpZiAoKGUuY3RybEtleSB8fCBlLm1ldGFLZXkpICYmIGUua2V5LnRvTG93ZXJDYXNlKCkgPT09ICd5JykgewogICAgICAgIGUucHJldmVudERlZmF1bHQoKTsKICAgICAgICBpZiAoY2FuUmVkbykgcmVkbygpOwogICAgICB9CiAgICB9OwogICAgd2luZG93LmFkZEV2ZW50TGlzdGVuZXIoJ2tleWRvd24nLCBoYW5kbGUpOwogICAgcmV0dXJuICgpID0+IHdpbmRvdy5yZW1vdmVFdmVudExpc3RlbmVyKCdrZXlkb3duJywgaGFuZGxlKTsKICB9LCBbdW5kbywgcmVkbywgY2FuVW5kbywgY2FuUmVkb10pOwoKICAvLyB1cGRhdGVBY3Rpdml0eSDigJQgb21lZGVsYmFyIHB1c2ggZsO2ciBhbGxhIGbDpGx0dHlwZXIKICBjb25zdCB1cGRhdGVBY3Rpdml0eSA9IHVzZUNhbGxiYWNrKChpZCwgcGF0Y2gpID0+IHsKICAgIHB1c2hIaXN0b3J5KGFjdGl2aXRpZXMubWFwKGEgPT4gYS5pZCA9PT0gaWQgPyB7IC4uLmEsIC4uLnBhdGNoIH0gOiBhKSk7CiAgfSwgW2FjdGl2aXRpZXMsIHB1c2hIaXN0b3J5XSk7CgogIC8vIFJhZGVyYSBha3Rpdml0ZXQg4oCUIHJlZ2lzdHJlcmFyIElEIGkgcGVuZGluZ0RlbGV0ZXMgc8OlIEZpcmVzdG9yZSBpbnRlIHNrcml2ZXIgdGlsbGJha2EKICBjb25zdCByZW1vdmVBY3Rpdml0eSA9IHVzZUNhbGxiYWNrKChpZCkgPT4gewogICAgcmVnaXN0ZXJEZWxldGU/LihpZCk7CiAgICBwdXNoSGlzdG9yeShhY3Rpdml0aWVzLmZpbHRlcihhID0+IGEuaWQgIT09IGlkKSk7CiAgfSwgW2FjdGl2aXRpZXMsIHB1c2hIaXN0b3J5LCByZWdpc3RlckRlbGV0ZV0pOwoKICBjb25zdCBwcmV2TW9udGggPSB1c2VDYWxsYmFjaygoKSA9PiB7CiAgICBzZXRNb250aChtID0+IHsgaWYgKG0gPT09IDApIHsgc2V0WWVhcih5ID0+IHkgLSAxKTsgcmV0dXJuIDExOyB9IHJldHVybiBtIC0gMTsgfSk7CiAgfSwgW10pOwogIGNvbnN0IG5leHRNb250aCA9IHVzZUNhbGxiYWNrKCgpID0+IHsKICAgIHNldE1vbnRoKG0gPT4geyBpZiAobSA9PT0gMTEpIHsgc2V0WWVhcih5ID0+IHkgKyAxKTsgcmV0dXJuIDA7IH0gcmV0dXJuIG0gKyAxOyB9KTsKICB9LCBbXSk7CgogIGlmIChhdXRoTG9hZGluZykgcmV0dXJuIDxTcGlubmVyIC8+OwogIGlmICghdXNlcikgcmV0dXJuICgKICAgIDxUb2FzdFByb3ZpZGVyPgogICAgICA8TG9naW5TY3JlZW4gb25Mb2dpbkVtYWlsPXtsb2dpbkVtYWlsfSBvblJlZ2lzdGVyPXtyZWdpc3RlckVtYWlsfSBvbkFub249e2xvZ2luQW5vbn0gLz4KICAgIDwvVG9hc3RQcm92aWRlcj4KICApOwoKICByZXR1cm4gKAogICAgPFRvYXN0UHJvdmlkZXI+CiAgICAgIDxkaXYgY2xhc3NOYW1lPSJtaW4taC1zY3JlZW4gZmxleCBmbGV4LWNvbCBiZy1zbGF0ZS01MCI+CiAgICAgICAgPEhlYWRlcgogICAgICAgICAgYWN0aXZlVGFiPXthY3RpdmVUYWJ9IHNldEFjdGl2ZVRhYj17c2V0QWN0aXZlVGFifQogICAgICAgICAgc3luY1N0YXR1cz17c3luY1N0YXR1c30gY2FuVW5kbz17Y2FuVW5kb30gY2FuUmVkbz17Y2FuUmVkb30KICAgICAgICAgIG9uVW5kbz17dW5kb30gb25SZWRvPXtyZWRvfSB1c2VyPXt1c2VyfSBvbkxvZ291dD17bG9nb3V0fQogICAgICAgIC8+CiAgICAgICAgPG1haW4gY2xhc3NOYW1lPSJmbGV4LTEiPgogICAgICAgICAgPFN1c3BlbnNlIGZhbGxiYWNrPXs8U3Bpbm5lciAvPn0+CiAgICAgICAgICAgIHthY3RpdmVUYWIgPT09ICdTY2hlbWEnICYmICgKICAgICAgICAgICAgICA8U2NoZW1hVmlldwogICAgICAgICAgICAgICAgeWVhcj17eWVhcn0gbW9udGg9e21vbnRofQogICAgICAgICAgICAgICAgcHJldk1vbnRoPXtwcmV2TW9udGh9IG5leHRNb250aD17bmV4dE1vbnRofQogICAgICAgICAgICAgICAgb3BlbkRheXM9e29wZW5EYXlzfSBzZXRPcGVuRGF5cz17c2V0T3BlbkRheXN9CiAgICAgICAgICAgICAgICBhY3Rpdml0aWVzPXthY3Rpdml0aWVzfQogICAgICAgICAgICAgICAgdXBkYXRlQWN0aXZpdHk9e3VwZGF0ZUFjdGl2aXR5fQogICAgICAgICAgICAgICAgcmVtb3ZlQWN0aXZpdHk9e3JlbW92ZUFjdGl2aXR5fQogICAgICAgICAgICAgICAgcHVzaEhpc3Rvcnk9e3B1c2hIaXN0b3J5fQogICAgICAgICAgICAgICAgb25PcGVuQXNzZXQ9e2lkID0+IHNldEFzc2V0TW9kYWxGb3IoaWQpfQogICAgICAgICAgICAgIC8+CiAgICAgICAgICAgICl9CiAgICAgICAgICAgIHthY3RpdmVUYWIgPT09ICdTdHVkaW8nICYmICgKICAgICAgICAgICAgICA8U3R1ZGlvVmlldwogICAgICAgICAgICAgICAgYWN0aXZpdGllcz17YWN0aXZpdGllc30gZGVzaWduPXtkZXNpZ259IHNldERlc2lnbj17c2V0RGVzaWdufQogICAgICAgICAgICAgICAgc2V0dGluZ3M9e3NldHRpbmdzfSB5ZWFyPXt5ZWFyfSBtb250aD17bW9udGh9CiAgICAgICAgICAgICAgICB6b29tPXtzdHVkaW9ab29tfSBzZXRab29tPXtzZXRTdHVkaW9ab29tfQogICAgICAgICAgICAgICAgb25Dcm9wPXtpZCA9PiBzZXRDcm9wTW9kYWxGb3IoaWQpfQogICAgICAgICAgICAgICAgdGVtcGxhdGVzPXt0ZW1wbGF0ZXN9IGFkZFRlbXBsYXRlPXthZGRUZW1wbGF0ZX0KICAgICAgICAgICAgICAvPgogICAgICAgICAgICApfQogICAgICAgICAgICB7YWN0aXZlVGFiID09PSAnSW5zdMOkbGxuaW5nYXInICYmICgKICAgICAgICAgICAgICA8U2V0dGluZ3NWaWV3IHNldHRpbmdzPXtzZXR0aW5nc30gc2V0U2V0dGluZ3M9e3NldFNldHRpbmdzfSB1c2VyPXt1c2VyfSBvbkxvZ291dD17bG9nb3V0fSAvPgogICAgICAgICAgICApfQogICAgICAgICAgPC9TdXNwZW5zZT4KICAgICAgICA8L21haW4+CgogICAgICAgIHthc3NldE1vZGFsRm9yICYmICgKICAgICAgICAgIDxTdXNwZW5zZSBmYWxsYmFjaz17bnVsbH0+CiAgICAgICAgICAgIDxBc3NldE1hbmFnZXJNb2RhbAogICAgICAgICAgICAgIGFjdGl2aXR5PXthY3Rpdml0aWVzLmZpbmQoYSA9PiBhLmlkID09PSBhc3NldE1vZGFsRm9yKX0KICAgICAgICAgICAgICBvblNlbGVjdD17aW1nID0+IHsgdXBkYXRlQWN0aXZpdHkoYXNzZXRNb2RhbEZvciwgeyBpbWFnZTogaW1nIH0pOyBzZXRBc3NldE1vZGFsRm9yKG51bGwpOyB9fQogICAgICAgICAgICAgIG9uQ2xvc2U9eygpID0+IHNldEFzc2V0TW9kYWxGb3IobnVsbCl9CiAgICAgICAgICAgIC8+CiAgICAgICAgICA8L1N1c3BlbnNlPgogICAgICAgICl9CiAgICAgICAge2Nyb3BNb2RhbEZvciAmJiAoCiAgICAgICAgICA8U3VzcGVuc2UgZmFsbGJhY2s9e251bGx9PgogICAgICAgICAgICA8Q3JvcE1vZGFsCiAgICAgICAgICAgICAgYWN0aXZpdHk9e2FjdGl2aXRpZXMuZmluZChhID0+IGEuaWQgPT09IGNyb3BNb2RhbEZvcil9CiAgICAgICAgICAgICAgb25TYXZlPXtpbWcgPT4geyB1cGRhdGVBY3Rpdml0eShjcm9wTW9kYWxGb3IsIHsgaW1hZ2U6IGltZyB9KTsgc2V0Q3JvcE1vZGFsRm9yKG51bGwpOyB9fQogICAgICAgICAgICAgIG9uQ2xvc2U9eygpID0+IHNldENyb3BNb2RhbEZvcihudWxsKX0KICAgICAgICAgICAgLz4KICAgICAgICAgIDwvU3VzcGVuc2U+CiAgICAgICAgKX0KICAgICAgPC9kaXY+CiAgICA8L1RvYXN0UHJvdmlkZXI+CiAgKTsKfQo=
+import React, { useState, useCallback, useEffect, useRef, lazy, Suspense } from 'react';
+import { Loader2 } from 'lucide-react';
+import { useAuth }          from './hooks/useAuth';
+import { useSchedule }      from './hooks/useSchedule';
+import { useHistory }       from './hooks/useHistory';
+import { useFirebaseSync }  from './hooks/useFirebaseSync';
+import { LoginScreen }      from './components/LoginScreen';
+import { Header }           from './components/Header';
+import { ToastProvider }    from './components/Toast';
+import { ErrorBoundary }    from './components/ErrorBoundary';
+
+const SchemaView        = lazy(() => import('./components/SchemaView').then(m => ({ default: m.SchemaView })));
+const StudioView        = lazy(() => import('./components/StudioView').then(m => ({ default: m.StudioView })));
+const SettingsView      = lazy(() => import('./components/SettingsView').then(m => ({ default: m.SettingsView })));
+const AssetManagerModal = lazy(() => import('./components/AssetManagerModal').then(m => ({ default: m.AssetManagerModal })));
+const CropModal         = lazy(() => import('./components/CropModal').then(m => ({ default: m.CropModal })));
+
+const toMonthKey = (y, m) => `${y}-${String(m + 1).padStart(2, '0')}`;
+
+const Spinner = () => (
+  <div className="flex items-center justify-center min-h-screen bg-slate-50">
+    <div className="flex flex-col items-center gap-4">
+      <div className="w-12 h-12 bg-white rounded-2xl shadow-lg flex items-center justify-center border border-slate-100">
+        <Loader2 className="w-6 h-6 text-indigo-600 animate-spin" />
+      </div>
+      <p className="text-sm font-semibold text-slate-400 animate-pulse tracking-wide">Laddar…</p>
+    </div>
+  </div>
+);
+
+const DEFAULT_DESIGN = {
+  layout: 'lively', format: 'A4', colorScheme: 'Per vecka',
+  font: 'Inter', background: 'Rutnat', backgroundOpacity: 28, backgroundImage: '',
+  colors: { week1: '#4f46e5', week2: '#0ea5e9', week3: '#22c55e', week4: '#f97316' },
+};
+
+const DEFAULT_SETTINGS = {
+  yardName:        'Fritidsgårderna',
+  footerText:      'Välkommen till en trygg och kreativ mötesplats.',
+  qrLink:          'https://fritidsgard.se',
+  cloudExport:     true,
+  localMode:       false,
+  closeOnHolidays: true,
+  fillCalendar:    true,
+  groupWeeks:      false,
+  showStockholmLogo: true,
+  yardLogo:        '',
+};
+
+export default function App() {
+  const today = new Date();
+  const [year,  setYear]  = useState(today.getFullYear());
+  const [month, setMonth] = useState(today.getMonth());
+  const [activeTab, setActiveTab]   = useState('Schema');
+  const [openDays, setOpenDays]     = useState([3, 4, 5]);
+  const [syncStatus, setSyncStatus] = useState('saved');
+  const [studioZoom, setStudioZoom] = useState(0.82);
+  const [assetModalFor, setAssetModalFor] = useState(null);
+  const [cropModalFor,  setCropModalFor]  = useState(null);
+  const [design,   setDesign]   = useState(DEFAULT_DESIGN);
+  const [settings, setSettings] = useState(DEFAULT_SETTINGS);
+
+  const { user, loading: authLoading, loginAnon, loginEmail, registerEmail, logout } = useAuth();
+  const currentMonthKey = toMonthKey(year, month);
+
+  const { activities, setActivities, templates, addTemplate } = useSchedule(currentMonthKey, openDays);
+  const { pushHistory, undo, redo, canUndo, canRedo } = useHistory(activities, setActivities);
+
+  const { registerDelete } = useFirebaseSync({
+    uid:        user?.uid,
+    monthKey:   currentMonthKey,
+    activities, settings,
+    setActivities, setSettings,
+    localMode:  settings.localMode || !user,
+  });
+
+  // Sync-status indikator
+  const syncTimer = useRef(null);
+  useEffect(() => {
+    if (!user || settings.localMode) { setSyncStatus('local'); return; }
+    setSyncStatus('saving');
+    clearTimeout(syncTimer.current);
+    syncTimer.current = setTimeout(() => setSyncStatus('saved'), 1600);
+    return () => clearTimeout(syncTimer.current);
+  }, [activities, settings, user]);
+
+  // Tangentbordsgenvägar: Ctrl+Z / Ctrl+Y
+  useEffect(() => {
+    const handle = e => {
+      const tag = e.target.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
+        e.preventDefault();
+        if (e.shiftKey) { if (canRedo) redo(); } else { if (canUndo) undo(); }
+      }
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'y') {
+        e.preventDefault();
+        if (canRedo) redo();
+      }
+    };
+    window.addEventListener('keydown', handle);
+    return () => window.removeEventListener('keydown', handle);
+  }, [undo, redo, canUndo, canRedo]);
+
+  // updateActivity – omedelbar push för alla fälttyper
+  const updateActivity = useCallback((id, patch) => {
+    pushHistory(activities.map(a => a.id === id ? { ...a, ...patch } : a));
+  }, [activities, pushHistory]);
+
+  // Radera aktivitet – registrerar ID i pendingDeletes så Firestore inte skriver tillbaka
+  const removeActivity = useCallback((id) => {
+    registerDelete?.(id);
+    pushHistory(activities.filter(a => a.id !== id));
+  }, [activities, pushHistory, registerDelete]);
+
+  const prevMonth = useCallback(() => {
+    setMonth(m => { if (m === 0) { setYear(y => y - 1); return 11; } return m - 1; });
+  }, []);
+  const nextMonth = useCallback(() => {
+    setMonth(m => { if (m === 11) { setYear(y => y + 1); return 0; } return m + 1; });
+  }, []);
+
+  if (authLoading) return <Spinner />;
+  if (!user) return (
+    <ToastProvider>
+      <LoginScreen onLoginEmail={loginEmail} onRegister={registerEmail} onAnon={loginAnon} />
+    </ToastProvider>
+  );
+
+  return (
+    <ToastProvider>
+      <div className="min-h-screen flex flex-col bg-slate-50">
+        <Header
+          activeTab={activeTab} setActiveTab={setActiveTab}
+          syncStatus={syncStatus} canUndo={canUndo} canRedo={canRedo}
+          onUndo={undo} onRedo={redo} user={user} onLogout={logout}
+        />
+        <main className="flex-1">
+          {/* ErrorBoundary runt Suspense: om en vy kraschar visas felvy istället för vit skärm */}
+          <ErrorBoundary>
+            <Suspense fallback={<Spinner />}>
+              {activeTab === 'Schema' && (
+                <SchemaView
+                  year={year} month={month}
+                  prevMonth={prevMonth} nextMonth={nextMonth}
+                  openDays={openDays} setOpenDays={setOpenDays}
+                  activities={activities}
+                  updateActivity={updateActivity}
+                  removeActivity={removeActivity}
+                  pushHistory={pushHistory}
+                  onOpenAsset={id => setAssetModalFor(id)}
+                />
+              )}
+              {activeTab === 'Studio' && (
+                <StudioView
+                  activities={activities} design={design} setDesign={setDesign}
+                  settings={settings} year={year} month={month}
+                  zoom={studioZoom} setZoom={setStudioZoom}
+                  onCrop={id => setCropModalFor(id)}
+                  templates={templates} addTemplate={addTemplate}
+                />
+              )}
+              {activeTab === 'Inställningar' && (
+                <SettingsView settings={settings} setSettings={setSettings} user={user} onLogout={logout} />
+              )}
+            </Suspense>
+          </ErrorBoundary>
+        </main>
+
+        {/* Modal: Bildhanterare */}
+        {assetModalFor && (
+          <ErrorBoundary fallback={null}>
+            <Suspense fallback={null}>
+              <AssetManagerModal
+                activity={activities.find(a => a.id === assetModalFor)}
+                onSelect={img => { updateActivity(assetModalFor, { image: img }); setAssetModalFor(null); }}
+                onClose={() => setAssetModalFor(null)}
+              />
+            </Suspense>
+          </ErrorBoundary>
+        )}
+
+        {/* Modal: Bildbeskärning */}
+        {cropModalFor && (
+          <ErrorBoundary fallback={null}>
+            <Suspense fallback={null}>
+              <CropModal
+                activity={activities.find(a => a.id === cropModalFor)}
+                onSave={img => { updateActivity(cropModalFor, { image: img }); setCropModalFor(null); }}
+                onClose={() => setCropModalFor(null)}
+              />
+            </Suspense>
+          </ErrorBoundary>
+        )}
+      </div>
+    </ToastProvider>
+  );
+}
